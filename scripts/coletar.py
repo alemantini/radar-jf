@@ -12,7 +12,9 @@ import json
 import os
 import re
 import sys
+import threading
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import requests
@@ -40,17 +42,24 @@ TIPOS = {
     "PDL": "Projeto de Decreto Legislativo",
 }
 PAUSA = float(os.environ.get("RADAR_PAUSA", "0.6"))
-MAX_DATAS_POR_RODADA = int(os.environ.get("RADAR_MAX_DATAS", "4000"))
+MAX_DATAS_POR_RODADA = int(os.environ.get("RADAR_MAX_DATAS", "6000"))
 TEMPO_MAX_DATAS = int(os.environ.get("RADAR_TEMPO_MAX_DATAS", str(60 * 60)))  # segundos
+CONSULTAS_SIMULTANEAS = 3
 
-sessao = requests.Session()
-sessao.headers["User-Agent"] = UA
+_local = threading.local()
+
+
+def _sessao():
+    if not hasattr(_local, "s"):
+        _local.s = requests.Session()
+        _local.s.headers["User-Agent"] = UA
+    return _local.s
 
 
 def baixar(url, params=None, tentativas=4):
     for i in range(tentativas):
         try:
-            r = sessao.get(url, params=params, timeout=120)
+            r = _sessao().get(url, params=params, timeout=120)
             if r.status_code == 200:
                 time.sleep(PAUSA)
                 try:
@@ -158,19 +167,27 @@ def coletar_datas(proposicoes):
     faltando.sort(reverse=True)
     inicio = time.time()
     feitas = 0
-    for pid in faltando[:MAX_DATAS_POR_RODADA]:
+
+    def uma(pid):
         if time.time() - inicio > TEMPO_MAX_DATAS:
-            break
+            return pid, None
         try:
             html = baixar(f"{BASE}/sal/proposicaon.php", {"num": pid}, tentativas=2)
         except RuntimeError:
-            continue
+            return pid, None
         m = re.search(r"Per(?:&iacute;|í)odo:\s*(\d{2})/(\d{2})/(\d{4})", html)
-        datas[str(pid)] = f"{m.group(3)}-{m.group(2)}-{m.group(1)}" if m else ""
-        feitas += 1
-        if feitas % 200 == 0:
-            arq.write_text(json.dumps(datas, ensure_ascii=False, sort_keys=True))
-            print(f"  datas coletadas nesta rodada: {feitas}")
+        return pid, (f"{m.group(3)}-{m.group(2)}-{m.group(1)}" if m else "")
+
+    # poucas consultas ao mesmo tempo, cada uma com pausa, para não pesar no servidor
+    with ThreadPoolExecutor(max_workers=CONSULTAS_SIMULTANEAS) as ex:
+        for pid, data in ex.map(uma, faltando[:MAX_DATAS_POR_RODADA]):
+            if data is None:
+                continue
+            datas[str(pid)] = data
+            feitas += 1
+            if feitas % 500 == 0:
+                arq.write_text(json.dumps(datas, ensure_ascii=False, sort_keys=True))
+                print(f"  datas coletadas nesta rodada: {feitas}")
     arq.write_text(json.dumps(datas, ensure_ascii=False, sort_keys=True))
     print(f"datas: {feitas} novas, {len(faltando) - feitas} ainda faltando")
 
