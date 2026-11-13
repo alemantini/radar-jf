@@ -126,7 +126,12 @@ def coletar_vereadores():
         resto = " ".join(partes[1:])
         parenteses = re.findall(r"\(([^)]*)\)", resto)
         apelido = parenteses[0] if len(parenteses) >= 2 else nome
+        observacao = ""
+        if " - " in apelido:  # ex.: "Yuri Fófano - vereador substituto de ... a ..."
+            apelido, observacao = [x.strip() for x in apelido.split(" - ", 1)]
         partido = parenteses[-1] if parenteses else ""
+        if " - " in partido:  # "Partido Liberal - PL" -> "PL"
+            partido = min(partido.split(" - "), key=len).strip()
         dados = h.find("p", class_="dadosDiretor")
         texto = limpa(dados.get_text(" ")) if dados else ""
         email = re.search(r"[\w.\-]+@camarajf\.mg\.gov\.br", texto)
@@ -136,6 +141,7 @@ def coletar_vereadores():
             "nome": nome,
             "apelido": apelido,
             "partido": partido,
+            "observacao": observacao,
             "email_gabinete": email.group(0) if email else "",
             "telefone_gabinete": limpa(tel.group(1)).strip(" ,-") if tel else "",
             "ficha": url,

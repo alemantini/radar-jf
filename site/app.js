@@ -98,7 +98,7 @@ async function pgVereador(id) {
   const c = v.contagem;
   app.innerHTML = `
     <h1>${esc(v.apelido)}</h1>
-    <p class="sub">${esc(v.nome)}${v.partido ? " · " + esc(v.partido) : ""}</p>
+    <p class="sub">${esc(v.nome)}${v.partido ? " · " + esc(v.partido) : ""}${v.observacao ? "<br>" + esc(v.observacao[0].toUpperCase() + v.observacao.slice(1)) : ""}</p>
     ${v.email_gabinete || v.telefone_gabinete ? `<p class="contato">Gabinete: ${v.email_gabinete ? `<a href="mailto:${esc(v.email_gabinete)}">${esc(v.email_gabinete)}</a>` : ""} ${esc(v.telefone_gabinete)}</p>` : ""}
     ${v.ficha ? `<p class="contato"><a href="${esc(v.ficha)}" target="_blank" rel="noopener">Ficha oficial na Câmara</a></p>` : ""}
     <h2>${fmt(c.total)} propostas apresentadas</h2>
