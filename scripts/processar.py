@@ -144,7 +144,7 @@ def achar_bairro(e):
     return titulo(b) if len(b) >= 3 else ""
 
 
-RE_NAO_VEREADOR = re.compile(r"executivo|prefeit|mesa diretora|comiss[aã]o|iniciativa popular|popular|c[aâ]mara", re.I)
+RE_NAO_VEREADOR = re.compile(r"sem efeito|executivo|prefeit|mesa diretora|comiss[aã]o|iniciativa popular|popular|c[aâ]mara", re.I)
 
 
 def casar_autores(texto, vereadores):
