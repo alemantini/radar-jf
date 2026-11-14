@@ -224,3 +224,13 @@ img.avatar.foto{object-fit:cover;width:46px;height:58px;border-radius:10px;backg
 .filtros-linha label{font-size:13px;font-weight:600;color:var(--apoio)}
 .filtros-linha select{margin-top:4px;font-size:15px;padding:10px}
 #atalhos{margin-top:10px}
+
+/* logo da página inicial */
+.logo-home{font-family:"Barlow Condensed","Barlow",sans-serif;font-weight:800;line-height:.86;color:#111;margin:18px 0 14px;letter-spacing:-.01em}
+.logo-home .lh-1{display:flex;align-items:center;gap:.12em;font-size:clamp(48px,14vw,96px)}
+.logo-home .lh-ic{width:1.15em;height:.8em;flex:none}
+.logo-home .lh-2{display:flex;align-items:flex-start;flex-wrap:wrap;font-size:clamp(40px,11.5vw,80px);margin-top:.06em}
+.logo-home .pt{color:#e8272c}
+.logo-home .lh-band{width:.42em;height:.3em;margin:.08em 0 0 .12em;flex:none}
+.lh-tag{font-size:20px;line-height:1.35;margin:0 0 4px;max-width:34ch}
+.lh-apelido{font-family:"Barlow Condensed","Barlow",sans-serif;font-weight:700;font-size:22px;color:#e8272c;margin:0 0 18px}
