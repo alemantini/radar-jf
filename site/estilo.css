@@ -235,3 +235,5 @@ img.avatar.foto{object-fit:cover;width:46px;height:58px;border-radius:10px;backg
 .lh-tag{font-size:20px;line-height:1.35;margin:0 0 4px;max-width:34ch}
 .lh-apelido{font-family:"Barlow Condensed","Barlow",sans-serif;font-weight:700;font-size:22px;color:#e8272c;margin:0 0 18px}
 .logo-home .r2{margin-right:.2em}
+.logo-home .lh-bands{display:flex;gap:.08em;margin:.08em 0 0 .12em;flex:none}
+.logo-home .lh-bands .lh-band{margin:0;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
