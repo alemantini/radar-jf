@@ -145,7 +145,10 @@ def coletar_vereadores():
         texto = limpa(dados.get_text(" ")) if dados else ""
         email = re.search(r"[\w.\-]+@camarajf\.mg\.gov\.br", texto)
         tel = re.search(r"Telefones?:\s*([\d() \-/,]+)", texto)
+        texto_ficha = limpa(h.get_text(" "))
+        votos = re.search(r"2024\s*-\s*([\d.]+)\s*votos", texto_ficha)
         vereadores.append({
+            "votos_2024": int(votos.group(1).replace(".", "")) if votos else None,
             "id": vid,
             "nome": nome,
             "apelido": apelido,

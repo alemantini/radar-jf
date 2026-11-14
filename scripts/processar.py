@@ -76,6 +76,15 @@ RE_BAIRRO = re.compile(
     r"\b[Bb]airros?\s+((?:[A-ZÀ-Ýa-zà-ÿ0-9º°ª'\-]+\s?){1,5}?)"
     r"(?=\s*(?:,|;|\.\s|\.$|\(|$|\s+-\s|\s+(?:em\b|na\b|no\b|nas\b|nos\b|e\s+[Bb]airro|regi[aã]o|zona|pr[oó]xim|Juiz)))")
 
+# Salário (subsídio) dos vereadores, fixado pelo Projeto de Lei 133/2024 (substitutivo aprovado em 28/06/2024)
+SUBSIDIO = {
+    "vereadores": 23,
+    "por_ano": {"2025": 18595.70, "2026": 19757.94, "2027": 20992.81, "2028": 22304.86},
+    "decimo_terceiro": True,
+    "fonte": "https://www.camarajf.mg.gov.br/sal/mostrapfs.php?n=140483",
+    "fonte_nome": "Projeto de Lei 133/2024 (substitutivo aprovado em 28/06/2024)",
+}
+
 PREPOSICOES = {"de", "da", "do", "das", "dos", "e"}
 
 
@@ -254,8 +263,18 @@ def main():
             "tm": tema,
             "q": len(itens),
             "ids": [x["i"] for x in itens],
+            "nv": len({a for x in itens for a in x["au"]}),
+            "d1": min((x["d"] for x in itens if x["d"]), default=""),
+            "d2": max((x["d"] for x in itens if x["d"]), default=""),
         })
     repetidos.sort(key=lambda x: -x["q"])
+
+    # bairros mais citados (juntando grafias diferentes do mesmo nome)
+    por_chave = defaultdict(Counter)
+    for it in saida:
+        if it.get("b"):
+            por_chave[chave(it["b"])][it["b"]] += 1
+    bairros_top = sorted(((c.most_common(1)[0][0], sum(c.values())) for c in por_chave.values()), key=lambda x: -x[1])[:15]
 
     sem_data = sum(1 for it in saida if not it["d"])
     tot = Counter(it["g"] for it in saida)
@@ -268,6 +287,10 @@ def main():
         "sem_data": sem_data,
         "anos": sorted({it["a"] for it in saida}),
         "vereadores": lista,
+        "temas": Counter(it["tm"] for it in saida if it.get("tm")).most_common(12),
+        "bairros": [[b, n] for b, n in bairros_top],
+        "recentes": [it for it in sorted((x for x in saida if x["d"]), key=lambda x: (x["d"], x["i"]), reverse=True)[:6]],
+        "subsidio": SUBSIDIO,
     }
     SAIDA.mkdir(parents=True, exist_ok=True)
     (SAIDA / "resumo.json").write_text(json.dumps(resumo, ensure_ascii=False, separators=(",", ":")))

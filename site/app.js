@@ -86,28 +86,143 @@ function ordenaData(a, b) {
 }
 
 // ---------- páginas ----------
+const MES_CURTO = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+const mesAno = d => d ? `${MES_CURTO[+d.slice(5, 7) - 1]} ${d.slice(0, 4)}` : "";
+const periodo = (d1, d2) => d1 && d2 ? (mesAno(d1) === mesAno(d2) ? `em ${mesAno(d1)}` : `de ${mesAno(d1)} a ${mesAno(d2)}`) : "";
+const GRUPO_DESC = {
+  pedidos: "Trocar lâmpada, tapar buraco, podar árvore, capinar. É um pedido: quem decide se faz é a Prefeitura.",
+  cobrancas: "Pedidos de explicação à Prefeitura, convites a autoridades e apelos a outros órgãos.",
+  homenagens: "Votos de congratulação ou pesar, título de cidadão, nome de rua e datas comemorativas.",
+  leis: "Projetos que criam regra, programa ou obrigação na cidade.",
+  outros: "Utilidade pública, notas de apoio ou repúdio e pedidos internos da Câmara.",
+};
+
+function subsidioMes(ano) {
+  const S = RESUMO.subsidio; return S ? (S.por_ano[String(ano)] || 0) : 0;
+}
+function salarioAcumulado(agora = new Date()) {
+  const S = RESUMO.subsidio; if (!S) return 0;
+  let total = 0;
+  for (let ano = 2025; ano <= agora.getFullYear(); ano++) {
+    const valor = S.por_ano[String(ano)] || 0;
+    for (let m = 0; m < 12; m++) {
+      const ini = new Date(ano, m, 1), fim = new Date(ano, m + 1, 1);
+      if (agora <= ini) break;
+      const fracao = agora >= fim ? 1 : (agora - ini) / (fim - ini);
+      total += valor * S.vereadores * fracao;
+    }
+    if (S.decimo_terceiro && agora >= new Date(ano, 11, 20)) total += valor * S.vereadores;
+  }
+  return total;
+}
+const reaisBR = v => "R$ " + v.toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+function cracha(v) {
+  const c = v.contagem || {};
+  const sal = v.fora_da_lista ? 0 : subsidioMes(new Date().getFullYear());
+  return `<a class="cracha${v.fora_da_lista ? " fora" : ""}" href="#/v/${v.id}">
+    <span class="cr-topo"><span class="avatar" aria-hidden="true">${esc(iniciais(v.apelido))}</span>
+      <span class="cx"><span class="nome">${esc(v.apelido)}</span><span class="partido">${esc(v.partido || "não está na lista atual da Câmara")}</span></span></span>
+    <span class="cr-nums">
+      <span><b>${fmt(c.total)}</b>propostas</span>
+      ${sal ? `<span><b>${"R$ " + Math.round(sal).toLocaleString("pt-BR")}</b>salário por mês</span>` : ""}
+      ${v.votos_2024 ? `<span><b>${fmt(v.votos_2024)}</b>votos em 2024</span>` : ""}
+    </span>
+    <span class="barras">${barras(c)}</span>
+  </a>`;
+}
+
+let _relogio = null;
 function pgInicio() {
-  const anos = RESUMO.anos;
-  const periodo = anos.length > 1 ? `${anos[0]} a ${anos[anos.length - 1]}` : anos[0];
-  const atuais = RESUMO.vereadores.filter(v => !v.fora_da_lista);
-  const fora = RESUMO.vereadores.filter(v => v.fora_da_lista);
-  const card = v => `<a class="card${v.fora_da_lista ? " fora" : ""}" href="#/v/${v.id}">
-      <span class="avatar" aria-hidden="true">${esc(iniciais(v.apelido))}</span>
-      <span class="cx">
-        <div class="nome">${esc(v.apelido)}</div>
-        <div class="partido">${esc(v.partido || "não está na lista atual da Câmara")}</div>
-        <div class="barras">${barras(v.contagem)}</div>
-      </span>
-    </a>`;
+  const R = RESUMO, t = R.totais;
+  const atuais = R.vereadores.filter(v => !v.fora_da_lista);
+  const fora = R.vereadores.filter(v => v.fora_da_lista);
+  const S = R.subsidio;
+  const maxT = Math.max(1, ...(R.temas || []).map(x => x[1]));
   app.innerHTML = `
-    <h1>O que fazem os vereadores de Juiz de Fora</h1>
-    <p class="sub">Tudo o que cada vereador apresentou na Câmara de ${periodo}, contado com a mesma regra para todos. Só dados oficiais, com link para cada documento.</p>
-    <a class="btn-grande camara" href="#/busca">${ic("pin")}<span class="tx">O que foi pedido para o seu bairro<small>Digite o nome da rua ou do bairro</small></span>›</a>
-    <a class="btn-grande camara" href="#/repetidos">${ic("repete")}<span class="tx">Pedidos que voltam<small>Mesmo pedido, mesma rua, várias vezes</small></span>›</a>
+    <h1>O que cada vereador de Juiz de Fora fez desde a posse, contado todo dia</h1>
+    ${S ? `<div class="placa camara contador">
+      <span class="tx"><span class="ds">Salário pago aos ${S.vereadores} vereadores desde a posse</span>
+      <span class="tt num" id="salario">${reaisBR(salarioAcumulado())}</span>
+      <span class="ds">e subindo agora. Estimativa: ${S.vereadores} salários de ${reaisBR(S.por_ano["2025"])} por mês em 2025 e ${reaisBR(S.por_ano["2026"])} em 2026, mais o 13º, desde 1º de janeiro de 2025. <a href="${S.fonte}" target="_blank" rel="noopener">Ver a lei</a>.</span></span></div>` : ""}
+    <div class="nums">
+      <a href="#/grupo/todas"><b>${fmt(R.total)}</b>propostas até agora</a>
+      <a href="#/grupo/pedidos"><b>${fmt(t.pedidos)}</b>pedidos nos bairros</a>
+      <a href="#/grupo/homenagens"><b>${fmt(t.homenagens)}</b>homenagens</a>
+      <a href="#/grupo/leis"><b>${fmt(t.leis)}</b>propostas de lei</a>
+    </div>
+    <p class="sub">Última conferência na Câmara: ${esc(R.atualizado || "")}. O robô volta lá três vezes por dia.</p>
+
+    <h2>O que pediram para o seu bairro?</h2>
+    <form class="busca-rapida" onsubmit="event.preventDefault(); location.hash='#/busca/'+encodeURIComponent(this.q.value.trim())">
+      <input type="search" name="q" placeholder="Digite o bairro ou a rua" autocomplete="off">
+    </form>
+    <div class="chips">${(R.bairros || []).slice(0, 10).map(([b]) => `<a href="#/busca/${encodeURIComponent(b)}">${esc(b)}</a>`).join("")}</div>
+
+    <div class="duas">
+      <section><h2>O que mais pedem</h2>
+        ${(R.temas || []).slice(0, 6).map(([n, q]) => `<div class="linha-t"><span>${esc(n)}</span><b>${fmt(q)}</b><i style="width:${Math.round(100 * q / maxT)}%"></i></div>`).join("")}
+      </section>
+      <section><h2>Bairros mais citados</h2>
+        ${(R.bairros || []).slice(0, 6).map(([b, q]) => `<a class="linha-t" href="#/busca/${encodeURIComponent(b)}"><span>${esc(b)}</span><b>${fmt(q)}</b></a>`).join("")}
+      </section>
+    </div>
+
+    <h2>O problema que não some</h2>
+    <p class="sub">Quando o mesmo pedido volta várias vezes para a mesma rua. O site da Câmara não mostra isso: o robô cruza os pedidos um por um.</p>
+    <div id="rep-top" class="rep-grid"><p class="carregando">Carregando…</p></div>
+    <a class="btn-grande camara" href="#/repetidos">${ic("repete")}<span class="tx">Ver todas as ruas com pedidos repetidos</span>›</a>
+
+    <h2>Homenagem ou trabalho?</h2>
+    <p class="sub">Toque em um grupo para ler cada proposta.</p>
+    <div class="grupos-desc">${ORDEM.map(g => `<a href="#/grupo/${g}"><span class="gn"><span class="ponto g-${g}"></span>${CURTO[g]}</span><b>${fmt(t[g])}</b><small>${GRUPO_DESC[g]}</small></a>`).join("")}</div>
+
+    <h2>As propostas mais recentes</h2>
+    <div>${(R.recentes || []).map(p => itemHTML(p, true)).join("")}</div>
+
     <h2>Os ${atuais.length} vereadores</h2>
-    <div class="info">Em ordem alfabética. O site não dá nota nem faz ranking: mostra os números para você tirar suas conclusões. <a href="#/sobre">Entenda cada grupo</a>.</div>
-    <div class="cards">${atuais.map(card).join("")}</div>
-    ${fora.length ? `<h2>Outros autores nesta legislatura</h2><p class="sub">Pessoas que apresentaram propostas mas não aparecem hoje na lista oficial de vereadores (por exemplo, suplentes que já saíram).</p><div class="cards">${fora.map(card).join("")}</div>` : ""}`;
+    <div class="info">Em ordem alfabética. O site não dá nota nem faz ranking: mostra os números para você tirar suas conclusões.</div>
+    <input type="search" id="fv" placeholder="Buscar por nome ou partido" autocomplete="off">
+    <div class="crachas" id="crachas">${atuais.map(cracha).join("")}</div>
+    ${fora.length ? `<h2>Outros autores nesta legislatura</h2><p class="sub">Apresentaram propostas mas não estão hoje na lista oficial de vereadores (por exemplo, suplentes que já saíram).</p><div class="crachas">${fora.map(cracha).join("")}</div>` : ""}`;
+
+  // contador de salário: atualiza a cada segundo (a cada minuto se a pessoa prefere menos movimento)
+  clearInterval(_relogio);
+  const el = document.getElementById("salario");
+  if (el) {
+    const passo = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 60000 : 1000;
+    _relogio = setInterval(() => { if (!document.body.contains(el)) return clearInterval(_relogio); el.textContent = reaisBR(salarioAcumulado()); }, passo);
+  }
+  const fv = document.getElementById("fv");
+  fv.oninput = () => { const q = norm(fv.value); document.getElementById("crachas").innerHTML = atuais.filter(v => !q || norm(`${v.apelido} ${v.nome} ${v.partido}`).includes(q)).map(cracha).join("") || '<p class="sub">Ninguém encontrado.</p>'; };
+  carregarRepetidos().then(() => {
+    const box = document.getElementById("rep-top"); if (box) box.innerHTML = REPETIDOS.slice(0, 4).map(repCard).join("");
+  }).catch(() => {});
+}
+
+function repCard(r) {
+  return `<a class="rep-card" href="#/repetidos/${encodeURIComponent(r.r)}">
+    <span class="q">${r.q}<small>vezes</small></span>
+    <span class="cx"><b>${esc(r.r)}</b>${r.b ? `<span>${esc(r.b)}</span>` : ""}
+      <span class="pe"><span class="tag g-pedidos">${esc(r.tm)}</span>${r.nv ? `${r.nv} ${r.nv > 1 ? "vereadores pediram" : "vereador pediu"}` : ""}${periodo(r.d1, r.d2) ? ", " + periodo(r.d1, r.d2) : ""}</span>
+      <span class="cobrar">Ver pedidos e cobrar ›</span></span>
+  </a>`;
+}
+
+async function pgGrupo(g) {
+  await carregarPropostas();
+  const todas = g === "todas" || !CURTO[g];
+  const itens = PROPOSTAS.filter(p => todas || p.g === g).sort(ordenaData);
+  app.innerHTML = `
+    <h1>${todas ? "Todas as propostas" : CURTO[g]}</h1>
+    <p class="sub">${todas ? "Tudo o que os vereadores apresentaram desde a posse." : GRUPO_DESC[g]} ${fmt(itens.length)} no total.</p>
+    <div class="filtros">${["todas", ...ORDEM].map(x => `<a class="${(todas ? "todas" : g) === x ? "on" : ""}" href="#/grupo/${x}">${x === "todas" ? "Todas" : CURTO[x]}</a>`).join("")}</div>
+    <input type="search" id="q" placeholder="Filtrar por palavra" autocomplete="off">
+    <div id="lista"></div>`;
+  const alvo = document.getElementById("lista"), inp = document.getElementById("q");
+  const mostra = () => { const q = norm(inp.value.trim()); alvo.innerHTML = ""; lista(q ? itens.filter(p => p._busca.includes(q) || norm(p.au.map(nomeAutor).join(" ")).includes(q)) : itens, alvo, 40, true); };
+  let tm; inp.oninput = () => { clearTimeout(tm); tm = setTimeout(mostra, 250); };
+  mostra();
 }
 
 async function pgVereador(id) {
@@ -116,12 +231,19 @@ async function pgVereador(id) {
   await carregarPropostas();
   const meus = PROPOSTAS.filter(p => p.au.includes(v.id)).sort(ordenaData);
   const c = v.contagem;
+  const sal = v.fora_da_lista ? 0 : subsidioMes(new Date().getFullYear());
   app.innerHTML = `
-    <h1>${esc(v.apelido)}</h1>
-    <p class="sub">${esc(v.nome)}${v.partido ? " · " + esc(v.partido) : ""}${v.observacao ? "<br>" + esc(v.observacao[0].toUpperCase() + v.observacao.slice(1)) : ""}</p>
+    <div class="cr-topo grande"><span class="avatar" aria-hidden="true">${esc(iniciais(v.apelido))}</span>
+      <span class="cx"><h1>${esc(v.apelido)}</h1><span class="partido">${esc(v.nome)}${v.partido ? ", " + esc(v.partido) : ""}</span></span></div>
+    ${v.observacao ? `<p class="sub">${esc(v.observacao[0].toUpperCase() + v.observacao.slice(1))}</p>` : ""}
+    <div class="nums">
+      <span><b>${fmt(c.total)}</b>propostas</span>
+      ${sal ? `<span><b>R$ ${Math.round(sal).toLocaleString("pt-BR")}</b>salário por mês (<a href="${RESUMO.subsidio.fonte}" target="_blank" rel="noopener">lei</a>)</span>` : ""}
+      ${v.votos_2024 ? `<span><b>${fmt(v.votos_2024)}</b>votos em 2024</span>` : ""}
+    </div>
     ${v.email_gabinete || v.telefone_gabinete ? `<p class="contato">Gabinete: ${v.email_gabinete ? `<a href="mailto:${esc(v.email_gabinete)}">${esc(v.email_gabinete)}</a>` : ""} ${esc(v.telefone_gabinete)}</p>` : ""}
     ${v.ficha ? `<p class="contato"><a href="${esc(v.ficha)}" target="_blank" rel="noopener">Ficha oficial na Câmara</a></p>` : ""}
-    <h2>${fmt(c.total)} propostas apresentadas</h2>
+    <h2>O que propôs até agora</h2>
     ${c.coautoria ? `<p class="sub">${fmt(c.coautoria)} delas foram assinadas junto com outros vereadores.</p>` : ""}
     <div id="grupos"></div>
     <div id="lista"></div>`;
@@ -170,13 +292,13 @@ async function pgBusca(q0) {
   busca();
 }
 
-async function pgRepetidos() {
+async function pgRepetidos(filtro0) {
   await Promise.all([carregarRepetidos(), carregarPropostas()]);
   app.innerHTML = `
     <h1>Pedidos que voltam</h1>
     <p class="sub">Quando o mesmo tipo de pedido (por exemplo, iluminação ou buraco) é feito várias vezes para a mesma rua.</p>
     <div class="aviso"><b>Atenção:</b> pedido repetido não prova que a Prefeitura ignorou. O problema pode ter sido resolvido e voltado, o pedido pode ser para trechos diferentes da rua, ou mais de um vereador pode ter pedido a mesma coisa. Abra cada documento para conferir.</div>
-    <input type="search" id="q" placeholder="Filtrar por bairro, rua ou tipo de pedido" autocomplete="off">
+    <input type="search" id="q" placeholder="Filtrar por bairro, rua ou tipo de pedido" autocomplete="off" value="${esc(filtro0 || "")}">
     <div id="res"></div>`;
   const inp = document.getElementById("q");
   const mostra = () => {
@@ -192,9 +314,9 @@ async function pgRepetidos() {
         const ps = r.ids.map(i => POR_ID.get(i)).filter(Boolean);
         const datas = ps.map(p => p.d ? dataBR(p.d) : `${p.n}/${p.a}`).join(", ");
         const quem = [...new Set(ps.flatMap(p => p.au))].map(a => esc(nomeAutor(a))).join(", ");
-        return `<div class="rep"><div><span class="q">${r.q}×</span> <b>${esc(r.tm)}</b></div>
+        return `<div class="rep"><div><span class="q">${r.q} vezes</span> <b>${esc(r.tm)}</b></div>
           <div>${esc(r.r)}${r.b ? ", " + esc(r.b) : ""}</div>
-          <div class="pe" style="font-size:14px;color:#555">Quando: ${datas}<br>Quem pediu: ${quem}</div>
+          <div class="pe" style="font-size:14px;color:#555">${r.nv ? `${r.nv} ${r.nv > 1 ? "vereadores pediram" : "vereador pediu"}${periodo(r.d1, r.d2) ? ", " + periodo(r.d1, r.d2) : ""}<br>` : ""}Quando: ${datas}<br>Quem pediu: ${quem}</div>
           <details><summary>Ver os ${r.q} pedidos</summary>${ps.map(p => itemHTML(p, true)).join("")}</details></div>`;
       }).join(""));
       n += 30;
@@ -265,18 +387,19 @@ async function rota() {
   const h = location.hash.replace(/^#\/?/, "");
   const partes = h.split("/").map(decodeURIComponent);
   const pag = partes[0], arg = partes.slice(1).join("/");
-  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
+  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
   document.querySelectorAll("nav.areas a").forEach(a => a.classList.toggle("ativo", a.dataset.area === area));
   const sub = document.getElementById("subnav");
   const atual = "#/" + h;
   sub.className = area;
-  sub.innerHTML = (SUBNAV[area] || []).map(([href, t, i]) => `<a href="${href}" class="${atual === href || (atual.startsWith(href + "/") && href !== "#/prefeitura") || (href === "#/prefeitura" && /^#\/prefeitura\/(ano|s)\b/.test(atual)) || (href === "#/camara" && atual.startsWith("#/v/")) ? "ativo" : ""}">${ic(i)}${t}</a>`).join("");
+  sub.innerHTML = (SUBNAV[area] || []).map(([href, t, i]) => `<a href="${href}" class="${atual === href || (atual.startsWith(href + "/") && href !== "#/prefeitura") || (href === "#/prefeitura" && /^#\/prefeitura\/(ano|s)\b/.test(atual)) || (href === "#/camara" && (atual.startsWith("#/v/") || atual.startsWith("#/grupo"))) ? "ativo" : ""}">${ic(i)}${t}</a>`).join("");
   document.getElementById("selo").innerHTML = SELO[area] ? SELO[area]() : "";
   window.scrollTo(0, 0);
   try {
     if (pag === "v") await pgVereador(+arg);
     else if (pag === "busca") await pgBusca(arg);
-    else if (pag === "repetidos") await pgRepetidos();
+    else if (pag === "repetidos") await pgRepetidos(arg);
+    else if (pag === "grupo") await pgGrupo(arg);
     else if (pag === "sobre") { pgSobre(); if (window.sobrePrefeitura) await sobrePrefeitura(); }
     else if (pag === "camara") pgInicio();
     else if (pag === "prefeitura" && window.rotaPrefeitura) await rotaPrefeitura(partes.slice(1));
