@@ -4,6 +4,7 @@
   "nome": "André Luiz Vieira da Silva",
   "apelido": "André Luiz Vieira",
   "partido": "Republicanos",
+  "observacao": "",
   "email_gabinete": "vereadorandreluiz@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3313-4942",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/24/Andre-Luiz-Vieira-da-Silvabr.html"
@@ -12,7 +13,8 @@
   "id": 44,
   "nome": "André Luiz Gomes Mariano",
   "apelido": "André Mariano",
-  "partido": "Partido Liberal - PL",
+  "partido": "PL",
+  "observacao": "",
   "email_gabinete": "andremariano@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3691-4713",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/44/Andre-Luiz-Gomes-Marianobr.html"
@@ -21,7 +23,8 @@
   "id": 25,
   "nome": "Aparecida de Oliveira Pinto",
   "apelido": "Cida Oliveira",
-  "partido": "Partido dos Trabalhadores - PT",
+  "partido": "PT",
+  "observacao": "",
   "email_gabinete": "cidaoliveira@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3313-4925/ 99972-3014",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/25/Aparecida-de-Oliveira-Pintobr.html"
@@ -30,7 +33,8 @@
   "id": 4,
   "nome": "Aparecido Reis Miguel Oliveira",
   "apelido": "Cido Reis",
-  "partido": "Partido Comunista do Brasil - PCdoB",
+  "partido": "PCdoB",
+  "observacao": "",
   "email_gabinete": "cido@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3691-4703",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/4/Aparecido-Reis-Miguel-Oliveirabr.html"
@@ -40,6 +44,7 @@
   "nome": "Antônio Santos de Aguiar",
   "apelido": "Dr. Antônio Aguiar",
   "partido": "União Brasil",
+  "observacao": "",
   "email_gabinete": "dr.antonioaguiar@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3313-4730",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/3/Antonio-Santos-de-Aguiarbr.html"
@@ -49,6 +54,7 @@
   "nome": "Marcelo Vitor Mendes Condé",
   "apelido": "Dr. Marcelo Condé",
   "partido": "Avante",
+  "observacao": "",
   "email_gabinete": "dr.marceloconde@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3313-4944",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/37/Marcelo-Vitor-Mendes-Condebr.html"
@@ -57,7 +63,8 @@
   "id": 38,
   "nome": "Carlos José de Souza",
   "apelido": "Fiote",
-  "partido": "Partido Democrático Trabalhista - PDT",
+  "partido": "PDT",
+  "observacao": "",
   "email_gabinete": "carlosjose@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3691-4736",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/38/Carlos-Jose-de-Souzabr.html"
@@ -66,7 +73,8 @@
   "id": 39,
   "nome": "João Evangelista de Almeida",
   "apelido": "João do Joaninho",
-  "partido": "Partido Socialista Brasileiro - PSB",
+  "partido": "PSB",
+  "observacao": "",
   "email_gabinete": "joaodojoaninho@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3691-4940",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/39/Joao-Evangelista-de-Almeidabr.html"
@@ -75,7 +83,8 @@
   "id": 27,
   "nome": "João Wagner de Siqueira Antoniol",
   "apelido": "João Wagner Antoniol",
-  "partido": "Movimento Democrático Brasileiro - MDB",
+  "partido": "MDB",
+  "observacao": "",
   "email_gabinete": "joaowagner@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3691-5327",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/27/Joao-Wagner-de-Siqueira-Antoniolbr.html"
@@ -84,7 +93,8 @@
   "id": 28,
   "nome": "Júlio César Rossignoli Barros",
   "apelido": "Julinho Rossignoli",
-  "partido": "Progressistas - PP",
+  "partido": "PP",
+  "observacao": "",
   "email_gabinete": "julinhorossignoli@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3691-4706",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/28/Julio-Cesar-Rossignoli-Barrosbr.html"
@@ -93,7 +103,8 @@
   "id": 29,
   "nome": "Juraci Scheffer",
   "apelido": "Juraci Scheffer",
-  "partido": "Partido dos Trabalhadores - PT",
+  "partido": "PT",
+  "observacao": "",
   "email_gabinete": "juracischeffer@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3131-4723",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/29/Juraci-Schefferbr.html"
@@ -102,7 +113,8 @@
   "id": 30,
   "nome": "Kátia Aparecida Franco",
   "apelido": "Kátia Franco",
-  "partido": "Partido Socialista Brasileiro - PSB",
+  "partido": "PSB",
+  "observacao": "",
   "email_gabinete": "katiafranco@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3313-4731",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/30/Katia-Aparecida-Francobr.html"
@@ -111,7 +123,8 @@
   "id": 31,
   "nome": "Laiz Perrut Marendino",
   "apelido": "Laiz Perrut",
-  "partido": "Partido dos Trabalhadores - PT",
+  "partido": "PT",
+  "observacao": "",
   "email_gabinete": "laizperrut@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3691-4733 / 99972-3014",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/31/Laiz-Perrut-Marendinobr.html"
@@ -120,7 +133,8 @@
   "id": 40,
   "nome": "Letícia Fonseca Paiva Delgado",
   "apelido": "Letícia Delgado",
-  "partido": "Partido dos Trabalhadores - PT",
+  "partido": "PT",
+  "observacao": "",
   "email_gabinete": "leticiapdelgado@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3691-4711",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/40/Leticia-Fonseca-Paiva-Delgadobr.html"
@@ -129,7 +143,8 @@
   "id": 22,
   "nome": "Marlon Siqueira Rodrigues Martins",
   "apelido": "Marlon Siqueira",
-  "partido": "Movimento Democrático Brasileiro - MDB",
+  "partido": "MDB",
+  "observacao": "",
   "email_gabinete": "marlonsiqueira@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3691-4727",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/22/Marlon-Siqueira-Rodrigues-Martinsbr.html"
@@ -139,6 +154,7 @@
   "nome": "Maurício Henrique Pinto de Oliveira Delgado",
   "apelido": "Maurício Delgado",
   "partido": "Rede Sustentabilidade",
+  "observacao": "",
   "email_gabinete": "mauriciodelgado@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3691-4712",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/32/Mauricio-Henrique-Pinto-de-Oliveira-Delgadobr.html"
@@ -147,7 +163,8 @@
   "id": 41,
   "nome": "Jefferson da Silva Januário",
   "apelido": "Negro Bússola",
-  "partido": "Partido Verde - PV",
+  "partido": "PV",
+  "observacao": "",
   "email_gabinete": "negrobussola@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3691-4709",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/41/Jefferson-da-Silva-Januariobr.html"
@@ -157,6 +174,7 @@
   "nome": "Luiz Otávio Fernandes Coelho",
   "apelido": "Pardal",
   "partido": "União Brasil",
+  "observacao": "",
   "email_gabinete": "pardal@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3313-4749",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/14/Luiz-Otavio-Fernandes-Coelhobr.html"
@@ -165,7 +183,8 @@
   "id": 42,
   "nome": "Roberta Lopes Alves",
   "apelido": "Roberta Lopes",
-  "partido": "Partido Liberal - PL",
+  "partido": "PL",
+  "observacao": "",
   "email_gabinete": "robertalopes@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3313-4918",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/42/Roberta-Lopes-Alvesbr.html"
@@ -174,7 +193,8 @@
   "id": 13,
   "nome": "Carlos Alberto de Mello",
   "apelido": "Sargento Mello Casal",
-  "partido": "Partido Liberal - PL",
+  "partido": "PL",
+  "observacao": "",
   "email_gabinete": "sargentomellocasal@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3214-2569",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/13/Carlos-Alberto-de-Mellobr.html"
@@ -184,6 +204,7 @@
   "nome": "Tiago Rocha dos Santos",
   "apelido": "Tiago Bonecão",
   "partido": "Democrata",
+  "observacao": "",
   "email_gabinete": "tiagobonecao@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3691-4702",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/35/Tiago-Rocha-dos-Santosbr.html"
@@ -192,7 +213,8 @@
   "id": 43,
   "nome": "Victor Paulo de Oliveira",
   "apelido": "Vitinho",
-  "partido": "Partido Socialista Brasileiro - PSB",
+  "partido": "PSB",
+  "observacao": "",
   "email_gabinete": "vitinho@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3313-4717",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/43/Victor-Paulo-de-Oliveirabr.html"
@@ -200,8 +222,9 @@
  {
   "id": 47,
   "nome": "Yuri Dias Fófano (Yuri Fófano - vereador substituto de 20/08/2026 a 1º/10/2026)",
-  "apelido": "Yuri Dias Fófano (Yuri Fófano - vereador substituto de 20/08/2026 a 1º/10/2026)",
-  "partido": "PSD - Partido Social Democrático",
+  "apelido": "Yuri Dias Fófano (Yuri Fófano",
+  "partido": "PSD",
+  "observacao": "vereador substituto de 20/08/2026 a 1º/10/2026)",
   "email_gabinete": "",
   "telefone_gabinete": "",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/47/Yuri-Dias-Fofano.html"
@@ -210,7 +233,8 @@
   "id": 10,
   "nome": "José Márcio Lopes Guedes",
   "apelido": "Zé Márcio-Garotinho",
-  "partido": "Partido Democrático Trabalhista - PDT",
+  "partido": "PDT",
+  "observacao": "",
   "email_gabinete": "zemarcio@camarajf.mg.gov.br",
   "telefone_gabinete": "(32) 3313-4911",
   "ficha": "https://www.camarajf.mg.gov.br/www/vereadores/exibir/10/Jose-Marcio-Lopes-Guedesbr.html"
