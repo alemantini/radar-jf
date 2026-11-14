@@ -70,7 +70,8 @@ ACENTOS = {w.lower().replace("ç", "c").replace("ã", "a").replace("õ", "o").re
            Cooperação Convênios Empréstimos Amortização Dívida Juros Aplicações Diretas Indiretas Instituições Privadas
            Autarquia Autarquias Fundações Coordenação Superintendência Regulação Urgência Emergência Atenção Básica
            Vigilância Epidemiológica Ambiental Ação Ações Comunitária Sustentável Agrário Competitividade Fazenda
-           Planejamento Controladoria Procuradoria Geral Governo Turismo Cultura Lazer Obras Esporte""".split()}
+           Planejamento Controladoria Procuradoria Geral Governo Turismo Cultura Lazer Obras Esporte
+           Pensões Variáveis Previdência Indenização Contratação Vencimentos Responsabilidade Patronal""".split()}
 
 
 def acentuar(s):
@@ -156,6 +157,7 @@ def processar_ano(ano, registros):
     credores = {}  # cnpj -> nome
     cred_total = defaultdict(lambda: {"e": 0.0, "p": 0.0, "n": 0, "u": defaultdict(float)})
     pf = {"e": 0.0, "p": 0.0, "n": 0}
+    pf_elem = defaultdict(float)
     empenhos = []
     nomes_u, idx_u = [], {}
     nomes_el, idx_el = [], {}
@@ -201,6 +203,7 @@ def processar_ano(ano, registros):
             pf["e"] += e
             pf["p"] += p
             pf["n"] += 1
+            pf_elem[el] += p
             ic = -1
             hist = ""  # nunca publicar texto de pagamento a pessoa física
         empenhos.append([
@@ -238,7 +241,7 @@ def processar_ano(ano, registros):
                           "secretarias": [n for n, _ in sorted(v["u"].items(), key=lambda kv: -kv[1])[:4]]}
                          for c, v in top_cred],
         "n_fornecedores": len(cred_total),
-        "pessoa_fisica": r2(pf) | {"n": pf["n"]},
+        "pessoa_fisica": r2(pf) | {"n": pf["n"], "elementos": [{"nome": n, "p": round(v, 2)} for n, v in sorted(pf_elem.items(), key=lambda kv: -kv[1])[:8]]},
     }
     busca = {
         "ano": ano,
