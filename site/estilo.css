@@ -211,3 +211,11 @@ footer{border-top:1px solid var(--linha);color:var(--apoio);font-size:14px;paddi
 img.avatar.foto{object-fit:cover;width:46px;height:58px;border-radius:10px;background:var(--calcada)}
 .cr-topo.grande img.avatar.foto{width:72px;height:90px}
 .credito{font-size:12px;color:var(--apoio);margin:0 0 8px}
+.cr-topo .cargo{font-size:13px;font-weight:600;color:var(--azul)}
+.cr-emendas{display:block;font-size:13px;color:var(--verde);background:var(--verde-claro);border-radius:8px;padding:5px 8px;margin:6px 0 2px}
+.papel-presidente{color:var(--azul)}
+.papel-suplente{color:var(--apoio);font-weight:500}
+.etapas{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--calcada);margin:8px 0 4px}
+.etapas i{display:block;height:100%}
+.leg-etapas{display:grid;gap:3px;font-size:13px;color:var(--apoio);margin-bottom:6px}
+.leg-etapas i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}

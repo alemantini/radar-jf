@@ -179,6 +179,47 @@ def casar_autores(texto, vereadores):
     return res
 
 
+def casar_nome(nome, partido, vereadores):
+    """Acha o vereador pelo nome que aparece nas páginas da Câmara. Se não achar pelo nome,
+    tenta pelo primeiro nome e partido (quando só um vereador combina)."""
+    cn = chave(nome)
+    for v in vereadores:
+        for k in v["_chaves"]:
+            if k and (k == cn or (len(k) >= 5 and (k in cn or cn in k))):
+                return v
+    p = chave(partido or "")
+    primeiro = chave(nome.split()[0]) if nome.split() else ""
+    cand = [v for v in vereadores if p and (chave(v["partido"]).startswith(p) or p.startswith(chave(v["partido"])))
+            and primeiro and (chave(v["apelido"]).startswith(primeiro) or chave(v["nome"]).startswith(primeiro))]
+    return cand[0] if len(cand) == 1 else None
+
+
+def aplicar_cargos(vereadores):
+    arq = BRUTO / "cargos.json"
+    if not arq.exists():
+        return None
+    C = json.loads(arq.read_text())
+    for v in vereadores:
+        v["mesa"], v["comissoes"] = "", []
+    for m in C["mesa"]:
+        v = casar_nome(m["apelido"], m["partido"], vereadores) or casar_nome(m["nome"], m["partido"], vereadores)
+        if v:
+            v["mesa"] = m["cargo"]
+        else:
+            print("cargos: não achei na lista", m["apelido"])
+    for c in C["comissoes"]:
+        curto = re.sub(r"^Comiss[aã]o (de |da |do |dos |das )?", "", c["nome"]).strip()
+        curto = curto[:1].upper() + curto[1:]
+        for mb in c["membros"]:
+            v = casar_nome(mb["nome"], mb["partido"], vereadores)
+            if v:
+                v["comissoes"].append({"c": curto, "papel": mb["papel"]})
+            else:
+                print("cargos: não achei na lista", mb["nome"], mb["partido"])
+    return {"mesa_bienio": C["mesa_bienio"], "comissoes_ano": C["comissoes_ano"],
+            "fonte_mesa": C["fonte_mesa"], "fonte_comissoes": C["fonte_comissoes"]}
+
+
 def main():
     props = json.loads((BRUTO / "proposicoes.json").read_text())
     vereadores = json.loads((BRUTO / "vereadores.json").read_text())
@@ -190,6 +231,8 @@ def main():
         for parte in re.split(r"\s+-\s+", v["apelido"]):
             ks.add(chave(parte))
         v["_chaves"] = [k for k in ks if len(k) >= 3]
+
+    info_cargos = aplicar_cargos(vereadores)
 
     externos = {}
     saida = []
@@ -291,6 +334,7 @@ def main():
         "bairros": [[b, n] for b, n in bairros_top],
         "recentes": [it for it in sorted((x for x in saida if x["d"]), key=lambda x: (x["d"], x["i"]), reverse=True)[:6]],
         "subsidio": SUBSIDIO,
+        "cargos": info_cargos,
     }
     SAIDA.mkdir(parents=True, exist_ok=True)
     (SAIDA / "resumo.json").write_text(json.dumps(resumo, ensure_ascii=False, separators=(",", ":")))

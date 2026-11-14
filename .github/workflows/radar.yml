@@ -77,12 +77,24 @@ jobs:
           mkdir -p site/dados/prefeitura
           curl -fsS "https://alemantini.github.io/radar-jf/dados/prefeitura/receitas.json" -o site/dados/prefeitura/receitas.json || echo "sem versão anterior"
 
+      - name: Prefeitura, emendas dos vereadores (Monitor de Emendas)
+        id: emendas
+        continue-on-error: true
+        run: python scripts/prefeitura_emendas.py
+
+      - name: Reaproveitar emendas publicadas, se a coleta falhar
+        if: steps.emendas.outcome != 'success'
+        run: |
+          mkdir -p site/dados/prefeitura
+          base=https://alemantini.github.io/radar-jf/dados/prefeitura
+          for f in emendas_resumo.json emendas.json; do curl -fsS "$base/$f" -o "site/dados/prefeitura/$f" || echo "sem $f anterior"; done
+
       - name: Guardar cache de datas e contagens
         run: |
           git config user.name "radar-robo"
           git config user.email "radar-robo@users.noreply.github.com"
           git add data/cache data/bruto/contagem.json data/bruto/vereadores.json data/bruto/coletado_em.txt
-          git add data/bruto/prefeitura_contagem.json 2>/dev/null || true
+          git add data/bruto/prefeitura_contagem.json data/bruto/cargos.json 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "nada novo para guardar"
           else

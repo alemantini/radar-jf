@@ -248,10 +248,77 @@ async function pgPrefBusca(ano, q0) {
   busca();
 }
 
+
+// ---------- Emendas dos vereadores (Monitor de Emendas da Prefeitura) ----------
+let EMENDAS = null;
+const ETAPA_COR = {"Executada": "#0f6b4b", "Pagamento": "#3d8b5f", "Em execução": "#12407a", "Em análise": "#7a828e", "Inapta": "#b42318", "Não informado": "#c9ced6"};
+const ETAPA_DESC = {
+  "Executada": "obra, compra ou repasse concluído",
+  "Pagamento": "em liquidação ou pagamento",
+  "Em execução": "em licitação, contratação ou execução",
+  "Em análise": "em análise técnica ou plano de trabalho",
+  "Inapta": "considerada inviável pela análise técnica",
+  "Não informado": "sem etapa informada",
+};
+function barraEtapas(et, total) {
+  return `<div class="etapas">${Object.keys(ETAPA_COR).filter(k => et[k]).map(k => `<i style="width:${100 * et[k] / total}%;background:${ETAPA_COR[k]}" title="${k}: ${et[k]}"></i>`).join("")}</div>`;
+}
+function legendaEtapas(et) {
+  return `<div class="leg-etapas">${Object.keys(ETAPA_COR).filter(k => et[k]).map(k => `<span><i style="background:${ETAPA_COR[k]}"></i>${k} (${fmt(et[k])}): ${ETAPA_DESC[k]}</span>`).join("")}</div>`;
+}
+function vereadorDoProponente(p) {
+  const n = norm(p);
+  return RESUMO.vereadores.find(v => norm(v.nome) === n) || RESUMO.vereadores.find(v => norm(v.nome).includes(n) || n.includes(norm(v.nome)));
+}
+async function pgEmendas(prop) {
+  const R = EMENDAS_R;
+  if (!R) { app.innerHTML = "<h1>Emendas dos vereadores</h1><p>Os dados de emendas ainda não foram coletados. Tente mais tarde.</p>"; return; }
+  if (prop) return pgEmendasDe(prop);
+  const lista = Object.entries(R.proponentes).map(([p, x]) => ({p, ...x, v: vereadorDoProponente(p)}))
+    .sort((a, b) => norm(a.v ? a.v.apelido : a.p).localeCompare(norm(b.v ? b.v.apelido : b.p)));
+  const T = R.total;
+  app.innerHTML = `
+    <h1>Emendas dos vereadores</h1>
+    <p class="sub">Todo ano, cada vereador indica para onde vai uma parte do orçamento da Prefeitura: uma obra, um serviço ou uma entidade do bairro. São as emendas impositivas: a Prefeitura é obrigada a executar, salvo se a análise técnica considerar inviável. Aqui está o que foi indicado desde ${R.desde} e em que etapa cada emenda está.</p>
+    <div class="nums verde"><span><b>${reaisCurto(T.previsto)}</b>indicados em ${fmt(T.n)} emendas</span><span><b>${reaisCurto(T.pago)}</b>já pagos (${Math.round(100 * T.pago / (T.previsto || 1))}%)</span></div>
+    <h2>Em que etapa estão</h2>
+    ${barraEtapas(R.etapas, T.n)}${legendaEtapas(R.etapas)}
+    <h2>Por vereador</h2>
+    <p class="sub">Em ordem alfabética. Toque para ver cada emenda.</p>
+    ${lista.map(x => `<a class="linha" href="#/prefeitura/emendas/${encodeURIComponent(x.p)}"><span class="nm"><b>${esc(x.v ? x.v.apelido : x.p)}</b>${x.v && x.v.partido ? `, ${esc(x.v.partido)}` : (x.v ? "" : " <small class='sub'>(não está na lista atual de vereadores)</small>")}
+      ${barraEtapas(x.etapas, x.n)}<small class="sub">${fmt(x.n)} emendas · ${reaisCurto(x.pago)} pagos de ${reaisCurto(x.previsto)}</small></span><span class="vl">${reaisCurto(x.previsto)} ›</span></a>`).join("")}
+    <p class="sub" style="margin-top:12px">Fonte: <a href="${R.fonte_url}" target="_blank" rel="noopener">${esc(R.fonte)}</a>${R.atualizado_fonte ? `, atualizado pela Prefeitura em ${esc(R.atualizado_fonte)}` : ""}. Os valores e etapas são os do painel oficial.</p>`;
+}
+async function pgEmendasDe(prop) {
+  const R = EMENDAS_R, x = R.proponentes[prop];
+  if (!x) { app.innerHTML = "<p>Não encontrado.</p>"; return; }
+  if (!EMENDAS) { app.innerHTML = '<p class="carregando">Carregando as emendas…</p>'; EMENDAS = await fetch("dados/prefeitura/emendas.json").then(r => r.json()); }
+  const v = vereadorDoProponente(prop);
+  const itens = EMENDAS.filter(e => e.p === prop).sort((a, b) => b.ano - a.ano || b.prev - a.prev);
+  app.innerHTML = `
+    <h1>Emendas de ${esc(v ? v.apelido : prop)}</h1>
+    <p class="sub">${esc(prop)}${v && v.partido ? ", " + esc(v.partido) : ""}. Desde ${R.desde}.</p>
+    <div class="nums verde"><span><b>${reaisCurto(x.previsto)}</b>indicados em ${fmt(x.n)} emendas</span><span><b>${reaisCurto(x.pago)}</b>já pagos (${Math.round(100 * x.pago / (x.previsto || 1))}%)</span></div>
+    ${barraEtapas(x.etapas, x.n)}${legendaEtapas(x.etapas)}
+    ${v ? `<a class="btn-grande camara" href="#/v/${v.id}">${ic("camara")}<span class="tx">Ver o que ${esc(v.apelido)} propôs na Câmara</span>›</a>` : ""}
+    <input type="search" id="q" placeholder="Filtrar por bairro, entidade, objeto ou etapa" autocomplete="off">
+    <div id="lista"></div>`;
+  const alvo = document.getElementById("lista"), inp = document.getElementById("q");
+  const card = e => `<div class="item">
+      <div class="topo"><span class="tag" style="background:${ETAPA_COR[e.et] || "#7a828e"}">${esc(e.et)}</span>${e.ano} · Emenda ${esc(e.id)} · ${esc(e.sit)}</div>
+      <div class="txt">${esc(e.obj) || "Objeto não informado"}</div>
+      <div class="pe">${e.benef ? "Para: " + esc(e.benef) + " · " : ""}${e.local ? esc(e.local) + " · " : ""}indicado ${reais(e.prev, false)} · pago ${reais(e.pago, false)}</div>
+    </div>`;
+  const mostra = () => { const q = norm(inp.value.trim()); const it = q ? itens.filter(e => norm(`${e.obj} ${e.benef} ${e.local} ${e.ug} ${e.sit} ${e.et} ${e.funcao}`).includes(q)) : itens; alvo.innerHTML = it.map(card).join("") || '<p class="sub">Nada encontrado.</p>'; };
+  let tm; inp.oninput = () => { clearTimeout(tm); tm = setTimeout(mostra, 250); };
+  mostra();
+}
+
 async function rotaPrefeitura(p) {
   const [sub, a, b] = p;
   if (sub === "ano") return pgPrefInicio(a);
   if (sub === "impostometro") return pgImpostometro();
+  if (sub === "emendas") return pgEmendas(a);
   if (sub === "s") return pgPrefSecretaria(a, +b);
   if (sub === "fornecedores") return pgPrefFornecedores(a);
   if (sub === "empresa") return pgPrefEmpresa(a, b);

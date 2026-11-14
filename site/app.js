@@ -20,7 +20,23 @@ const ICONE = {
 const ic = (n, cls = "") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONE[n] || ""}</svg>`;
 const iniciais = n => String(n || "").replace(/^(Dr|Dra|Sargento|Prof|Profa)\.?\s+/i, "").split(/\s+/).filter(p => p.length > 2 || /^[A-ZÀ-Ý]/.test(p)).slice(0, 2).map(p => p[0]).join("").toUpperCase();
 
-let FOTOS = new Set(), CREDITO_FOTO = "";
+let FOTOS = new Set(), CREDITO_FOTO = "", EMENDAS_R = null;
+// emendas do vereador: a planilha da Prefeitura usa o nome completo
+function emendasDe(v) {
+  if (!EMENDAS_R || !v) return null;
+  const alvo = norm(v.nome);
+  const k = Object.keys(EMENDAS_R.proponentes).find(p => norm(p) === alvo) || Object.keys(EMENDAS_R.proponentes).find(p => norm(p).includes(alvo) || alvo.includes(norm(p)));
+  return k ? {nome: k, ...EMENDAS_R.proponentes[k]} : null;
+}
+function cargoCurto(v) {
+  const pres = (v.comissoes || []).filter(c => c.papel === "presidente").length;
+  const memb = (v.comissoes || []).filter(c => c.papel !== "suplente").length;
+  const partes = [];
+  if (v.mesa) partes.push(`${v.mesa} da Câmara`);
+  if (pres) partes.push(`preside ${pres} ${pres > 1 ? "comissões" : "comissão"}`);
+  else if (memb) partes.push(`${memb} ${memb > 1 ? "comissões" : "comissão"}`);
+  return partes.join(", ");
+}
 const avatar = v => FOTOS.has(v.id) ? `<img class="avatar foto" src="fotos/${v.id}.jpg" alt="Foto de ${esc(v.apelido)}" title="${esc(CREDITO_FOTO)}" loading="lazy" width="46" height="58">` : `<span class="avatar" aria-hidden="true">${esc(iniciais(v.apelido))}</span>`;
 let RESUMO = null, PROPOSTAS = null, REPETIDOS = null, POR_ID = null, VER = {};
 const app = document.getElementById("app");
@@ -34,6 +50,7 @@ async function carregarResumo() {
   if (RESUMO) return;
   RESUMO = await fetch("dados/resumo.json").then(r => r.json());
   RESUMO.vereadores.forEach(v => VER[v.id] = v);
+  try { EMENDAS_R = await fetch("dados/prefeitura/emendas_resumo.json").then(r => r.ok ? r.json() : null); } catch (e) { EMENDAS_R = null; }
   try { const f = await fetch("fotos/fotos.json").then(r => r.json()); FOTOS = new Set(f.ids); CREDITO_FOTO = f.credito; } catch (e) { /* sem fotos: ficam as iniciais */ }
   document.getElementById("atualizado").textContent = RESUMO.atualizado ? `Última coleta: ${RESUMO.atualizado}.` : "";
 }
@@ -118,6 +135,7 @@ function salarioAcumulado(agora = new Date()) {
   }
   return total;
 }
+const reaisCurto = v => v >= 1e6 ? "R$ " + (v / 1e6).toLocaleString("pt-BR", {maximumFractionDigits: 1}) + " mi" : v >= 1e3 ? "R$ " + Math.round(v / 1e3).toLocaleString("pt-BR") + " mil" : "R$ " + Math.round(v).toLocaleString("pt-BR");
 const reaisBR = v => "R$ " + v.toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
 function cracha(v) {
@@ -125,12 +143,13 @@ function cracha(v) {
   const sal = v.fora_da_lista ? 0 : subsidioMes(new Date().getFullYear());
   return `<a class="cracha${v.fora_da_lista ? " fora" : ""}" href="#/v/${v.id}">
     <span class="cr-topo">${avatar(v)}
-      <span class="cx"><span class="nome">${esc(v.apelido)}</span><span class="partido">${esc(v.partido || "não está na lista atual da Câmara")}</span></span></span>
+      <span class="cx"><span class="nome">${esc(v.apelido)}</span><span class="partido">${esc(v.partido || "não está na lista atual da Câmara")}</span>${cargoCurto(v) ? `<span class="cargo">${esc(cargoCurto(v))}</span>` : ""}</span></span>
     <span class="cr-nums">
       <span><b>${fmt(c.total)}</b>propostas</span>
       ${sal ? `<span><b>${"R$ " + Math.round(sal).toLocaleString("pt-BR")}</b>salário por mês</span>` : ""}
       ${v.votos_2024 ? `<span><b>${fmt(v.votos_2024)}</b>votos em 2024</span>` : ""}
     </span>
+    ${(() => { const e = emendasDe(v); return e ? `<span class="cr-emendas">Emendas desde ${EMENDAS_R.desde}: <b>${reaisCurto(e.previsto)}</b> indicados, <b>${reaisCurto(e.pago)}</b> já pagos</span>` : ""; })()}
     <span class="barras">${barras(c)}</span>
   </a>`;
 }
@@ -288,6 +307,14 @@ async function pgVereador(id) {
     </div>
     ${v.email_gabinete || v.telefone_gabinete ? `<p class="contato">Gabinete: ${v.email_gabinete ? `<a href="mailto:${esc(v.email_gabinete)}">${esc(v.email_gabinete)}</a>` : ""} ${esc(v.telefone_gabinete)}</p>` : ""}
     ${v.ficha ? `<p class="contato"><a href="${esc(v.ficha)}" target="_blank" rel="noopener">Ficha oficial na Câmara</a></p>` : ""}
+    ${v.mesa || (v.comissoes || []).length ? `<h2>Cargos na Câmara</h2>
+      ${v.mesa ? `<div class="linha"><span class="nm"><b>Mesa Diretora</b> (${esc(RESUMO.cargos ? RESUMO.cargos.mesa_bienio : "")})</span><span class="vl">${esc(v.mesa)}</span></div>` : ""}
+      ${(v.comissoes || []).map(cm => `<div class="linha"><span class="nm">${esc(cm.c)}</span><span class="vl papel-${esc(cm.papel)}">${esc(cm.papel[0].toUpperCase() + cm.papel.slice(1))}</span></div>`).join("")}
+      ${RESUMO.cargos ? `<p class="sub" style="margin-top:6px">Fonte: <a href="${RESUMO.cargos.fonte_mesa}" target="_blank" rel="noopener">Mesa Diretora</a> e <a href="${RESUMO.cargos.fonte_comissoes}" target="_blank" rel="noopener">comissões ${esc(RESUMO.cargos.comissoes_ano)}</a> no site da Câmara.</p>` : ""}` : ""}
+    ${(() => { const e = emendasDe(v); if (!e) return ""; return `<h2>Emendas ao orçamento</h2>
+      <p class="sub">Dinheiro do orçamento da Prefeitura que o vereador indicou para obras, serviços ou entidades, desde ${EMENDAS_R.desde}.</p>
+      <div class="nums verde"><span><b>${reaisCurto(e.previsto)}</b>indicados em ${fmt(e.n)} emendas</span><span><b>${reaisCurto(e.pago)}</b>já pagos (${Math.round(100 * e.pago / (e.previsto || 1))}%)</span></div>
+      <a class="btn-grande prefeitura" href="#/prefeitura/emendas/${encodeURIComponent(e.nome)}">${ic("dinheiro")}<span class="tx">Ver cada emenda e em que etapa está<small>Fonte: Monitor de Emendas da Prefeitura</small></span>›</a>`; })()}
     <h2>O que propôs até agora</h2>
     ${c.coautoria ? `<p class="sub">${fmt(c.coautoria)} delas foram assinadas junto com outros vereadores.</p>` : ""}
     <div id="grupos"></div>
@@ -408,7 +435,7 @@ function pgSobre() {
 // ---------- rotas ----------
 const SUBNAV = {
   camara: [["#/camara", "Vereadores", "pessoas"], ["#/busca", "Meu bairro", "pin"], ["#/repetidos", "Pedidos que voltam", "repete"]],
-  prefeitura: [["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
+  prefeitura: [["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
 };
 const SELO = {
   camara: () => `<div class="placa camara">${ic("camara")}<span class="tx"><span class="tt">Câmara Municipal de Juiz de Fora</span><span class="ds">O que os vereadores apresentam. Fonte: sistema oficial da Câmara.</span></span></div>`,

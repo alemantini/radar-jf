@@ -77,6 +77,51 @@ def limpa(t):
     return re.sub(r"\s+", " ", (t or "").replace("\xa0", " ")).strip()
 
 
+def coletar_cargos():
+    """Mesa Diretora e comissões, das páginas oficiais da Câmara. Devolve None se não der para ler."""
+    def linhas(caminho):
+        soup = BeautifulSoup(baixar(f"{BASE}/www/{caminho}"), "html.parser")
+        return [limpa(x) for x in soup.get_text("\n").split("\n") if limpa(x)]
+    try:
+        L = linhas("mesadiretora")
+        i = next(k for k, t in enumerate(L) if t.startswith("Mesa Diretora (biênio"))
+        bienio = re.search(r"\(([^)]*)\)", L[i]).group(1)
+        mesa = []
+        k = i + 1
+        while k + 2 < len(L) and not L[k].startswith("Conheça"):
+            m = re.match(r"^(.*?)\s*\(([^)]+)\)$", L[k])
+            if m:
+                mesa.append({"apelido": m.group(1), "partido": m.group(2), "nome": L[k + 1], "cargo": L[k + 2]})
+                k += 3
+            else:
+                k += 1
+        L = linhas("comissoes")
+        i = next(k for k, t in enumerate(L) if t.startswith("Conheça as Comissões"))
+        ano = (re.search(r"(\d{4})", L[i]) or [None, ""])[1]
+        comissoes, atual = [], None
+        for t in L[i + 1:]:
+            if t.startswith("Comissões Técnicas Permanentes") or t.startswith("Câmara Municipal de Juiz de Fora"):
+                break
+            t2 = t.strip(" -").strip()
+            if t2.startswith("Comissão"):
+                atual = {"nome": t2, "membros": []}
+                comissoes.append(atual)
+                continue
+            m = re.match(r"^(.*?)\s*-?\s*\(([^)]+)\)\s*(?:-\s*(.*))?$", t2)
+            if atual and m:
+                papel = (m.group(3) or "membro").strip().lower()
+                atual["membros"].append({"nome": m.group(1).strip(" -"), "partido": m.group(2).strip(), "papel": papel})
+        if len(mesa) < 3 or len(comissoes) < 5:
+            print(f"cargos: leitura estranha (mesa {len(mesa)}, comissões {len(comissoes)}); mantendo a versão anterior")
+            return None
+        print(f"cargos: mesa {len(mesa)} ({bienio}), {len(comissoes)} comissões ({ano})")
+        return {"mesa_bienio": bienio, "mesa": mesa, "comissoes_ano": ano, "comissoes": comissoes,
+                "fonte_mesa": f"{BASE}/www/mesadiretora", "fonte_comissoes": f"{BASE}/www/comissoes"}
+    except (RuntimeError, StopIteration, AttributeError) as e:
+        print(f"cargos: não foi possível ler ({e}); mantendo a versão anterior")
+        return None
+
+
 def coletar_proposicoes():
     ano_atual = dt.date.today().year
     todas = []
@@ -229,6 +274,9 @@ def main():
         sys.exit(1)
     if os.environ.get("RADAR_SEM_DATAS") != "1":
         coletar_datas(proposicoes)
+    cargos = coletar_cargos()
+    if cargos:
+        (BRUTO / "cargos.json").write_text(json.dumps(cargos, ensure_ascii=False, indent=1))
     (BRUTO / "proposicoes.json").write_text(json.dumps(proposicoes, ensure_ascii=False))
     (BRUTO / "vereadores.json").write_text(json.dumps(vereadores, ensure_ascii=False, indent=1))
     (BRUTO / "contagem.json").write_text(json.dumps(contagem, indent=1, sort_keys=True))
