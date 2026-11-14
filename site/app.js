@@ -448,7 +448,7 @@ function pgEscolha() {
   app.innerHTML = `
     <div class="logo-home" role="img" aria-label="Radar JF, Radar PTlândia">
       <div class="lh-1"><svg class="lh-ic" viewBox="0 0 120 80" aria-hidden="true"><circle cx="60" cy="40" r="11" fill="currentColor"/><path d="M40 18a32 32 0 0 0 0 44M80 18a32 32 0 0 1 0 44M24 6a52 52 0 0 0 0 68M96 6a52 52 0 0 1 0 68" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"/></svg><span>RADAR JF</span></div>
-      <div class="lh-2"><span>RADAR </span><span class="pt">PT</span><span>LÂNDIA</span><svg class="lh-band" viewBox="0 0 30 21" aria-hidden="true"><rect width="30" height="21" fill="#009c3b"/><path d="M15 2.5 27.5 10.5 15 18.5 2.5 10.5z" fill="#ffdf00"/><circle cx="15" cy="10.5" r="4.6" fill="#002776"/></svg></div>
+      <div class="lh-2"><span class="r2">RADAR</span><span class="pt">PT</span><span>LÂNDIA</span><svg class="lh-band" viewBox="0 0 30 21" aria-hidden="true"><rect width="30" height="21" fill="#009c3b"/><path d="M15 2.5 27.5 10.5 15 18.5 2.5 10.5z" fill="#ffdf00"/><circle cx="15" cy="10.5" r="4.6" fill="#002776"/></svg></div>
     </div>
     <p class="lh-tag"><b>Raio-X de Juiz de Fora-MG.</b> O que cada vereador e a prefeita fazem desde a posse, contado todo dia.</p>
     <p class="lh-apelido">Juiz de Fora, a Manchester Vermelha</p>
