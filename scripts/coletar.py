@@ -130,9 +130,9 @@ def coletar_vereadores():
         h2 = h.find("h2", class_="t-principal")
         if not h2:
             continue
-        partes = [limpa(x) for x in h2.get_text("\n").split("\n") if limpa(x)]
-        nome = partes[0]
-        resto = " ".join(partes[1:])
+        texto_h2 = limpa(h2.get_text(" "))
+        nome = limpa(texto_h2.split("(")[0])
+        resto = texto_h2[len(texto_h2.split("(")[0]):]
         parenteses = re.findall(r"\(([^)]*)\)", resto)
         apelido = parenteses[0] if len(parenteses) >= 2 else nome
         observacao = ""
