@@ -41,15 +41,32 @@ jobs:
 
       - name: Coletar dados na Câmara (se vier incompleto, para aqui e não publica)
         run: python scripts/coletar.py
+        env:
+          # rodadas disparadas por mudança no código buscam datas por pouco tempo; a da madrugada, por 1 hora
+          RADAR_TEMPO_MAX_DATAS: ${{ github.event_name == 'schedule' && '3600' || '300' }}
 
       - name: Preparar dados do site
         run: python scripts/processar.py
+
+      - name: Prefeitura, despesas (se falhar, o site mantém a última versão boa)
+        id: pref
+        continue-on-error: true
+        run: python scripts/prefeitura_despesas.py
+
+      - name: Recuperar última versão boa da Prefeitura
+        if: steps.pref.outcome == 'failure'
+        run: |
+          mkdir -p site/dados/prefeitura
+          base=https://alemantini.github.io/radar-jf/dados/prefeitura
+          curl -fsS "$base/resumo.json" -o site/dados/prefeitura/resumo.json || echo "sem versão anterior"
+          for a in 2025 2026; do curl -fsS "$base/empenhos_$a.json" -o "site/dados/prefeitura/empenhos_$a.json" || true; done
 
       - name: Guardar cache de datas e contagens
         run: |
           git config user.name "radar-robo"
           git config user.email "radar-robo@users.noreply.github.com"
           git add data/cache data/bruto/contagem.json data/bruto/vereadores.json data/bruto/coletado_em.txt
+          git add data/bruto/prefeitura_contagem.json 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "nada novo para guardar"
           else

@@ -42,3 +42,36 @@ input[type=search],select{width:100%;font-size:17px;padding:12px;border:1px soli
 .rep .q{font-size:22px;font-weight:700;color:#b3261e}
 .mais{display:block;margin:14px auto;padding:10px 18px;border-radius:10px;border:1px solid #c9ced6;background:#fff;font-size:15px;cursor:pointer}
 footer{border-top:1px solid #e3e6ea;color:#555;font-size:14px;padding:14px 16px 30px;max-width:760px;margin:20px auto 0}
+/* áreas: Câmara (azul) e Prefeitura (verde) */
+nav.areas{gap:6px;margin-top:8px}
+nav.areas a{border:1px solid #d5dae1;border-radius:20px;padding:5px 12px;color:#333;font-weight:600}
+nav.areas a.ativo{border-bottom:1px solid}
+nav.areas a.area-camara.ativo{background:#0b57d0;border-color:#0b57d0;color:#fff}
+nav.areas a.area-prefeitura.ativo{background:#0a7d4f;border-color:#0a7d4f;color:#fff}
+nav.areas a[data-area=sobre].ativo{background:#444;border-color:#444;color:#fff}
+#subnav{margin-top:6px}
+#subnav:empty{display:none}
+#selo{max-width:760px;margin:0 auto;padding:0 16px}
+.selo{margin-top:12px;border-radius:10px;padding:8px 12px;font-size:14px;font-weight:600;color:#fff}
+.selo small{display:block;font-weight:400;opacity:.9}
+.selo.camara{background:#0b57d0}
+.selo.prefeitura{background:#0a7d4f}
+.escolha{display:block;border:2px solid #e3e6ea;border-radius:14px;padding:16px;margin:12px 0;text-decoration:none;color:inherit}
+.escolha.camara{border-color:#0b57d0}.escolha.prefeitura{border-color:#0a7d4f}
+.escolha h2{margin:0 0 4px}
+.escolha .num{font-size:22px;font-weight:700}
+.p-verde{color:#0a7d4f}
+.big{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
+.totais{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 0}
+.totais div{background:#f3f7f4;border-radius:10px;padding:10px}
+.totais b{display:block;font-size:18px}
+.totais span{font-size:12px;color:#555}
+.linha{display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid #eef0f3;padding:9px 0;text-decoration:none;color:inherit}
+.linha .nm{flex:1}
+.linha .vl{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
+.linha .barra-p{height:6px;background:#0a7d4f;border-radius:3px;margin-top:4px}
+.meses{display:flex;align-items:flex-end;gap:4px;height:120px;margin:10px 0 2px}
+.meses div{flex:1;background:#0a7d4f;border-radius:3px 3px 0 0;min-height:1px}
+.meses-r{display:flex;gap:4px;font-size:11px;color:#666}.meses-r span{flex:1;text-align:center}
+.anos button{border:1px solid #c9ced6;background:#fff;border-radius:20px;padding:5px 14px;margin-right:6px;font-size:15px;cursor:pointer}
+.anos button.on{background:#0a7d4f;color:#fff;border-color:#0a7d4f}

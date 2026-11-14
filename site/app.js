@@ -192,6 +192,7 @@ function pgSobre() {
   const t = RESUMO.totais;
   app.innerHTML = `
     <h1>Como funciona</h1>
+    <div class="selo camara">🏛️ CÂMARA MUNICIPAL</div>
     <p>Este site reúne o que cada vereador de Juiz de Fora apresentou na Câmara Municipal. Todos os dados vêm do <a href="${BUSCA_CAMARA}" target="_blank" rel="noopener">sistema oficial da Câmara (iS@l)</a> e cada proposta tem link para o documento original. Um robô baixa tudo de novo toda madrugada.</p>
     <h2>Os cinco grupos</h2>
     <ul>${RESUMO.regras.map(r => `<li>${esc(r)}</li>`).join("")}</ul>
@@ -215,22 +216,57 @@ function pgSobre() {
 }
 
 // ---------- rotas ----------
+const SUBNAV = {
+  camara: [["#/camara", "Vereadores"], ["#/busca", "Meu bairro"], ["#/repetidos", "Pedidos que voltam"]],
+  prefeitura: [["#/prefeitura", "Gastos por secretaria"], ["#/prefeitura/fornecedores", "Empresas que recebem"], ["#/prefeitura/busca", "Buscar gasto"]],
+};
+const SELO = {
+  camara: '<div class="selo camara">🏛️ CÂMARA MUNICIPAL DE JUIZ DE FORA<small>O que os vereadores apresentam. Fonte: sistema oficial da Câmara.</small></div>',
+  prefeitura: '<div class="selo prefeitura">🏢 PREFEITURA DE JUIZ DE FORA<small>Para onde vai o dinheiro. Fonte: Portal da Transparência da Prefeitura.</small></div>',
+};
+
+function pgEscolha() {
+  const nV = RESUMO.vereadores.filter(v => !v.fora_da_lista).length;
+  app.innerHTML = `
+    <h1>Câmara e Prefeitura de Juiz de Fora, com dados oficiais</h1>
+    <p class="sub">Escolha o que você quer acompanhar. Cada número tem a fonte oficial ao lado.</p>
+    <a class="escolha camara" href="#/camara">
+      <h2>🏛️ Câmara Municipal</h2>
+      <p class="sub">O que cada um dos ${nV} vereadores apresentou, e o que foi pedido para o seu bairro.</p>
+      <span class="num">${fmt(RESUMO.total)}</span> propostas desde 2025 ›
+    </a>
+    <a class="escolha prefeitura" href="#/prefeitura">
+      <h2>🏢 Prefeitura</h2>
+      <p class="sub">Para onde vai o dinheiro: quanto cada secretaria gasta, com quem e em quê.</p>
+      <span class="num">Gastos por secretaria</span> ›
+    </a>
+    <div class="info">Câmara e Prefeitura são poderes diferentes. A Câmara (vereadores) faz leis, fiscaliza e pede melhorias. A Prefeitura (prefeita e secretarias) executa os serviços e gasta o orçamento.</div>`;
+}
+
 async function rota() {
   await carregarResumo();
   const h = location.hash.replace(/^#\/?/, "");
-  const [pag, arg] = [h.split("/")[0], decodeURIComponent(h.split("/").slice(1).join("/"))];
-  document.querySelectorAll("nav a").forEach(a => a.classList.toggle("ativo", a.getAttribute("href") === "#/" + pag || (pag === "" && a.getAttribute("href") === "#/")));
+  const partes = h.split("/").map(decodeURIComponent);
+  const pag = partes[0], arg = partes.slice(1).join("/");
+  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
+  document.querySelectorAll("nav.areas a").forEach(a => a.classList.toggle("ativo", a.dataset.area === area));
+  const sub = document.getElementById("subnav");
+  const atual = "#/" + h;
+  sub.innerHTML = (SUBNAV[area] || []).map(([href, t]) => `<a href="${href}" class="${atual === href || (atual.startsWith(href + "/") && href !== "#/prefeitura") ? "ativo" : ""}">${t}</a>`).join("");
+  document.getElementById("selo").innerHTML = SELO[area] || "";
   window.scrollTo(0, 0);
   try {
     if (pag === "v") await pgVereador(+arg);
     else if (pag === "busca") await pgBusca(arg);
     else if (pag === "repetidos") await pgRepetidos();
-    else if (pag === "sobre") pgSobre();
-    else pgInicio();
+    else if (pag === "sobre") { pgSobre(); if (window.sobrePrefeitura) await sobrePrefeitura(); }
+    else if (pag === "camara") pgInicio();
+    else if (pag === "prefeitura" && window.rotaPrefeitura) await rotaPrefeitura(partes.slice(1));
+    else pgEscolha();
   } catch (e) {
     app.innerHTML = `<p>Não foi possível carregar os dados agora. Tente de novo em instantes.</p>`;
     console.error(e);
   }
 }
 window.addEventListener("hashchange", rota);
-rota();
+window.addEventListener("load", rota);
