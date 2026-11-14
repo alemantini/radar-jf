@@ -1,0 +1,540 @@
+{
+ "mesa_bienio": "biênio 2025-2026",
+ "mesa": [
+  {
+   "apelido": "Zé Márcio-Garotinho",
+   "partido": "PDT",
+   "nome": "José Márcio Lopes Guedes",
+   "cargo": "Presidente"
+  },
+  {
+   "apelido": "André Luiz",
+   "partido": "REPUBLICANOS",
+   "nome": "André Luiz Vieira da Silva",
+   "cargo": "Primeiro vice-presidente"
+  },
+  {
+   "apelido": "Julinho Rossignoli",
+   "partido": "PP",
+   "nome": "Júlio César Rossignoli Barros",
+   "cargo": "Segundo vice-presidente"
+  },
+  {
+   "apelido": "João Wagner Antoniol",
+   "partido": "MDB",
+   "nome": "João Wagner de Siqueira Antoniol",
+   "cargo": "Primeiro-secretário"
+  },
+  {
+   "apelido": "Letícia Delgado",
+   "partido": "PT",
+   "nome": "Letícia Fonseca Paiva Delgado",
+   "cargo": "Segunda-secretária"
+  }
+ ],
+ "comissoes_ano": "2026",
+ "comissoes": [
+  {
+   "nome": "Comissão de Legislação, Justiça e Redação",
+   "membros": [
+    {
+     "nome": "Pardal",
+     "partido": "União",
+     "papel": "presidente"
+    },
+    {
+     "nome": "Cido Reis",
+     "partido": "PCdoB",
+     "papel": "membro"
+    },
+    {
+     "nome": "Letícia Delgado",
+     "partido": "PT",
+     "papel": "membro"
+    },
+    {
+     "nome": "Sargento Mello Casal",
+     "partido": "PL",
+     "papel": "suplente"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão de Finanças, Orçamento e Fiscalização Financeira",
+   "membros": [
+    {
+     "nome": "Juraci Scheffer",
+     "partido": "PT",
+     "papel": "presidente"
+    },
+    {
+     "nome": "João do Joaninho",
+     "partido": "PSB",
+     "papel": "membro"
+    },
+    {
+     "nome": "Julinho Rossignoli",
+     "partido": "PP",
+     "papel": "membro"
+    },
+    {
+     "nome": "Maurício Delgado",
+     "partido": "REDE",
+     "papel": "suplente"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão de Educação e Cultura",
+   "membros": [
+    {
+     "nome": "Cida Oliveira",
+     "partido": "PT",
+     "papel": "presidente"
+    },
+    {
+     "nome": "Roberta Oliveira",
+     "partido": "PL",
+     "papel": "membro"
+    },
+    {
+     "nome": "Laiz Perrut",
+     "partido": "PT",
+     "papel": "membro"
+    },
+    {
+     "nome": "Sargento Mello Casal",
+     "partido": "PL",
+     "papel": "suplente"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão de Saúde Pública e Bem-Estar Social",
+   "membros": [
+    {
+     "nome": "Dr. Marcelo Conde",
+     "partido": "AVANTE",
+     "papel": "presidente"
+    },
+    {
+     "nome": "Dr. Antônio Aguiar",
+     "partido": "UNIÃO",
+     "papel": "membro"
+    },
+    {
+     "nome": "Juraci Scheffer",
+     "partido": "PT",
+     "papel": "membro"
+    },
+    {
+     "nome": "Roberta Lopes",
+     "partido": "PL",
+     "papel": "suplente"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão de Urbanismo, Transporte, Trânsito e Acessibilidade",
+   "membros": [
+    {
+     "nome": "Tiago Bonecão",
+     "partido": "DEMOCRATA",
+     "papel": "presidente"
+    },
+    {
+     "nome": "Marlon Siqueira",
+     "partido": "MDB",
+     "papel": "membro"
+    },
+    {
+     "nome": "Laiz Perrut",
+     "partido": "PT",
+     "papel": "membro"
+    },
+    {
+     "nome": "João do Joaninho",
+     "partido": "PSB",
+     "papel": "suplente"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão de Abastecimento, Indústria, Comércio, Agropecuária e Defesa do Consumidor",
+   "membros": [
+    {
+     "nome": "João do Joaninho",
+     "partido": "PSB",
+     "papel": "presidente"
+    },
+    {
+     "nome": "Sargento Mello Casal",
+     "partido": "PL",
+     "papel": "membro"
+    },
+    {
+     "nome": "Roberta Lopes",
+     "partido": "PL",
+     "papel": "membro"
+    },
+    {
+     "nome": "Marlon Siqueira",
+     "partido": "MDB",
+     "papel": "membro"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão de Direitos Humanos e Cidadania",
+   "membros": [
+    {
+     "nome": "Cida Oliveira",
+     "partido": "PT",
+     "papel": "presidente"
+    },
+    {
+     "nome": "André Mariano",
+     "partido": "PL",
+     "papel": "membro"
+    },
+    {
+     "nome": "Laiz Perrut",
+     "partido": "PT",
+     "papel": "membro"
+    },
+    {
+     "nome": "Letícia Delgado",
+     "partido": "PT",
+     "papel": "suplente"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão de Participação Popular e de Legislação Participativa",
+   "membros": [
+    {
+     "nome": "Negro Bússola",
+     "partido": "PV",
+     "papel": "presidente"
+    },
+    {
+     "nome": "Kátia Franco",
+     "partido": "PSB",
+     "papel": "membro"
+    },
+    {
+     "nome": "Cido Reis",
+     "partido": "PCdoB",
+     "papel": "membro"
+    },
+    {
+     "nome": "Fiote",
+     "partido": "PDT",
+     "papel": "suplente"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão dos Direitos da Mulher",
+   "membros": [
+    {
+     "nome": "Laiz Perrut",
+     "partido": "PT",
+     "papel": "presidente"
+    },
+    {
+     "nome": "Cida Oliveira",
+     "partido": "PT",
+     "papel": "membro"
+    },
+    {
+     "nome": "Dr. Marcelo Condé",
+     "partido": "AVANTE",
+     "papel": "membro"
+    },
+    {
+     "nome": "Leticia Delgado",
+     "partido": "PT",
+     "papel": "suplente"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão de Defesa dos Direitos da Criança, Adolescente e Juventude",
+   "membros": [
+    {
+     "nome": "Letícia Delgado",
+     "partido": "PT",
+     "papel": "presidente"
+    },
+    {
+     "nome": "Dr. Marcelo Condé",
+     "partido": "AVANTE",
+     "papel": "membro"
+    },
+    {
+     "nome": "Roberta Lopes",
+     "partido": "PL",
+     "papel": "membro"
+    },
+    {
+     "nome": "Laiz Perrut",
+     "partido": "PT",
+     "papel": "suplente"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão de Defesa dos Direitos da Pessoa Idosa",
+   "membros": [
+    {
+     "nome": "Julinho Rossignoli",
+     "partido": "PP",
+     "papel": "presidente"
+    },
+    {
+     "nome": "Juraci Scheffer",
+     "partido": "PT",
+     "papel": "membro"
+    },
+    {
+     "nome": "Cido Reis",
+     "partido": "PCdoB",
+     "papel": "membro"
+    },
+    {
+     "nome": "Cida Oliveira",
+     "partido": "PT",
+     "papel": "suplente"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão de Ética e Decoro Parlamentar",
+   "membros": [
+    {
+     "nome": "Vitinho",
+     "partido": "PSB",
+     "papel": "presidente"
+    },
+    {
+     "nome": "Marlon Siqueira",
+     "partido": "MDB",
+     "papel": "membro"
+    },
+    {
+     "nome": "Fiote",
+     "partido": "PDT",
+     "papel": "membro"
+    },
+    {
+     "nome": "Letícia Delgado",
+     "partido": "PT",
+     "papel": "suplente"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão de Segurança Pública",
+   "membros": [
+    {
+     "nome": "Sargento Mello Casal",
+     "partido": "PL",
+     "papel": "presidente"
+    },
+    {
+     "nome": "Letícia Delgado",
+     "partido": "PT",
+     "papel": "membro"
+    },
+    {
+     "nome": "Roberta Lopes",
+     "partido": "PL",
+     "papel": "membro"
+    },
+    {
+     "nome": "Juraci Scheffer",
+     "partido": "PT",
+     "papel": "suplente"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão de Defesa dos Direitos da Pessoa com Deficiência",
+   "membros": [
+    {
+     "nome": "Fiote",
+     "partido": "PDT",
+     "papel": "presidente"
+    },
+    {
+     "nome": "Dr. Antônio Aguiar",
+     "partido": "UNIÃO",
+     "papel": "membro"
+    },
+    {
+     "nome": "João do Joaninho",
+     "partido": "PSB",
+     "papel": "membro"
+    },
+    {
+     "nome": "Letícia Delgado",
+     "partido": "PT",
+     "papel": "suplente"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão de Defesa, Controle e Proteção dos Animais",
+   "membros": [
+    {
+     "nome": "Kátia Franco",
+     "partido": "PSB",
+     "papel": "presidente"
+    },
+    {
+     "nome": "Marlon Siqueira",
+     "partido": "MDB",
+     "papel": "membro"
+    },
+    {
+     "nome": "Vitinho",
+     "partido": "PSB",
+     "papel": "membro"
+    },
+    {
+     "nome": "Cido Reis",
+     "partido": "PCdoB",
+     "papel": "suplente"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão de Ciência e Tecnologia, Inovação e Comunicação",
+   "membros": [
+    {
+     "nome": "João do Joaninho",
+     "partido": "PSB",
+     "papel": "presidente"
+    },
+    {
+     "nome": "Letícia Delgado",
+     "partido": "PT",
+     "papel": "membro"
+    },
+    {
+     "nome": "Fiote",
+     "partido": "PDT",
+     "papel": "membro"
+    },
+    {
+     "nome": "Marlon Siqueira",
+     "partido": "MDB",
+     "papel": "suplente"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão de Esporte e Lazer",
+   "membros": [
+    {
+     "nome": "Sargento Mello Casal",
+     "partido": "PL",
+     "papel": "presidente"
+    },
+    {
+     "nome": "Kátia Franco",
+     "partido": "PSB",
+     "papel": "membro"
+    },
+    {
+     "nome": "Fiote",
+     "partido": "PDT",
+     "papel": "membro"
+    },
+    {
+     "nome": "André Mariano",
+     "partido": "PL",
+     "papel": "suplente"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão de Meio Ambiente e Desenvolvimento Sustentável",
+   "membros": [
+    {
+     "nome": "Negro Bússola",
+     "partido": "PV",
+     "papel": "presidente"
+    },
+    {
+     "nome": "Cida Oliveira",
+     "partido": "PT",
+     "papel": "membro"
+    },
+    {
+     "nome": "Vitinho",
+     "partido": "PSB",
+     "papel": "membro"
+    },
+    {
+     "nome": "Kátia Franco",
+     "partido": "PSB",
+     "papel": "suplente"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão de Prevenção e Combate às Drogas",
+   "membros": [
+    {
+     "nome": "Sargento Mello Casal",
+     "partido": "PL",
+     "papel": "presidente"
+    },
+    {
+     "nome": "André Mariano",
+     "partido": "PL",
+     "papel": "membro"
+    },
+    {
+     "nome": "Vitinho",
+     "partido": "PSB",
+     "papel": "membro"
+    },
+    {
+     "nome": "Roberta Lopes",
+     "partido": "PL",
+     "papel": "suplente"
+    }
+   ]
+  },
+  {
+   "nome": "Comissão de Turismo",
+   "membros": [
+    {
+     "nome": "Marlon Siqueira",
+     "partido": "MDB",
+     "papel": "presidente"
+    },
+    {
+     "nome": "Kátia Franco",
+     "partido": "PSB",
+     "papel": "membro"
+    },
+    {
+     "nome": "Tiago Bonecão",
+     "partido": "DEMOCRATA",
+     "papel": "membro"
+    },
+    {
+     "nome": "André Mariano",
+     "partido": "PL",
+     "papel": "suplente"
+    }
+   ]
+  }
+ ],
+ "fonte_mesa": "https://www.camarajf.mg.gov.br/www/mesadiretora",
+ "fonte_comissoes": "https://www.camarajf.mg.gov.br/www/comissoes"
+}
