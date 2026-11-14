@@ -121,9 +121,20 @@ def ler(html):
 
 
 def tipos_disponiveis():
-    soup = BeautifulSoup(sessao.get(f"{BASE}/e_atos.php", timeout=60).text, "html.parser")
+    try:
+        r = sessao.get(f"{BASE}/e_atos.php", timeout=60)
+    except requests.RequestException as e:
+        print(f"Atos: erro ao abrir a busca: {e}", file=sys.stderr)
+        return []
+    print(f"Atos: busca respondeu HTTP {r.status_code}, {len(r.text)} caracteres")
+    soup = BeautifulSoup(r.text, "html.parser")
     sel = soup.find("select", attrs={"name": "filtro1"})
-    return [o["value"] for o in sel.find_all("option") if o.get("value")] if sel else []
+    if not sel:
+        nomes = [x.get("name") for x in soup.find_all(["select", "input"])]
+        print(f"Atos: campos encontrados: {nomes[:20]}")
+        print("Atos: início da página: " + " ".join(soup.get_text(" ").split())[:300])
+        return []
+    return [o["value"] for o in sel.find_all("option") if o.get("value")]
 
 
 def coletar_periodo(d1, d2, tipos):
@@ -153,8 +164,15 @@ def main():
     hoje = dt.date.today()
     tipos = tipos_disponiveis()
     if not tipos:
-        print("Atos: página de busca não respondeu como esperado")
-        sys.exit(1)
+        teste = dt.date.today() - dt.timedelta(days=3)
+        try:
+            ok = len(buscar(teste - dt.timedelta(days=4), teste))
+        except RuntimeError:
+            ok = 0
+        print(f"Atos: teste de busca trouxe {ok} atos")
+        if not ok:
+            print("Atos: página de busca não respondeu como esperado")
+            sys.exit(1)
     inicio_t = time.time()
     semana = INICIO
     novas = 0
