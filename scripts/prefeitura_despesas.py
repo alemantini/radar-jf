@@ -254,8 +254,33 @@ def processar_ano(ano, registros):
     return resumo, busca
 
 
+SITE_PUBLICADO = "https://alemantini.github.io/radar-jf/dados/prefeitura/resumo.json"
+
+
+def precisa_baixar():
+    """Só baixa os arquivos grandes quando a Prefeitura publicou uma versão nova.
+    Se não der para confirmar, não baixa (o site fica com a última versão boa)."""
+    if os.environ.get("RADAR_FORCAR_PREFEITURA") == "1":
+        return True, "forçado"
+    nova = data_atualizacao_fonte()
+    if not nova:
+        return False, "não consegui ler a data de atualização na página da Prefeitura"
+    try:
+        r = requests.get(SITE_PUBLICADO, headers={"User-Agent": UA}, timeout=60)
+        publicada = r.json().get("fonte_atualizada_em", "") if r.status_code == 200 else ""
+    except (requests.RequestException, ValueError):
+        publicada = ""
+    if publicada == nova:
+        return False, f"sem novidade: a Prefeitura não atualizou desde {nova}"
+    return True, f"versão nova na Prefeitura ({nova}; publicada no site: {publicada or 'nenhuma'})"
+
+
 def main():
     SAIDA.mkdir(parents=True, exist_ok=True)
+    baixa, motivo = precisa_baixar()
+    print("Prefeitura:", motivo)
+    if not baixa:
+        return  # sem arquivos novos: o workflow reaproveita a última versão publicada
     anterior = json.loads(CONTAGEM.read_text()) if CONTAGEM.exists() else {}
     contagem, anos_resumo, problemas = {}, {}, []
     for ano in ANOS:

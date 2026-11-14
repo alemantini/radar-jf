@@ -52,13 +52,14 @@ jobs:
       - name: Preparar dados do site
         run: python scripts/processar.py
 
-      - name: Prefeitura, despesas (se falhar, o site mantém a última versão boa)
+      - name: Prefeitura, despesas (só baixa quando a Prefeitura publica versão nova)
         id: pref
+        if: github.event_name != 'push'
         continue-on-error: true
         run: python scripts/prefeitura_despesas.py
 
-      - name: Recuperar última versão boa da Prefeitura
-        if: steps.pref.outcome == 'failure'
+      - name: Reaproveitar a última versão publicada da Prefeitura
+        if: steps.pref.outcome != 'success' || hashFiles('site/dados/prefeitura/resumo.json') == ''
         run: |
           mkdir -p site/dados/prefeitura
           base=https://alemantini.github.io/radar-jf/dados/prefeitura
