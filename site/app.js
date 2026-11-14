@@ -446,12 +446,11 @@ const SELO = {
 function pgEscolha() {
   const nV = RESUMO.vereadores.filter(v => !v.fora_da_lista).length;
   app.innerHTML = `
-    <div class="logo-home" role="img" aria-label="Radar JF, Radar PTlândia">
-      <div class="lh-1"><svg class="lh-ic" viewBox="0 0 120 80" aria-hidden="true"><circle cx="60" cy="40" r="11" fill="currentColor"/><path d="M40 18a32 32 0 0 0 0 44M80 18a32 32 0 0 1 0 44M24 6a52 52 0 0 0 0 68M96 6a52 52 0 0 1 0 68" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"/></svg><span>RADAR JF</span></div>
-      <div class="lh-2"><span class="r2">RADAR</span><span class="pt">PT</span><span>LÂNDIA</span><svg class="lh-band" viewBox="0 0 30 21" aria-hidden="true"><rect width="30" height="21" fill="#009c3b"/><path d="M15 2.5 27.5 10.5 15 18.5 2.5 10.5z" fill="#ffdf00"/><circle cx="15" cy="10.5" r="4.6" fill="#002776"/></svg></div>
+    <div class="logo-home" role="img" aria-label="Radar JFlândia">
+      <div class="lh-1"><svg class="lh-ic" viewBox="0 0 120 80" aria-hidden="true"><circle cx="60" cy="40" r="11" fill="currentColor"/><path d="M40 18a32 32 0 0 0 0 44M80 18a32 32 0 0 1 0 44M24 6a52 52 0 0 0 0 68M96 6a52 52 0 0 1 0 68" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"/></svg><span>RADAR</span></div>
+      <div class="lh-2"><span class="pt">JF</span><span>LÂNDIA</span><svg class="lh-band" viewBox="0 0 30 21" aria-hidden="true"><rect width="30" height="21" fill="#009c3b"/><path d="M15 2.5 27.5 10.5 15 18.5 2.5 10.5z" fill="#ffdf00"/><circle cx="15" cy="10.5" r="4.6" fill="#002776"/></svg></div>
     </div>
     <p class="lh-tag"><b>Raio-X de Juiz de Fora-MG.</b> O que cada vereador e a prefeita fazem desde a posse, contado todo dia.</p>
-    <p class="lh-apelido">Juiz de Fora, a Manchester Vermelha</p>
     <p class="sub">Escolha o que você quer acompanhar. Cada número tem a fonte oficial ao lado.</p>
     <div class="escolhas">
       <a class="placa camara" href="#/camara">${ic("camara")}<span class="tx"><span class="tt">Câmara</span><span class="ds">O que cada um dos ${nV} vereadores apresentou, e o que foi pedido para o seu bairro.</span><span class="num">${fmt(RESUMO.total)} propostas</span></span><span class="seta">›</span></a>
