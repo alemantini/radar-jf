@@ -66,6 +66,17 @@ jobs:
           curl -fsS "$base/resumo.json" -o site/dados/prefeitura/resumo.json || echo "sem versão anterior"
           for a in 2025 2026; do curl -fsS "$base/empenhos_$a.json" -o "site/dados/prefeitura/empenhos_$a.json" || true; done
 
+      - name: Prefeitura, receitas para o impostômetro (Siconfi, Tesouro Nacional)
+        id: receitas
+        continue-on-error: true
+        run: python scripts/prefeitura_receitas.py
+
+      - name: Reaproveitar receitas publicadas, se a coleta falhar
+        if: steps.receitas.outcome != 'success'
+        run: |
+          mkdir -p site/dados/prefeitura
+          curl -fsS "https://alemantini.github.io/radar-jf/dados/prefeitura/receitas.json" -o site/dados/prefeitura/receitas.json || echo "sem versão anterior"
+
       - name: Guardar cache de datas e contagens
         run: |
           git config user.name "radar-robo"

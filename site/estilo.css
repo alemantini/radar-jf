@@ -191,3 +191,20 @@ footer{border-top:1px solid var(--linha);color:var(--apoio);font-size:14px;paddi
 .cr-nums > span{background:var(--calcada);border-radius:8px;padding:6px 8px;font-size:12px;color:var(--apoio);line-height:1.25}
 .cr-nums b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:19px;color:var(--tinta)}
 .cracha .barras{display:block}
+
+/* impostômetro e cobrar */
+.impostometro .num{font-size:42px}
+@media(max-width:420px){.impostometro .num{font-size:31px}}
+.nums.verde > *{background:var(--verde-claro)}
+.nums.verde b{color:var(--verde)}
+.cobrar-box{border:2px solid var(--azul);border-radius:var(--raio);padding:10px 12px;margin:10px 0;background:#fff}
+.cobrar-box summary{cursor:pointer;font-weight:700;color:var(--azul);font-size:17px}
+.cobrar-box label{display:block;font-size:14px;font-weight:600;color:var(--apoio);margin:8px 0 4px}
+.cobrar-box select,.cobrar-box textarea{display:block;width:100%;margin-top:4px;font:inherit;font-size:16px;padding:10px;border:2px solid #c9ced6;border-radius:10px;background:#fff;color:var(--tinta)}
+.cobrar-box .acoes{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0}
+@media(min-width:520px){.cobrar-box .acoes{grid-template-columns:1fr 1fr 1fr}}
+.cobrar-box .acoes button{font:inherit;font-weight:700;padding:11px;border-radius:10px;border:0;cursor:pointer}
+.b-email{background:var(--azul);color:#fff}
+.b-zap{background:#128c4a;color:#fff}
+.b-copiar{background:var(--calcada);color:var(--tinta)}
+.contato-gab{font-size:13px;color:var(--apoio)}

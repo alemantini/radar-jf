@@ -132,6 +132,42 @@ function cracha(v) {
   </a>`;
 }
 
+
+// ---------- cobrar o vereador ----------
+const SITE = "https://alemantini.github.io/radar-jf/";
+function mensagemCobranca(v, r, n) {
+  const tema = (r.tm || "melhoria").toLowerCase();
+  return `Olá, ${v.apelido}. Sou morador(a) de Juiz de Fora. A Câmara já recebeu ${r.q} pedidos de ${tema} para a ${r.r}${r.b ? ", " + r.b : ""}${periodo(r.d1, r.d2) ? ", " + periodo(r.d1, r.d2) : ""}. ${n} ${n > 1 ? "deles saíram" : "deles saiu"} do seu gabinete. O problema continua? O que a Prefeitura respondeu e o que ainda pode ser feito?\n\nFonte: ${SITE}#/repetidos/${encodeURIComponent(r.r)}`;
+}
+function painelCobrar(r, ps) {
+  const cont = {};
+  ps.forEach(p => p.au.forEach(a => cont[a] = (cont[a] || 0) + 1));
+  const ids = Object.keys(cont).map(Number).filter(a => VER[a]).sort((a, b) => cont[b] - cont[a]);
+  if (!ids.length) return "";
+  const uid = "cb" + Math.random().toString(36).slice(2, 8);
+  setTimeout(() => {
+    const box = document.getElementById(uid); if (!box) return;
+    const sel = box.querySelector("select"), txt = box.querySelector("textarea"), info = box.querySelector(".contato-gab");
+    const atual = () => VER[+sel.value];
+    const atualiza = () => {
+      const v = atual(); txt.value = mensagemCobranca(v, r, cont[v.id]);
+      info.innerHTML = v.email_gabinete || v.telefone_gabinete ? `E-mail oficial: <b>${esc(v.email_gabinete || "não informado")}</b>${v.telefone_gabinete ? ` · Telefone do gabinete: <b>${esc(v.telefone_gabinete)}</b>` : ""}` : "A Câmara não informa contato deste vereador.";
+      box.querySelector(".b-email").style.display = v.email_gabinete ? "" : "none";
+    };
+    sel.onchange = atualiza; atualiza();
+    box.querySelector(".b-email").onclick = () => { const v = atual(); location.href = `mailto:${v.email_gabinete}?subject=${encodeURIComponent("Pedido repetido: " + r.r)}&body=${encodeURIComponent(txt.value)}`; };
+    box.querySelector(".b-zap").onclick = () => window.open(`https://wa.me/?text=${encodeURIComponent(txt.value)}`, "_blank", "noopener");
+    box.querySelector(".b-copiar").onclick = async e => { try { await navigator.clipboard.writeText(txt.value); e.target.textContent = "Mensagem copiada"; } catch (_) { txt.select(); } };
+  });
+  return `<details class="cobrar-box" id="${uid}"><summary>Cobrar uma resposta</summary>
+    <p class="sub">A mensagem já vem pronta. Escolha o vereador, ajuste o texto se quiser e envie.</p>
+    <label>Para quem<select>${ids.map(a => `<option value="${a}">${esc(VER[a].apelido)} (${cont[a]} ${cont[a] > 1 ? "pedidos" : "pedido"} para esta rua)</option>`).join("")}</select></label>
+    <label>Mensagem<textarea rows="7"></textarea></label>
+    <div class="acoes"><button class="b-email" type="button">Enviar por e-mail</button><button class="b-zap" type="button">Compartilhar no WhatsApp</button><button class="b-copiar" type="button">Copiar mensagem</button></div>
+    <p class="contato-gab"></p>
+  </details>`;
+}
+
 let _relogio = null;
 function pgInicio() {
   const R = RESUMO, t = R.totais;
@@ -172,6 +208,11 @@ function pgInicio() {
     <p class="sub">Quando o mesmo pedido volta várias vezes para a mesma rua. O site da Câmara não mostra isso: o robô cruza os pedidos um por um.</p>
     <div id="rep-top" class="rep-grid"><p class="carregando">Carregando…</p></div>
     <a class="btn-grande camara" href="#/repetidos">${ic("repete")}<span class="tx">Ver todas as ruas com pedidos repetidos</span>›</a>
+
+    <h2>Quem mais propôs</h2>
+    <div class="aviso">Quantidade não mede qualidade: um pedido de troca de lâmpada e um projeto de lei contam igual aqui. Veja os grupos de cada vereador antes de tirar conclusões.</div>
+    ${[...atuais].sort((a, b) => (b.contagem.total || 0) - (a.contagem.total || 0)).slice(0, 5).map(v => `<a class="linha-t" href="#/v/${v.id}"><span>${esc(v.apelido)}${v.partido ? ", " + esc(v.partido) : ""}</span><b>${fmt(v.contagem.total)}</b></a>`).join("")}
+    <p class="sub" style="margin-top:8px">Os outros ${atuais.length - 5} estão nos crachás, mais abaixo, em ordem alfabética.</p>
 
     <h2>Homenagem ou trabalho?</h2>
     <p class="sub">Toque em um grupo para ler cada proposta.</p>
@@ -317,6 +358,7 @@ async function pgRepetidos(filtro0) {
         return `<div class="rep"><div><span class="q">${r.q} vezes</span> <b>${esc(r.tm)}</b></div>
           <div>${esc(r.r)}${r.b ? ", " + esc(r.b) : ""}</div>
           <div class="pe" style="font-size:14px;color:#555">${r.nv ? `${r.nv} ${r.nv > 1 ? "vereadores pediram" : "vereador pediu"}${periodo(r.d1, r.d2) ? ", " + periodo(r.d1, r.d2) : ""}<br>` : ""}Quando: ${datas}<br>Quem pediu: ${quem}</div>
+          ${painelCobrar(r, ps)}
           <details><summary>Ver os ${r.q} pedidos</summary>${ps.map(p => itemHTML(p, true)).join("")}</details></div>`;
       }).join(""));
       n += 30;
@@ -361,11 +403,11 @@ function pgSobre() {
 // ---------- rotas ----------
 const SUBNAV = {
   camara: [["#/camara", "Vereadores", "pessoas"], ["#/busca", "Meu bairro", "pin"], ["#/repetidos", "Pedidos que voltam", "repete"]],
-  prefeitura: [["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
+  prefeitura: [["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
 };
 const SELO = {
   camara: () => `<div class="placa camara">${ic("camara")}<span class="tx"><span class="tt">Câmara Municipal de Juiz de Fora</span><span class="ds">O que os vereadores apresentam. Fonte: sistema oficial da Câmara.</span></span></div>`,
-  prefeitura: () => `<div class="placa prefeitura">${ic("dinheiro")}<span class="tx"><span class="tt">Prefeitura de Juiz de Fora</span><span class="ds">Para onde vai o dinheiro. Fonte: Portal da Transparência.</span></span></div>`,
+  prefeitura: () => `<div class="placa prefeitura">${ic("dinheiro")}<span class="tx"><span class="tt">Prefeitura de Juiz de Fora</span><span class="ds">Quanto entra e para onde vai o dinheiro. Fontes: Portal da Transparência e Tesouro Nacional.</span></span></div>`,
 };
 
 function pgEscolha() {

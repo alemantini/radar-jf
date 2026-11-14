@@ -57,12 +57,84 @@ function listaEmpenhos(d, itens, alvo) {
   mais();
 }
 
+
+// ---------- Impostômetro (Siconfi / Tesouro Nacional) ----------
+let RECEITAS = null, _relogioImp = null;
+async function prefReceitas() {
+  if (!RECEITAS) RECEITAS = await fetch("dados/prefeitura/receitas.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  return RECEITAS;
+}
+const NOME_MES_LONGO = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+const mesLongo = am => `${NOME_MES_LONGO[+am.slice(5, 7) - 1]} de ${am.slice(0, 4)}`;
+function impostosAno(R, conta, ano) {
+  const c = R.contas[conta]; if (!c) return 0;
+  return Object.entries(c.meses).filter(([m]) => m.startsWith(String(ano))).reduce((s, [, v]) => s + v, 0);
+}
+function impostometro(R, agora = new Date()) {
+  const conta = "Impostos, Taxas e Contribuições de Melhoria";
+  const c = R.contas[conta]; if (!c) return null;
+  const ano = agora.getFullYear();
+  const oficial = impostosAno(R, conta, ano);
+  const porSeg = (c.total_12m || 0) / 365 / 86400;
+  const [ua, um] = R.ultimo_mes.split("-").map(Number);
+  // estimativa a partir do dia seguinte ao último mês informado (ou de 1º de janeiro, se for de outro ano)
+  const inicio = ua === ano ? new Date(ua, um, 1) : new Date(ano, 0, 1);
+  const seg = Math.max(0, (agora - inicio) / 1000);
+  return {oficial: ua === ano ? oficial : 0, estimado: seg * porSeg, total: (ua === ano ? oficial : 0) + seg * porSeg, porSeg, ano};
+}
+function blocoImpostometro(R, grande = true) {
+  const x = impostometro(R); if (!x) return "";
+  return `<div class="placa prefeitura contador impostometro">
+    <span class="tx"><span class="ds">Impostômetro de Juiz de Fora: impostos e taxas municipais pagos em ${x.ano}</span>
+    <span class="tt num" id="imp-valor">${reais(x.total, false)}</span>
+    <span class="ds">IPTU, ISS, ITBI e taxas da Prefeitura. Até ${mesLongo(R.ultimo_mes)}: valor oficial informado ao Tesouro Nacional. Depois disso: estimativa pela média dos últimos 12 meses, cerca de ${reais(x.porSeg * 86400)} por dia.</span></span></div>`;
+}
+function ligarRelogioImp(R) {
+  clearInterval(_relogioImp);
+  const el = document.getElementById("imp-valor"); if (!el) return;
+  const passo = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 60000 : 1000;
+  _relogioImp = setInterval(() => { if (!document.body.contains(el)) return clearInterval(_relogioImp); el.textContent = reais(impostometro(R).total, false); }, passo);
+}
+
+async function pgImpostometro() {
+  const R = await prefReceitas();
+  if (!R) { app.innerHTML = "<h1>Impostômetro</h1><p>Os dados de arrecadação ainda não foram coletados. Tente mais tarde.</p>"; return; }
+  const ano = new Date().getFullYear();
+  const C = R.contas, imp = C["Impostos, Taxas e Contribuições de Melhoria"], rc = C["RECEITAS CORRENTES (I)"];
+  const partes = ["IPTU", "ISS", "ITBI", "Outros Impostos, Taxas e Contribuições de Melhoria"].filter(k => C[k]);
+  const meses = Object.entries(imp.meses);
+  const maxM = Math.max(...meses.map(([, v]) => v), 1);
+  const pop = R.populacao;
+  app.innerHTML = `
+    <h1>Impostômetro de Juiz de Fora</h1>
+    <p class="sub">Quanto os moradores e as empresas de Juiz de Fora pagam em impostos e taxas para a Prefeitura. Dados oficiais que a própria Prefeitura informa ao Tesouro Nacional a cada dois meses.</p>
+    ${blocoImpostometro(R)}
+    <h2>De onde vem: últimos 12 meses</h2>
+    <p class="sub">Até ${mesLongo(R.ultimo_mes)}.</p>
+    ${partes.map(k => `<div class="linha"><span class="nm">${esc(C[k].nome)}<div class="barra-p" style="width:${Math.round(100 * (C[k].total_12m || 0) / (imp.total_12m || 1))}%"></div></span><span class="vl">${reais(C[k].total_12m)}</span></div>`).join("")}
+    <div class="linha"><span class="nm"><b>Total de impostos e taxas municipais</b></span><span class="vl">${reais(imp.total_12m)}</span></div>
+    ${pop ? `<div class="nums verde"><span><b>${reais((imp.total_12m || 0) / pop)}</b>por morador, em 12 meses</span><span><b>${fmt(pop)}</b>moradores (estimativa usada pelo Tesouro)</span></div>` : ""}
+    <h2>Mês a mês</h2>
+    <div class="meses">${meses.map(([m, v]) => `<div title="${mesLongo(m)}: ${reais(v, false)}" style="height:${Math.round(100 * v / maxM)}%"></div>`).join("")}</div>
+    <div class="meses-r">${meses.map(([m]) => `<span>${NOMES_MES[+m.slice(5, 7) - 1]}</span>`).join("")}</div>
+    <p class="sub">IPTU costuma pesar no começo do ano, quando vence a cota única.</p>
+    ${rc ? `<h2>E o resto do dinheiro?</h2>
+    <p>Impostos e taxas municipais são só uma parte. Somando os repasses da União e do Estado (como FPM, ICMS, IPVA e verbas do SUS e da educação) e outras receitas, a Prefeitura recebeu <b>${reais(rc.total_12m)}</b> em receitas correntes nos últimos 12 meses. Os impostos e taxas municipais foram ${Math.round(100 * (imp.total_12m || 0) / (rc.total_12m || 1))}% disso.</p>
+    ${["Cota-Parte do FPM", "Cota-Parte do ICMS", "Cota-Parte do IPVA"].filter(k => C[k]).map(k => `<div class="linha"><span class="nm">${esc(C[k].nome)}</span><span class="vl">${reais(C[k].total_12m)}</span></div>`).join("")}` : ""}
+    <div class="info">Diferente do impostômetro de São Paulo, que soma todos os impostos do país (federais, estaduais e municipais), este mostra só o que é arrecadado pela Prefeitura de Juiz de Fora. O número que sobe em tempo real depois do último mês informado é uma estimativa; o valor oficial é atualizado quando a Prefeitura envia o próximo relatório ao Tesouro.</div>
+    <p class="sub">Fonte: ${esc(R.fonte)}. <a href="${R.fonte_url}" target="_blank" rel="noopener">Ver os dados oficiais</a> · coletado em ${esc(R.coletado_em)}.</p>
+    <a class="btn-grande prefeitura" href="#/prefeitura">${ic("predios")}<span class="tx">Para onde vai esse dinheiro<small>Gastos por secretaria</small></span>›</a>`;
+  ligarRelogioImp(R);
+}
+
 async function pgPrefInicio(ano) {
   const R = await prefResumo();
   ano = ano || anosDisp(R)[0];
   const A = R.anos[ano], t = A.total;
   const max = Math.max(...A.secretarias.map(s => s.p), 1);
+  const REC = await prefReceitas();
   app.innerHTML = `
+    ${REC ? blocoImpostometro(REC) + `<a class="btn-grande prefeitura" href="#/prefeitura/impostometro">${ic("dinheiro")}<span class="tx">Ver o impostômetro completo<small>IPTU, ISS, ITBI, por morador e mês a mês</small></span>›</a>` : ""}
     <h1>Para onde vai o dinheiro da Prefeitura</h1>
     <p class="sub">Quanto cada secretaria e órgão da Prefeitura de Juiz de Fora gastou, segundo os arquivos oficiais de despesas. ${fonteLink("Ver fonte oficial")}${R.fonte_atualizada_em ? ` (atualizada pela Prefeitura em ${esc(R.fonte_atualizada_em)})` : ""}.</p>
     ${seletorAnos(R, ano, "#/prefeitura/ano/")}
@@ -80,6 +152,7 @@ async function pgPrefInicio(ano) {
     <h2>Pagamentos a pessoas físicas</h2>
     <p>${reais(A.pessoa_fisica.p)} pagos em ${fmt(A.pessoa_fisica.n)} lançamentos a pessoas físicas. A maior parte é folha de pagamento: salários de servidores, aposentadorias, pensões e contratos temporários. <b>Nomes e CPFs não são exibidos neste site.</b></p>
     ${(A.pessoa_fisica.elementos || []).map(e => `<div class="linha"><span class="nm">${esc(e.nome)}</span><span class="vl">${reais(e.p)}</span></div>`).join("")}`;
+  if (REC) ligarRelogioImp(REC);
 }
 
 async function pgPrefSecretaria(ano, i) {
@@ -178,6 +251,7 @@ async function pgPrefBusca(ano, q0) {
 async function rotaPrefeitura(p) {
   const [sub, a, b] = p;
   if (sub === "ano") return pgPrefInicio(a);
+  if (sub === "impostometro") return pgImpostometro();
   if (sub === "s") return pgPrefSecretaria(a, +b);
   if (sub === "fornecedores") return pgPrefFornecedores(a);
   if (sub === "empresa") return pgPrefEmpresa(a, b);
