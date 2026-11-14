@@ -71,6 +71,8 @@ async function pgPrefInicio(ano) {
       <div><span>Liquidado</span><b>${reais(t.l)}</b></div>
       <div><span>Pago</span><b class="p-verde">${reais(t.p)}</b></div>
     </div>
+    <a class="btn-grande prefeitura" href="#/prefeitura/fornecedores/${ano}">${ic("maleta")}<span class="tx">Quem recebe da Prefeitura<small>Empresas e entidades que mais receberam</small></span>›</a>
+    <a class="btn-grande prefeitura" href="#/prefeitura/busca/${ano}">${ic("lupa")}<span class="tx">Pesquisar um gasto<small>Asfalto, merenda, combustível, nome da empresa</small></span>›</a>
     ${explicacao}
     <h2>Quanto cada órgão pagou em ${ano}</h2>
     <p class="sub">${A.secretarias.length} unidades, da que mais pagou para a que menos pagou. Toque para ver em quê e com quem.</p>
@@ -187,7 +189,7 @@ async function sobrePrefeitura() {
   let R = null;
   try { R = await prefResumo(); } catch (e) { return; }
   app.insertAdjacentHTML("beforeend", `
-    <div class="selo prefeitura" style="margin-top:28px">🏢 PREFEITURA</div>
+    <div class="placa prefeitura" style="margin-top:28px">${ic("dinheiro")}<span class="tx"><span class="tt">Prefeitura</span></span></div>
     <p>Os gastos da Prefeitura vêm dos <a href="${FONTE_PREF}" target="_blank" rel="noopener">arquivos oficiais de despesas</a> publicados no Portal da Transparência de Juiz de Fora, que a própria Prefeitura atualiza toda semana${R.fonte_atualizada_em ? ` (última atualização: ${esc(R.fonte_atualizada_em)})` : ""}. Cada linha é um empenho, com o órgão, o credor, os valores e a descrição.</p>
     <ul>
       <li>Os valores são somados exatamente como estão no arquivo, incluindo anulações e correções (que aparecem como valores negativos).</li>

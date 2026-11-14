@@ -5,16 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Radar JF: Câmara e Prefeitura de Juiz de Fora com dados oficiais</title>
 <meta name="description" content="O que fazem os vereadores e para onde vai o dinheiro da Prefeitura de Juiz de Fora, só com dados oficiais.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="estilo.css">
 </head>
 <body>
 <header>
-  <a href="#/" class="marca">Radar <b>JF</b></a>
-  <nav class="areas">
-    <a href="#/camara" data-area="camara" class="area-camara">🏛️ Câmara</a>
-    <a href="#/prefeitura" data-area="prefeitura" class="area-prefeitura">🏢 Prefeitura</a>
-    <a href="#/sobre" data-area="sobre">Como funciona</a>
-  </nav>
+  <div class="topo-h">
+    <a href="#/" class="marca"><span data-ic="pin"></span>Radar JF</a>
+    <nav class="areas">
+      <a href="#/camara" data-area="camara" class="area-camara"><span data-ic="camara"></span><span class="txt-area">Câmara</span></a>
+      <a href="#/prefeitura" data-area="prefeitura" class="area-prefeitura"><span data-ic="dinheiro"></span><span class="txt-area">Prefeitura</span></a>
+      <a href="#/sobre" data-area="sobre"><span data-ic="info"></span><span class="txt-area">Como funciona</span></a>
+    </nav>
+  </div>
   <nav id="subnav"></nav>
 </header>
 <div id="selo"></div>

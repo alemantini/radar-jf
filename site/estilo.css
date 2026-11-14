@@ -1,77 +1,140 @@
+/* Radar JF: visual inspirado nas placas de rua esmaltadas.
+   Azul = Câmara, Verde = Prefeitura, Amarelo = atenção */
+:root{
+  --azul:#12407a; --azul-claro:#e8eef7;
+  --verde:#0f6b4b; --verde-claro:#e6f2ec;
+  --amarelo:#f2b705; --amarelo-claro:#fff6d6;
+  --tinta:#1c2430; --apoio:#5b6573; --linha:#e3e6ea; --calcada:#f4f5f7;
+  --raio:12px;
+}
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#1b1f24;background:#fff;font-size:17px;line-height:1.45}
-a{color:#0b57d0}
-header{position:sticky;top:0;background:#fff;border-bottom:1px solid #e3e6ea;padding:10px 16px;z-index:5}
-.marca{font-size:20px;text-decoration:none;color:#1b1f24}
-.marca b{color:#0b57d0}
-nav{display:flex;gap:14px;overflow-x:auto;margin-top:6px;white-space:nowrap;font-size:15px}
-nav a{text-decoration:none;padding:4px 0}
-nav a.ativo{font-weight:700;border-bottom:2px solid #0b57d0}
-main{max-width:760px;margin:0 auto;padding:16px}
-h1{font-size:24px;margin:8px 0 6px}
-h2{font-size:19px;margin:22px 0 8px}
-.sub{color:#555;margin:0 0 14px}
-.carregando{color:#666}
-.aviso{background:#fff8e1;border:1px solid #f2d27a;border-radius:10px;padding:10px 12px;font-size:15px;margin:12px 0}
-.info{background:#f3f6fb;border-radius:10px;padding:10px 12px;font-size:15px;margin:12px 0}
+body{margin:0;font-family:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--tinta);background:#fff;font-size:17px;line-height:1.5}
+a{color:var(--azul)}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--amarelo);outline-offset:2px}
+h1,h2,.marca,.placa,.btn-grande,.num{font-family:"Barlow Condensed","Barlow",system-ui,sans-serif}
+h1{font-size:30px;line-height:1.1;margin:10px 0 8px;font-weight:700}
+h2{font-size:22px;line-height:1.2;margin:26px 0 8px;font-weight:700}
+.sub{color:var(--apoio);margin:0 0 14px}
+small.sub{font-size:13px}
+.carregando{color:var(--apoio)}
+main{max-width:760px;margin:0 auto;padding:12px 16px 24px}
+
+/* ---------- placa (o elemento-assinatura) ---------- */
+.placa{position:relative;display:flex;align-items:center;gap:12px;border-radius:var(--raio);color:#fff;text-decoration:none;padding:14px 16px;font-weight:700}
+.placa::after{content:"";position:absolute;inset:4px;border:2px solid rgba(255,255,255,.85);border-radius:calc(var(--raio) - 4px);pointer-events:none}
+.placa.camara{background:var(--azul)}
+.placa.prefeitura{background:var(--verde)}
+.placa.neutra{background:var(--tinta)}
+.placa svg{flex:none;width:30px;height:30px}
+.placa .tx{flex:1;min-width:0}
+.placa .tt{display:block;font-size:24px;line-height:1.1}
+.placa .ds{display:block;font-family:"Barlow",system-ui,sans-serif;font-weight:500;font-size:15px;opacity:.92;line-height:1.35;margin-top:3px}
+.placa .seta{font-size:30px;line-height:1;opacity:.9}
+a.placa:active{transform:translateY(1px)}
+
+/* ---------- cabeçalho ---------- */
+header{position:sticky;top:0;background:#fff;border-bottom:1px solid var(--linha);z-index:5}
+.topo-h{max-width:760px;margin:0 auto;padding:8px 16px 8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.marca{font-size:24px;font-weight:700;text-decoration:none;color:var(--tinta);margin-right:auto;display:flex;align-items:center;gap:6px}
+.marca svg{width:22px;height:22px;color:var(--azul)}
+nav.areas{display:flex;gap:6px}
+nav.areas a{display:flex;align-items:center;gap:5px;border:2px solid var(--linha);border-radius:10px;padding:5px 10px;color:var(--tinta);font-weight:600;font-size:15px;text-decoration:none;white-space:nowrap}
+nav.areas a svg{width:18px;height:18px}
+nav.areas a.area-camara.ativo{background:var(--azul);border-color:var(--azul);color:#fff}
+nav.areas a.area-prefeitura.ativo{background:var(--verde);border-color:var(--verde);color:#fff}
+nav.areas a[data-area=sobre].ativo{background:var(--tinta);border-color:var(--tinta);color:#fff}
+#subnav{max-width:760px;margin:0 auto;padding:0 16px 10px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+#subnav:empty{display:none}
+#subnav a{display:flex;align-items:center;gap:6px;flex:none;padding:8px 12px;border-radius:10px;background:var(--calcada);color:var(--tinta);text-decoration:none;font-weight:600;font-size:15px}
+#subnav a svg{width:18px;height:18px}
+#subnav.camara a.ativo{background:var(--azul-claro);color:var(--azul);box-shadow:inset 0 0 0 2px var(--azul)}
+#subnav.prefeitura a.ativo{background:var(--verde-claro);color:var(--verde);box-shadow:inset 0 0 0 2px var(--verde)}
+@media(max-width:560px){nav.areas{width:100%} nav.areas a{flex:1;justify-content:center;padding:7px 4px;font-size:15px} nav.areas a svg{display:none}}
+
+/* faixa da área */
+#selo{max-width:760px;margin:0 auto;padding:0 16px}
+#selo .placa{margin-top:14px;padding:10px 14px}
+#selo .placa svg{width:26px;height:26px}
+#selo .placa .tt{font-size:19px}
+#selo .placa .ds{font-size:14px}
+
+/* ---------- página inicial ---------- */
+.escolhas{display:grid;gap:14px;margin:18px 0}
+.escolhas .placa{padding:20px 18px;min-height:128px}
+.escolhas .placa svg{width:46px;height:46px}
+.escolhas .placa .tt{font-size:32px}
+.escolhas .placa .num{display:inline-block;margin-top:8px;background:rgba(255,255,255,.16);border-radius:8px;padding:2px 8px;font-size:18px}
+
+/* ---------- botões grandes ---------- */
+.btn-grande{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:2px solid var(--linha);background:#fff;border-radius:var(--raio);padding:12px 14px;margin:10px 0;font-size:19px;font-weight:700;color:var(--tinta);text-decoration:none;cursor:pointer}
+.btn-grande svg{flex:none;width:26px;height:26px}
+.btn-grande .tx{flex:1}
+.btn-grande .tx small{display:block;font-family:"Barlow",sans-serif;font-weight:500;font-size:14px;color:var(--apoio)}
+.btn-grande.camara{border-color:var(--azul);color:var(--azul)}
+.btn-grande.prefeitura{border-color:var(--verde);color:var(--verde)}
+
+/* grupos da Câmara: botões com número grande */
+.grupos{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.grupos .grupo-link:first-child{grid-column:1 / -1}
+.grupo-link{display:flex;flex-direction:column;gap:2px;border:2px solid var(--linha);border-radius:var(--raio);padding:10px 12px;background:#fff;cursor:pointer;text-align:left;font:inherit;color:var(--tinta);text-decoration:none}
+.grupo-link .gn{display:flex;align-items:center;gap:6px;font-weight:600;font-size:15px}
+.grupo-link b{font-family:"Barlow Condensed",sans-serif;font-size:28px;line-height:1.1}
+.grupo-link.on{border-color:var(--azul);background:var(--azul-claro)}
+.ponto{width:12px;height:12px;border-radius:3px;flex:none}
+
+/* cores dos grupos (sempre com texto ao lado, nunca só a cor) */
+.g-pedidos{background:#12407a}.g-cobrancas{background:#6b3fa0}.g-homenagens{background:#b06a00}.g-leis{background:#0f6b4b}.g-outros{background:#7a828e}
+
+/* ---------- avisos ---------- */
+.aviso{background:var(--amarelo-claro);border-left:6px solid var(--amarelo);border-radius:8px;padding:10px 12px;font-size:15px;margin:12px 0}
+.info{background:var(--calcada);border-radius:8px;padding:10px 12px;font-size:15px;margin:12px 0}
+
+/* ---------- vereadores ---------- */
 .cards{display:grid;grid-template-columns:1fr;gap:10px}
 @media(min-width:600px){.cards{grid-template-columns:1fr 1fr}}
-.card{border:1px solid #e3e6ea;border-radius:12px;padding:12px;text-decoration:none;color:inherit;display:block}
-.card:hover{border-color:#0b57d0}
-.card .nome{font-weight:700;font-size:17px}
-.card .partido{color:#666;font-size:14px}
-.barras{margin-top:8px;font-size:14px}
-.barra{display:flex;align-items:center;gap:8px;margin:3px 0}
+.card{display:flex;gap:12px;border:1px solid var(--linha);border-radius:var(--raio);padding:12px;text-decoration:none;color:inherit;background:#fff}
+.card:hover{border-color:var(--azul)}
+.avatar{flex:none;width:46px;height:46px;border-radius:10px;background:var(--azul);color:#fff;display:flex;align-items:center;justify-content:center;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:20px;position:relative}
+.avatar::after{content:"";position:absolute;inset:3px;border:1.5px solid rgba(255,255,255,.8);border-radius:7px}
+.card.fora .avatar{background:var(--apoio)}
+.card .cx{flex:1;min-width:0}
+.card .nome{font-weight:700;font-size:18px;line-height:1.2}
+.card .partido{color:var(--apoio);font-size:14px}
+.barras{margin-top:8px;font-size:13px}
+.barra{display:flex;align-items:center;gap:6px;margin:3px 0}
 .barra span.r{width:118px;color:#444;flex:none}
-.barra .b{height:10px;border-radius:5px;background:#0b57d0;min-width:2px}
-.barra .n{color:#222;font-variant-numeric:tabular-nums}
-.g-pedidos{background:#0b57d0}.g-cobrancas{background:#7b3fc4}.g-homenagens{background:#c47a00}.g-leis{background:#0a7d4f}.g-outros{background:#8a8f98}
-input[type=search],select{width:100%;font-size:17px;padding:12px;border:1px solid #c9ced6;border-radius:10px}
-.filtros{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
-.filtros button{border:1px solid #c9ced6;background:#fff;border-radius:20px;padding:6px 12px;font-size:14px;cursor:pointer}
-.filtros button.on{background:#0b57d0;color:#fff;border-color:#0b57d0}
-.item{border-bottom:1px solid #eef0f3;padding:10px 0}
-.item .topo{font-size:13px;color:#666}
-.item .txt{margin:3px 0}
-.item .pe{font-size:13px;color:#666}
-.tag{display:inline-block;font-size:12px;border-radius:10px;padding:1px 8px;color:#fff;margin-right:4px}
-.grupo-link{display:flex;justify-content:space-between;border:1px solid #e3e6ea;border-radius:10px;padding:12px;margin:6px 0;text-decoration:none;color:inherit;cursor:pointer;background:#fff;width:100%;font-size:16px;text-align:left}
-.grupo-link b{font-variant-numeric:tabular-nums}
-.contato{font-size:15px;color:#333}
-.rep{border:1px solid #e3e6ea;border-radius:12px;padding:12px;margin:8px 0}
-.rep .q{font-size:22px;font-weight:700;color:#b3261e}
-.mais{display:block;margin:14px auto;padding:10px 18px;border-radius:10px;border:1px solid #c9ced6;background:#fff;font-size:15px;cursor:pointer}
-footer{border-top:1px solid #e3e6ea;color:#555;font-size:14px;padding:14px 16px 30px;max-width:760px;margin:20px auto 0}
-/* áreas: Câmara (azul) e Prefeitura (verde) */
-nav.areas{gap:6px;margin-top:8px}
-nav.areas a{border:1px solid #d5dae1;border-radius:20px;padding:5px 12px;color:#333;font-weight:600}
-nav.areas a.ativo{border-bottom:1px solid}
-nav.areas a.area-camara.ativo{background:#0b57d0;border-color:#0b57d0;color:#fff}
-nav.areas a.area-prefeitura.ativo{background:#0a7d4f;border-color:#0a7d4f;color:#fff}
-nav.areas a[data-area=sobre].ativo{background:#444;border-color:#444;color:#fff}
-#subnav{margin-top:6px}
-#subnav:empty{display:none}
-#selo{max-width:760px;margin:0 auto;padding:0 16px}
-.selo{margin-top:12px;border-radius:10px;padding:8px 12px;font-size:14px;font-weight:600;color:#fff}
-.selo small{display:block;font-weight:400;opacity:.9}
-.selo.camara{background:#0b57d0}
-.selo.prefeitura{background:#0a7d4f}
-.escolha{display:block;border:2px solid #e3e6ea;border-radius:14px;padding:16px;margin:12px 0;text-decoration:none;color:inherit}
-.escolha.camara{border-color:#0b57d0}.escolha.prefeitura{border-color:#0a7d4f}
-.escolha h2{margin:0 0 4px}
-.escolha .num{font-size:22px;font-weight:700}
-.p-verde{color:#0a7d4f}
-.big{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
-.totais{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:10px 0}
-.totais div{background:#f3f7f4;border-radius:10px;padding:10px}
-.totais b{display:block;font-size:18px}
-.totais span{font-size:12px;color:#555}
-.linha{display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid #eef0f3;padding:9px 0;text-decoration:none;color:inherit}
-.linha .nm{flex:1}
-.linha .vl{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap}
-.linha .barra-p{height:6px;background:#0a7d4f;border-radius:3px;margin-top:4px}
+.barra .b{height:9px;border-radius:5px;min-width:2px}
+.barra .n{font-variant-numeric:tabular-nums}
+.contato{font-size:15px}
+
+/* ---------- busca, listas ---------- */
+input[type=search],select{width:100%;font:inherit;font-size:18px;padding:13px 14px;border:2px solid #c9ced6;border-radius:var(--raio);background:#fff}
+input[type=search]:focus{border-color:var(--azul);outline:none}
+.filtros,.anos{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.filtros button,.anos button{border:2px solid #c9ced6;background:#fff;border-radius:10px;padding:7px 14px;font:inherit;font-size:15px;font-weight:600;cursor:pointer;color:var(--tinta)}
+.filtros button.on{background:var(--azul);color:#fff;border-color:var(--azul)}
+.anos button.on{background:var(--verde);color:#fff;border-color:var(--verde)}
+.item{border-bottom:1px solid #eef0f3;padding:12px 0}
+.item .topo{font-size:13px;color:var(--apoio)}
+.item .txt{margin:4px 0}
+.item .pe{font-size:13px;color:var(--apoio)}
+.tag{display:inline-block;font-size:12px;font-weight:600;border-radius:6px;padding:1px 7px;color:#fff;margin-right:5px}
+.rep{border:1px solid var(--linha);border-radius:var(--raio);padding:12px;margin:10px 0}
+.rep .q{font-family:"Barlow Condensed",sans-serif;font-size:26px;font-weight:700;color:#9a3412}
+.mais{display:block;margin:16px auto;padding:11px 20px;border-radius:10px;border:2px solid #c9ced6;background:#fff;font:inherit;font-weight:600;cursor:pointer}
+
+/* ---------- Prefeitura ---------- */
+.p-verde{color:var(--verde)}
+.totais{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin:12px 0}
+.totais div{background:var(--verde-claro);border-radius:10px;padding:10px}
+.totais b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:22px;line-height:1.15}
+.totais span{font-size:13px;color:var(--apoio)}
+.linha{display:flex;justify-content:space-between;gap:10px;align-items:center;border-bottom:1px solid #eef0f3;padding:10px 0;text-decoration:none;color:inherit}
+.linha .nm{flex:1;min-width:0}
+.linha .vl{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+.linha .barra-p{height:7px;background:var(--verde);border-radius:4px;margin-top:5px}
 .meses{display:flex;align-items:flex-end;gap:4px;height:120px;margin:10px 0 2px}
-.meses div{flex:1;background:#0a7d4f;border-radius:3px 3px 0 0;min-height:1px}
-.meses-r{display:flex;gap:4px;font-size:11px;color:#666}.meses-r span{flex:1;text-align:center}
-.anos button{border:1px solid #c9ced6;background:#fff;border-radius:20px;padding:5px 14px;margin-right:6px;font-size:15px;cursor:pointer}
-.anos button.on{background:#0a7d4f;color:#fff;border-color:#0a7d4f}
+.meses div{flex:1;background:var(--verde);border-radius:3px 3px 0 0;min-height:1px}
+.meses-r{display:flex;gap:4px;font-size:11px;color:var(--apoio)}.meses-r span{flex:1;text-align:center}
+
+footer{border-top:1px solid var(--linha);color:var(--apoio);font-size:14px;padding:14px 16px 30px;max-width:760px;margin:20px auto 0}

@@ -5,6 +5,21 @@ const ORDEM = ["pedidos", "cobrancas", "homenagens", "leis", "outros"];
 const CURTO = {pedidos: "Pedidos nos bairros", cobrancas: "Perguntas e cobranças", homenagens: "Homenagens", leis: "Propostas de lei", outros: "Outros"};
 const TIPOS = {REQ: "Requerimento", IND: "Indicação", PEDIF: "Pedido de Informação", REP: "Representação", MOC: "Moção", PLEI: "Projeto de Lei", PLEIC: "Projeto de Lei Complementar", PELOR: "Emenda à Lei Orgânica", PRES: "Projeto de Resolução", PDL: "Projeto de Decreto Legislativo"};
 
+// ícones simples (traço), usados nos botões
+const ICONE = {
+  camara: '<path d="M3 21h18M5 21V10M9.5 21V10M14.5 21V10M19 21V10M2 10l10-6 10 6z"/>',
+  dinheiro: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/>',
+  pin: '<path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/>',
+  repete: '<path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/>',
+  lupa: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+  pessoas: '<circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2M16 3.1a4 4 0 0 1 0 7.8M22 21v-2a4 4 0 0 0-3-3.9"/>',
+  predios: '<path d="M3 21h18M5 21V4h9v17M14 9h5v12M8 8h3M8 12h3M8 16h3"/>',
+  maleta: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2M2 13h20"/>',
+  info: '<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
+};
+const ic = (n, cls = "") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONE[n] || ""}</svg>`;
+const iniciais = n => String(n || "").replace(/^(Dr|Dra|Sargento|Prof|Profa)\.?\s+/i, "").split(/\s+/).filter(p => p.length > 2 || /^[A-ZÀ-Ý]/.test(p)).slice(0, 2).map(p => p[0]).join("").toUpperCase();
+
 let RESUMO = null, PROPOSTAS = null, REPETIDOS = null, POR_ID = null, VER = {};
 const app = document.getElementById("app");
 
@@ -76,15 +91,20 @@ function pgInicio() {
   const periodo = anos.length > 1 ? `${anos[0]} a ${anos[anos.length - 1]}` : anos[0];
   const atuais = RESUMO.vereadores.filter(v => !v.fora_da_lista);
   const fora = RESUMO.vereadores.filter(v => v.fora_da_lista);
-  const card = v => `<a class="card" href="#/v/${v.id}">
-      <div class="nome">${esc(v.apelido)}</div>
-      <div class="partido">${esc(v.partido || "não está na lista atual da Câmara")}</div>
-      <div class="barras">${barras(v.contagem)}</div>
+  const card = v => `<a class="card${v.fora_da_lista ? " fora" : ""}" href="#/v/${v.id}">
+      <span class="avatar" aria-hidden="true">${esc(iniciais(v.apelido))}</span>
+      <span class="cx">
+        <div class="nome">${esc(v.apelido)}</div>
+        <div class="partido">${esc(v.partido || "não está na lista atual da Câmara")}</div>
+        <div class="barras">${barras(v.contagem)}</div>
+      </span>
     </a>`;
   app.innerHTML = `
     <h1>O que fazem os vereadores de Juiz de Fora</h1>
     <p class="sub">Tudo o que cada vereador apresentou na Câmara de ${periodo}, contado com a mesma regra para todos. Só dados oficiais, com link para cada documento.</p>
-    <a class="grupo-link" href="#/busca"><span>🔎 Veja o que foi pedido para o seu bairro ou a sua rua</span><b>›</b></a>
+    <a class="btn-grande camara" href="#/busca">${ic("pin")}<span class="tx">O que foi pedido para o seu bairro<small>Digite o nome da rua ou do bairro</small></span>›</a>
+    <a class="btn-grande camara" href="#/repetidos">${ic("repete")}<span class="tx">Pedidos que voltam<small>Mesmo pedido, mesma rua, várias vezes</small></span>›</a>
+    <h2>Os ${atuais.length} vereadores</h2>
     <div class="info">Em ordem alfabética. O site não dá nota nem faz ranking: mostra os números para você tirar suas conclusões. <a href="#/sobre">Entenda cada grupo</a>.</div>
     <div class="cards">${atuais.map(card).join("")}</div>
     ${fora.length ? `<h2>Outros autores nesta legislatura</h2><p class="sub">Pessoas que apresentaram propostas mas não aparecem hoje na lista oficial de vereadores (por exemplo, suplentes que já saíram).</p><div class="cards">${fora.map(card).join("")}</div>` : ""}`;
@@ -112,7 +132,8 @@ async function pgVereador(id) {
     lista(g ? meus.filter(p => p.g === g) : meus, alvo, 40, true);
     grupos.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.g === (g || "")));
   };
-  grupos.innerHTML = ORDEM.map(g => `<button class="grupo-link" data-g="${g}"><span><span class="tag g-${g}">&nbsp;</span>${CURTO[g]}</span><b>${fmt(c[g])} ›</b></button>`).join("");
+  grupos.className = "grupos";
+  grupos.innerHTML = ORDEM.map(g => `<button class="grupo-link" data-g="${g}"><span class="gn"><span class="ponto g-${g}"></span>${CURTO[g]}</span><b>${fmt(c[g])}</b></button>`).join("");
   grupos.querySelectorAll("button").forEach(b => b.onclick = () => { mostra(b.dataset.g); alvo.scrollIntoView({behavior: "smooth"}); });
   mostra(null);
 }
@@ -192,7 +213,7 @@ function pgSobre() {
   const t = RESUMO.totais;
   app.innerHTML = `
     <h1>Como funciona</h1>
-    <div class="selo camara">🏛️ CÂMARA MUNICIPAL</div>
+    <div class="placa camara">${ic("camara")}<span class="tx"><span class="tt">Câmara Municipal</span></span></div>
     <p>Este site reúne o que cada vereador de Juiz de Fora apresentou na Câmara Municipal. Todos os dados vêm do <a href="${BUSCA_CAMARA}" target="_blank" rel="noopener">sistema oficial da Câmara (iS@l)</a> e cada proposta tem link para o documento original. Um robô baixa tudo de novo toda madrugada.</p>
     <h2>Os cinco grupos</h2>
     <ul>${RESUMO.regras.map(r => `<li>${esc(r)}</li>`).join("")}</ul>
@@ -217,12 +238,12 @@ function pgSobre() {
 
 // ---------- rotas ----------
 const SUBNAV = {
-  camara: [["#/camara", "Vereadores"], ["#/busca", "Meu bairro"], ["#/repetidos", "Pedidos que voltam"]],
-  prefeitura: [["#/prefeitura", "Gastos por secretaria"], ["#/prefeitura/fornecedores", "Quem recebe"], ["#/prefeitura/busca", "Buscar gasto"]],
+  camara: [["#/camara", "Vereadores", "pessoas"], ["#/busca", "Meu bairro", "pin"], ["#/repetidos", "Pedidos que voltam", "repete"]],
+  prefeitura: [["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
 };
 const SELO = {
-  camara: '<div class="selo camara">🏛️ CÂMARA MUNICIPAL DE JUIZ DE FORA<small>O que os vereadores apresentam. Fonte: sistema oficial da Câmara.</small></div>',
-  prefeitura: '<div class="selo prefeitura">🏢 PREFEITURA DE JUIZ DE FORA<small>Para onde vai o dinheiro. Fonte: Portal da Transparência da Prefeitura.</small></div>',
+  camara: () => `<div class="placa camara">${ic("camara")}<span class="tx"><span class="tt">Câmara Municipal de Juiz de Fora</span><span class="ds">O que os vereadores apresentam. Fonte: sistema oficial da Câmara.</span></span></div>`,
+  prefeitura: () => `<div class="placa prefeitura">${ic("dinheiro")}<span class="tx"><span class="tt">Prefeitura de Juiz de Fora</span><span class="ds">Para onde vai o dinheiro. Fonte: Portal da Transparência.</span></span></div>`,
 };
 
 function pgEscolha() {
@@ -230,16 +251,12 @@ function pgEscolha() {
   app.innerHTML = `
     <h1>Câmara e Prefeitura de Juiz de Fora, com dados oficiais</h1>
     <p class="sub">Escolha o que você quer acompanhar. Cada número tem a fonte oficial ao lado.</p>
-    <a class="escolha camara" href="#/camara">
-      <h2>🏛️ Câmara Municipal</h2>
-      <p class="sub">O que cada um dos ${nV} vereadores apresentou, e o que foi pedido para o seu bairro.</p>
-      <span class="num">${fmt(RESUMO.total)}</span> propostas desde 2025 ›
-    </a>
-    <a class="escolha prefeitura" href="#/prefeitura">
-      <h2>🏢 Prefeitura</h2>
-      <p class="sub">Para onde vai o dinheiro: quanto cada secretaria gasta, com quem e em quê.</p>
-      <span class="num">Gastos por secretaria</span> ›
-    </a>
+    <div class="escolhas">
+      <a class="placa camara" href="#/camara">${ic("camara")}<span class="tx"><span class="tt">Câmara</span><span class="ds">O que cada um dos ${nV} vereadores apresentou, e o que foi pedido para o seu bairro.</span><span class="num">${fmt(RESUMO.total)} propostas</span></span><span class="seta">›</span></a>
+      <a class="placa prefeitura" href="#/prefeitura">${ic("dinheiro")}<span class="tx"><span class="tt">Prefeitura</span><span class="ds">Para onde vai o dinheiro: quanto cada secretaria gasta, com quem e em quê.</span><span class="num">Gastos por secretaria</span></span><span class="seta">›</span></a>
+    </div>
+    <a class="btn-grande camara" href="#/busca">${ic("pin")}<span class="tx">Pesquisar meu bairro<small>Pedidos dos vereadores para a sua rua</small></span>›</a>
+    <a class="btn-grande prefeitura" href="#/prefeitura/busca">${ic("lupa")}<span class="tx">Pesquisar um gasto<small>Empresa, CNPJ ou palavra, como asfalto ou merenda</small></span>›</a>
     <div class="info">Câmara e Prefeitura são poderes diferentes. A Câmara (vereadores) faz leis, fiscaliza e pede melhorias. A Prefeitura (prefeita e secretarias) executa os serviços e gasta o orçamento.</div>`;
 }
 
@@ -252,8 +269,9 @@ async function rota() {
   document.querySelectorAll("nav.areas a").forEach(a => a.classList.toggle("ativo", a.dataset.area === area));
   const sub = document.getElementById("subnav");
   const atual = "#/" + h;
-  sub.innerHTML = (SUBNAV[area] || []).map(([href, t]) => `<a href="${href}" class="${atual === href || (atual.startsWith(href + "/") && href !== "#/prefeitura") ? "ativo" : ""}">${t}</a>`).join("");
-  document.getElementById("selo").innerHTML = SELO[area] || "";
+  sub.className = area;
+  sub.innerHTML = (SUBNAV[area] || []).map(([href, t, i]) => `<a href="${href}" class="${atual === href || (atual.startsWith(href + "/") && href !== "#/prefeitura") || (href === "#/prefeitura" && /^#\/prefeitura\/(ano|s)\b/.test(atual)) || (href === "#/camara" && atual.startsWith("#/v/")) ? "ativo" : ""}">${ic(i)}${t}</a>`).join("");
+  document.getElementById("selo").innerHTML = SELO[area] ? SELO[area]() : "";
   window.scrollTo(0, 0);
   try {
     if (pag === "v") await pgVereador(+arg);
@@ -269,4 +287,7 @@ async function rota() {
   }
 }
 window.addEventListener("hashchange", rota);
-window.addEventListener("load", rota);
+window.addEventListener("load", () => {
+  document.querySelectorAll("[data-ic]").forEach(e => e.outerHTML = ic(e.dataset.ic));
+  rota();
+});

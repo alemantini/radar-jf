@@ -2,7 +2,11 @@ name: Atualizar e publicar o Radar
 
 on:
   schedule:
-    - cron: "17 6 * * *"   # todo dia por volta de 3h17 em Brasília
+    # 3 tentativas por dia (o GitHub às vezes atrasa ou pula horários agendados):
+    # 3h17, 9h43 e 18h29 em Brasília
+    - cron: "17 6 * * *"
+    - cron: "43 12 * * *"
+    - cron: "29 21 * * *"
   workflow_dispatch:
   push:
     branches: [main]
@@ -42,8 +46,8 @@ jobs:
       - name: Coletar dados na Câmara (se vier incompleto, para aqui e não publica)
         run: python scripts/coletar.py
         env:
-          # rodadas disparadas por mudança no código buscam datas por pouco tempo; a da madrugada, por 1 hora
-          RADAR_TEMPO_MAX_DATAS: ${{ github.event_name == 'schedule' && '3600' || '300' }}
+          # rodadas disparadas por mudança no código buscam datas por pouco tempo; as agendadas, por 40 minutos
+          RADAR_TEMPO_MAX_DATAS: ${{ github.event_name == 'schedule' && '2400' || '300' }}
 
       - name: Preparar dados do site
         run: python scripts/processar.py
