@@ -218,7 +218,7 @@ function pgSobre() {
 // ---------- rotas ----------
 const SUBNAV = {
   camara: [["#/camara", "Vereadores"], ["#/busca", "Meu bairro"], ["#/repetidos", "Pedidos que voltam"]],
-  prefeitura: [["#/prefeitura", "Gastos por secretaria"], ["#/prefeitura/fornecedores", "Empresas que recebem"], ["#/prefeitura/busca", "Buscar gasto"]],
+  prefeitura: [["#/prefeitura", "Gastos por secretaria"], ["#/prefeitura/fornecedores", "Quem recebe"], ["#/prefeitura/busca", "Buscar gasto"]],
 };
 const SELO = {
   camara: '<div class="selo camara">🏛️ CÂMARA MUNICIPAL DE JUIZ DE FORA<small>O que os vereadores apresentam. Fonte: sistema oficial da Câmara.</small></div>',

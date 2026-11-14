@@ -99,8 +99,8 @@ async function pgPrefSecretaria(ano, i) {
     <div class="meses-r">${NOMES_MES.map(m => `<span>${m}</span>`).join("")}</div>
     <h2>Em que o dinheiro foi gasto</h2>
     ${s.elementos.map(e => `<div class="linha"><span class="nm">${esc(e.nome) || "Não informado"}<div class="barra-p" style="width:${Math.max(1, Math.round(100 * e.p / maxE))}%"></div></span><span class="vl">${reais(e.p)}</span></div>`).join("")}
-    <h2>Empresas que mais receberam</h2>
-    ${s.fornecedores.length ? s.fornecedores.map(f => `<a class="linha" href="#/prefeitura/empresa/${ano}/${f.cnpj}"><span class="nm">${esc(f.nome)}<br><small class="sub">CNPJ ${cnpjFmt(f.cnpj)} · ${fmt(f.n)} lançamentos</small></span><span class="vl">${reais(f.p)} ›</span></a>`).join("") : '<p class="sub">Nenhuma empresa nesta unidade.</p>'}
+    <h2>Empresas e entidades que mais receberam</h2>
+    ${s.fornecedores.length ? s.fornecedores.map(f => `<a class="linha" href="#/prefeitura/empresa/${ano}/${f.cnpj}"><span class="nm">${esc(f.nome)}<br><small class="sub">CNPJ ${cnpjFmt(f.cnpj)} · ${fmt(f.n)} lançamentos</small></span><span class="vl">${reais(f.p)} ›</span></a>`).join("") : '<p class="sub">Nenhuma empresa ou entidade nesta unidade.</p>'}
     <p class="sub" style="margin-top:14px"><a href="#/prefeitura/busca/${ano}/${encodeURIComponent(s.nome)}">Ver todos os lançamentos desta unidade ›</a></p>`;
 }
 
@@ -109,17 +109,17 @@ async function pgPrefFornecedores(ano) {
   ano = ano || anosDisp(R)[0];
   const A = R.anos[ano];
   app.innerHTML = `
-    <h1>Empresas que recebem da Prefeitura</h1>
-    <p class="sub">As 200 empresas que mais receberam em ${ano}, de um total de ${fmt(A.n_fornecedores)}. ${fonteLink()}</p>
+    <h1>Quem recebe da Prefeitura</h1>
+    <p class="sub">As 200 empresas e entidades (com CNPJ) que mais receberam em ${ano}, de um total de ${fmt(A.n_fornecedores)}. Inclui hospitais, associações, fundações e órgãos públicos. ${fonteLink()}</p>
     ${seletorAnos(R, ano, "#/prefeitura/fornecedores/")}
     <input type="search" id="q" placeholder="Filtrar por nome ou CNPJ" autocomplete="off" style="margin-top:10px">
     <div id="res"></div>
-    <p class="sub">Para empresas fora desta lista, use a <a href="#/prefeitura/busca/${ano}">busca de gastos</a>.</p>`;
+    <p class="sub">Para quem está fora desta lista, use a <a href="#/prefeitura/busca/${ano}">busca de gastos</a>.</p>`;
   const inp = document.getElementById("q");
   const mostra = () => {
     const q = norm(inp.value.trim()), qd = inp.value.replace(/\D/g, "");
     const it = A.fornecedores.filter(f => !q || norm(f.nome).includes(q) || (qd.length >= 4 && f.cnpj.includes(qd)));
-    document.getElementById("res").innerHTML = it.map((f, k) => `<a class="linha" href="#/prefeitura/empresa/${ano}/${f.cnpj}"><span class="nm">${esc(f.nome)}<br><small class="sub">CNPJ ${cnpjFmt(f.cnpj)} · ${esc(f.secretarias.slice(0, 2).join(", "))}</small></span><span class="vl">${reais(f.p)} ›</span></a>`).join("") || '<p class="sub">Nenhuma empresa encontrada nesta lista.</p>';
+    document.getElementById("res").innerHTML = it.map((f, k) => `<a class="linha" href="#/prefeitura/empresa/${ano}/${f.cnpj}"><span class="nm">${esc(f.nome)}<br><small class="sub">CNPJ ${cnpjFmt(f.cnpj)} · ${esc(f.secretarias.slice(0, 2).join(", "))}</small></span><span class="vl">${reais(f.p)} ›</span></a>`).join("") || '<p class="sub">Ninguém encontrado nesta lista.</p>';
   };
   let tm; inp.oninput = () => { clearTimeout(tm); tm = setTimeout(mostra, 200); };
   mostra();
@@ -128,7 +128,7 @@ async function pgPrefFornecedores(ano) {
 async function pgPrefEmpresa(ano, cnpj) {
   const d = await prefEmpenhos(ano);
   const ic = d.credores.findIndex(c => c[0] === cnpj);
-  if (ic < 0) { app.innerHTML = "<p>Empresa não encontrada neste ano.</p>"; return; }
+  if (ic < 0) { app.innerHTML = "<p>Não encontrado neste ano.</p>"; return; }
   const itens = d.empenhos.filter(x => x[2] === ic).sort((a, b) => (b[0] || "").localeCompare(a[0] || ""));
   const tot = itens.reduce((s, x) => [s[0] + x[4], s[1] + x[5]], [0, 0]);
   const porSec = {};
