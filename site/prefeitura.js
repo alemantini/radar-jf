@@ -314,11 +314,76 @@ async function pgEmendasDe(prop) {
   mostra();
 }
 
+
+// ---------- Diário Oficial pesquisável ----------
+const DIARIO = {resumo: null, anos: {}};
+const ATALHOS = [
+  ["Dispensas de licitação", {tipo: "Contratação Direta"}],
+  ["Nomeações", {tipo: "Ato de Nomeação"}],
+  ["Exonerações", {tipo: "Ato de Exoneração"}],
+  ["Contratos", {tipo: "Extrato de Contrato"}],
+  ["Decretos", {tipo: "Decreto"}],
+  ["Leis", {tipo: "Lei"}],
+];
+async function pgDiario(ano0, q0) {
+  if (!DIARIO.resumo) DIARIO.resumo = await fetch("dados/prefeitura/atos_resumo.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  const R = DIARIO.resumo;
+  if (!R) { app.innerHTML = "<h1>Diário Oficial</h1><p>Os atos ainda estão sendo coletados. Volte mais tarde.</p>"; return; }
+  const ano = ano0 && R.anos.includes(ano0) ? ano0 : R.anos[R.anos.length - 1];
+  if (!DIARIO.anos[ano]) { app.innerHTML = '<p class="carregando">Carregando os atos do ano…</p>'; DIARIO.anos[ano] = await fetch(`dados/prefeitura/atos_${ano}.json`).then(r => r.json()); DIARIO.anos[ano].atos.forEach(a => a._b = norm(a[4] + " " + DIARIO.anos[ano].orgaos[a[3]])); }
+  const D = DIARIO.anos[ano];
+  const grupos = Object.keys(R.grupos);
+  const orgaos = R.orgaos.map(o => o[0]);
+  app.innerHTML = `
+    <h1>Diário Oficial da Prefeitura</h1>
+    <p class="sub">Tudo o que a Prefeitura publicou no Diário Oficial desde janeiro de 2025: ${fmt(R.total)} atos, até ${dataBR(R.ate)}. Pesquise por empresa, bairro, obra, nome de cargo ou número de processo.</p>
+    ${seletorAnosLista(R.anos, ano)}
+    <input type="search" id="q" placeholder="Ex.: dispensa, asfalto, nome da empresa, Saúde" value="${esc(q0 || "")}" autocomplete="off">
+    <div class="chips" id="atalhos">${ATALHOS.map(([t], i) => `<a href="#" data-i="${i}">${t}</a>`).join("")}</div>
+    <div class="filtros-linha">
+      <label>Tipo<select id="fg"><option value="">Todos os tipos</option>${grupos.map(g => `<option>${esc(g)}</option>`).join("")}</select></label>
+      <label>Órgão<select id="fo"><option value="">Todos os órgãos</option>${orgaos.map(o => `<option>${esc(o)}</option>`).join("")}</select></label>
+      <label>Mês<select id="fm"><option value="">Ano inteiro</option>${NOME_MES_LONGO.map((m, i) => `<option value="${String(i + 1).padStart(2, "0")}">${m}</option>`).join("")}</select></label>
+    </div>
+    <div id="res"></div>
+    <p class="sub">Fonte: <a href="${R.fonte_url}" target="_blank" rel="noopener">${esc(R.fonte)}</a>. O órgão é identificado pelo texto do ato e pode faltar em alguns. Atos sobre situações pessoais de servidores e contribuintes (aposentadoria, pensão, processos disciplinares, decisões fiscais) aparecem sem o texto; o link leva ao ato oficial.</p>`;
+  const $ = id => document.getElementById(id);
+  let tipoFixo = "";
+  const semTexto = new Set(R.tipos_sem_texto);
+  const card = a => {
+    const tipo = D.tipos[a[2]], org = D.orgaos[a[3]];
+    return `<div class="item"><div class="topo"><span class="tag g-leis">${esc(tipo)}</span>${dataBR(a[1])}${org ? " · " + esc(org) : ""}</div>
+      <div class="txt">${a[4] ? esc(a[4]) : '<span class="sub">Texto não exibido neste site (situação pessoal).</span>'}</div>
+      <div class="pe"><a href="${R.link_ato}${a[0]}" target="_blank" rel="noopener">Ver o ato oficial</a></div></div>`;
+  };
+  const busca = () => {
+    const q = norm($("q").value.trim()), g = $("fg").value, o = $("fo").value, m = $("fm").value;
+    history.replaceState(null, "", `#/prefeitura/diario/${ano}/${encodeURIComponent($("q").value.trim())}`);
+    const termos = q ? q.split(/\s+/) : [];
+    const it = D.atos.filter(a => (!tipoFixo || D.tipos[a[2]] === tipoFixo) && (!g || R.tipo_grupo[D.tipos[a[2]]] === g) && (!o || D.orgaos[a[3]] === o)
+      && (!m || a[1].slice(5, 7) === m) && termos.every(t => a._b.includes(t)));
+    const res = $("res");
+    res.innerHTML = `<h2>${fmt(it.length)} atos${tipoFixo ? ": " + esc(tipoFixo) : ""}</h2>${tipoFixo ? '<p><a href="#" id="limpa">Mostrar todos os tipos</a></p>' : ""}`;
+    if ($("limpa")) $("limpa").onclick = e => { e.preventDefault(); tipoFixo = ""; busca(); };
+    let n = 0; const box = document.createElement("div"), btn = document.createElement("button"); btn.className = "mais";
+    const mais = () => { box.insertAdjacentHTML("beforeend", it.slice(n, n + 40).map(card).join("")); n += 40; btn.style.display = n < it.length ? "block" : "none"; btn.textContent = `Mostrar mais (${fmt(it.length - n)} restantes)`; };
+    btn.onclick = mais; res.append(box, btn); mais();
+  };
+  $("atalhos").querySelectorAll("a").forEach(a => a.onclick = e => { e.preventDefault(); tipoFixo = ATALHOS[+a.dataset.i][1].tipo; $("fg").value = ""; busca(); });
+  let tm; $("q").oninput = () => { clearTimeout(tm); tm = setTimeout(busca, 300); };
+  ["fg", "fo", "fm"].forEach(id => $(id).onchange = busca);
+  busca();
+}
+function seletorAnosLista(anos, ano) {
+  return `<div class="anos">${[...anos].reverse().map(a => `<button class="${a == ano ? "on" : ""}" onclick="location.hash='#/prefeitura/diario/${a}'">${a}</button>`).join("")}</div>`;
+}
+
 async function rotaPrefeitura(p) {
   const [sub, a, b] = p;
   if (sub === "ano") return pgPrefInicio(a);
   if (sub === "impostometro") return pgImpostometro();
   if (sub === "emendas") return pgEmendas(a);
+  if (sub === "diario") return pgDiario(a, b);
   if (sub === "s") return pgPrefSecretaria(a, +b);
   if (sub === "fornecedores") return pgPrefFornecedores(a);
   if (sub === "empresa") return pgPrefEmpresa(a, b);

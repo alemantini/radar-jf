@@ -89,6 +89,21 @@ jobs:
           base=https://alemantini.github.io/radar-jf/dados/prefeitura
           for f in emendas_resumo.json emendas.json; do curl -fsS "$base/$f" -o "site/dados/prefeitura/$f" || echo "sem $f anterior"; done
 
+      - name: Prefeitura, Diário Oficial (Atos do Governo)
+        id: atos
+        continue-on-error: true
+        run: python scripts/prefeitura_atos.py
+        env:
+          RADAR_TEMPO_MAX_ATOS: ${{ github.event_name == 'schedule' && '1500' || '600' }}
+
+      - name: Reaproveitar Diário Oficial publicado, se a coleta falhar
+        if: steps.atos.outcome != 'success'
+        run: |
+          mkdir -p site/dados/prefeitura
+          base=https://alemantini.github.io/radar-jf/dados/prefeitura
+          curl -fsS "$base/atos_resumo.json" -o site/dados/prefeitura/atos_resumo.json || echo "sem versão anterior"
+          for a in 2025 2026 2027; do curl -fsS "$base/atos_$a.json" -o "site/dados/prefeitura/atos_$a.json" || true; done
+
       - name: Guardar cache de datas e contagens
         run: |
           git config user.name "radar-robo"

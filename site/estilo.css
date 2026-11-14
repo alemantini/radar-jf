@@ -219,3 +219,8 @@ img.avatar.foto{object-fit:cover;width:46px;height:58px;border-radius:10px;backg
 .etapas i{display:block;height:100%}
 .leg-etapas{display:grid;gap:3px;font-size:13px;color:var(--apoio);margin-bottom:6px}
 .leg-etapas i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.filtros-linha{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0}
+@media(min-width:600px){.filtros-linha{grid-template-columns:1fr 1fr 1fr}}
+.filtros-linha label{font-size:13px;font-weight:600;color:var(--apoio)}
+.filtros-linha select{margin-top:4px;font-size:15px;padding:10px}
+#atalhos{margin-top:10px}
