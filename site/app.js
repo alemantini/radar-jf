@@ -20,6 +20,8 @@ const ICONE = {
 const ic = (n, cls = "") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONE[n] || ""}</svg>`;
 const iniciais = n => String(n || "").replace(/^(Dr|Dra|Sargento|Prof|Profa)\.?\s+/i, "").split(/\s+/).filter(p => p.length > 2 || /^[A-ZÀ-Ý]/.test(p)).slice(0, 2).map(p => p[0]).join("").toUpperCase();
 
+let FOTOS = new Set(), CREDITO_FOTO = "";
+const avatar = v => FOTOS.has(v.id) ? `<img class="avatar foto" src="fotos/${v.id}.jpg" alt="Foto de ${esc(v.apelido)}" title="${esc(CREDITO_FOTO)}" loading="lazy" width="46" height="58">` : `<span class="avatar" aria-hidden="true">${esc(iniciais(v.apelido))}</span>`;
 let RESUMO = null, PROPOSTAS = null, REPETIDOS = null, POR_ID = null, VER = {};
 const app = document.getElementById("app");
 
@@ -32,6 +34,7 @@ async function carregarResumo() {
   if (RESUMO) return;
   RESUMO = await fetch("dados/resumo.json").then(r => r.json());
   RESUMO.vereadores.forEach(v => VER[v.id] = v);
+  try { const f = await fetch("fotos/fotos.json").then(r => r.json()); FOTOS = new Set(f.ids); CREDITO_FOTO = f.credito; } catch (e) { /* sem fotos: ficam as iniciais */ }
   document.getElementById("atualizado").textContent = RESUMO.atualizado ? `Última coleta: ${RESUMO.atualizado}.` : "";
 }
 async function carregarPropostas() {
@@ -121,7 +124,7 @@ function cracha(v) {
   const c = v.contagem || {};
   const sal = v.fora_da_lista ? 0 : subsidioMes(new Date().getFullYear());
   return `<a class="cracha${v.fora_da_lista ? " fora" : ""}" href="#/v/${v.id}">
-    <span class="cr-topo"><span class="avatar" aria-hidden="true">${esc(iniciais(v.apelido))}</span>
+    <span class="cr-topo">${avatar(v)}
       <span class="cx"><span class="nome">${esc(v.apelido)}</span><span class="partido">${esc(v.partido || "não está na lista atual da Câmara")}</span></span></span>
     <span class="cr-nums">
       <span><b>${fmt(c.total)}</b>propostas</span>
@@ -274,9 +277,10 @@ async function pgVereador(id) {
   const c = v.contagem;
   const sal = v.fora_da_lista ? 0 : subsidioMes(new Date().getFullYear());
   app.innerHTML = `
-    <div class="cr-topo grande"><span class="avatar" aria-hidden="true">${esc(iniciais(v.apelido))}</span>
+    <div class="cr-topo grande">${avatar(v)}
       <span class="cx"><h1>${esc(v.apelido)}</h1><span class="partido">${esc(v.nome)}${v.partido ? ", " + esc(v.partido) : ""}</span></span></div>
     ${v.observacao ? `<p class="sub">${esc(v.observacao[0].toUpperCase() + v.observacao.slice(1))}</p>` : ""}
+    ${FOTOS.has(v.id) ? `<p class="credito">${esc(CREDITO_FOTO)}</p>` : ""}
     <div class="nums">
       <span><b>${fmt(c.total)}</b>propostas</span>
       ${sal ? `<span><b>R$ ${Math.round(sal).toLocaleString("pt-BR")}</b>salário por mês (<a href="${RESUMO.subsidio.fonte}" target="_blank" rel="noopener">lei</a>)</span>` : ""}
@@ -388,6 +392,7 @@ function pgSobre() {
       <li>Todos os vereadores, de todos os partidos, contados com a mesma regra.</li>
       <li>Quando uma proposta tem mais de um autor, ela conta para cada um deles.</li>
       <li>Só contato público: e-mail e telefone do gabinete, como estão no site da Câmara.</li>
+      <li>As fotos dos vereadores são as fotos oficiais publicadas pela Câmara Municipal de Juiz de Fora.</li>
     </ul>
     <h2>O que é estimativa</h2>
     <ul>
