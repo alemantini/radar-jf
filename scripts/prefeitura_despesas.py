@@ -254,7 +254,8 @@ def processar_ano(ano, registros):
     return resumo, busca
 
 
-SITE_PUBLICADO = "https://alemantini.github.io/radar-jf/dados/prefeitura/resumo.json"
+SITE_PUBLICADO = "https://jflandia.com.br/dados/prefeitura/resumo.json"
+ANTERIOR = "/tmp/anterior/dados/prefeitura/resumo.json"  # baixado por tools/versao_anterior.sh
 
 
 def precisa_baixar():
@@ -266,8 +267,12 @@ def precisa_baixar():
     if not nova:
         return False, "não consegui ler a data de atualização na página da Prefeitura"
     try:
-        r = requests.get(SITE_PUBLICADO, headers={"User-Agent": UA}, timeout=60)
-        publicada = r.json().get("fonte_atualizada_em", "") if r.status_code == 200 else ""
+        if os.path.exists(ANTERIOR):
+            with open(ANTERIOR, encoding="utf-8") as f:
+                publicada = json.load(f).get("fonte_atualizada_em", "")
+        else:
+            r = requests.get(SITE_PUBLICADO, headers={"User-Agent": UA}, timeout=60)
+            publicada = r.json().get("fonte_atualizada_em", "") if r.status_code == 200 else ""
     except (requests.RequestException, ValueError):
         publicada = ""
     if publicada == nova:
