@@ -94,6 +94,30 @@ def minimos():
     }
 
 
+def balanco():
+    """RREO Anexo 1: receita prevista x arrecadada e despesas x receitas correntes no ano (art. 167-A)."""
+    ano, bim, it = ultimo("rreo", "RREO-Anexo 01", JF, (6, 5, 4, 3, 2, 1))
+    if not it:
+        return None
+    print("  colunas anexo 1:", sorted({x.get("coluna") for x in it})[:30])
+    def v(conta, col):
+        for x in it:
+            if re.match(conta, x.get("conta", "").strip(), re.I) and re.search(col, x.get("coluna", ""), re.I):
+                try:
+                    return float(x["valor"])
+                except (TypeError, ValueError):
+                    pass
+        return None
+    rc_prev = v(r"^RECEITAS CORRENTES", r"PREVIS[ÃA]O ATUALIZADA")
+    rc_real = v(r"^RECEITAS CORRENTES", r"^At[ée] o Bimestre|REALIZADAS.*AT[ÉE] O BIMESTRE|^Até o Bimestre \(c\)")
+    dc_liq = v(r"^DESPESAS CORRENTES", r"LIQUIDADAS AT[ÉE] O BIMESTRE")
+    dc_emp = v(r"^DESPESAS CORRENTES", r"EMPENHADAS AT[ÉE] O BIMESTRE")
+    rt_prev = v(r"^RECEITAS \(EXCETO INTRA|^TOTAL DAS RECEITAS|^SUBTOTAL DAS RECEITAS", r"PREVIS[ÃA]O ATUALIZADA")
+    rt_real = v(r"^RECEITAS \(EXCETO INTRA|^TOTAL DAS RECEITAS|^SUBTOTAL DAS RECEITAS", r"^At[ée] o Bimestre|AT[ÉE] O BIMESTRE")
+    return {"ano": ano, "bimestre": bim, "rc_previsto_ano": rc_prev, "rc_realizado": rc_real,
+            "dc_liquidado": dc_liq, "dc_empenhado": dc_emp, "receita_prevista_ano": rt_prev, "receita_realizada": rt_real}
+
+
 def por_funcao(itens):
     """Despesa liquidada no ano por função (orçamento fiscal e seguridade, sem as intraorçamentárias)."""
     out = {}
@@ -119,9 +143,10 @@ def main():
     res = {"fonte": "Siconfi, Tesouro Nacional (dados enviados pelas prefeituras)",
            "fonte_url": "https://siconfi.tesouro.gov.br/",
            "coletado_em": dt.datetime.now().strftime("%Y-%m-%d %H:%M"),
-           "pessoal": pessoal(), "minimos": minimos(), "cidades": []}
+           "pessoal": pessoal(), "minimos": minimos(), "balanco": balanco(), "cidades": []}
     print("Pessoal:", res["pessoal"])
     print("Mínimos:", res["minimos"])
+    print("Balanço:", res["balanco"])
 
     # ano fechado mais recente com o 6º bimestre de JF publicado
     ano_cmp = None
