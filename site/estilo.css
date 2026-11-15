@@ -349,3 +349,5 @@ details.equipe[open] summary{border-bottom:1px solid var(--linha)}
 .faixa-nums b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:24px;line-height:1.1;color:#0b2545}
 .faixa-nums span{display:block;font-size:13px;line-height:1.3;color:var(--apoio);margin-top:2px}
 @media (max-width:520px){.faixa-nums{grid-template-columns:1fr}.faixa-nums a{display:flex;align-items:baseline;gap:10px}.faixa-nums b{flex:none;min-width:6.5em}}
+html,body{overflow-x:clip}
+@media (min-width:700px){.hero-t{max-width:20ch}.hero{padding-top:30px;padding-bottom:40px}}
