@@ -4,8 +4,8 @@ Fonte oficial: Portal da Transparência da Câmara Municipal de Juiz de Fora,
 "Remuneração dos servidores" (transparencia/remuneracaoServidores.php). Cada servidor aparece com a
 lotação; os assessores de cada vereador ficam lotados em "Gabinete <nome do vereador>".
 
-O site guarda só totais por gabinete (quantas pessoas e quanto custam). Nomes de assessores não
-são gravados.
+Totais mês a mês por gabinete e, para o mês mais recente, a lista da equipe de cada gabinete
+(nome, cargo e remuneração bruta), como publicada pela própria Câmara (dados públicos de servidores).
 
 Saída: site/dados/gabinetes.json
 """
@@ -69,6 +69,26 @@ def ultimo_mes():
     return None
 
 
+def campo(x, *partes):
+    for k, v in x.items():
+        if any(p in k.lower() for p in partes):
+            return (v or "").strip() if isinstance(v, str) else v
+    return ""
+
+
+def equipes(linhas):
+    """Equipe de cada gabinete no mês: nome, cargo e remuneração bruta (como no portal da Câmara)."""
+    eq = {}
+    for x in linhas:
+        lot = (x.get("lotacao") or "").strip()
+        if lot.lower().startswith("gabinete ") and "presid" not in lot.lower():
+            eq.setdefault(lot[9:].strip(), []).append([
+                campo(x, "nome"), campo(x, "cargo", "funcao", "função"), round(num(x.get("rembruta")), 2)])
+    for v in eq.values():
+        v.sort(key=lambda r: -r[2])
+    return eq
+
+
 def resumir(linhas):
     """Totais do mês, sem nomes: por gabinete e da Câmara toda."""
     gab, total, n = {}, 0.0, 0
@@ -94,6 +114,7 @@ def main():
     while (a, m) <= fim:
         meses.append((a, m))
         a, m = (a + 1, 1) if m == 12 else (a, m + 1)
+    equipe_ultimo = {}
     for a, m in meses:
         k = f"{a}-{m:02d}"
         if k in cache and (a, m) not in meses[-REVER:]:
@@ -102,6 +123,9 @@ def main():
         if linhas is None:
             continue
         if linhas:
+            if (a, m) == meses[-1]:
+                print("  campos do portal:", list(linhas[0].keys()))
+                equipe_ultimo = equipes(linhas)
             cache[k] = resumir(linhas)
             print(f"  {k}: {len(cache[k]['gabinetes'])} gabinetes, {cache[k]['pessoas']} pessoas")
         time.sleep(1.5)
@@ -123,6 +147,10 @@ def main():
         return None
 
     por = {}
+    for g, lst in equipe_ultimo.items():
+        vid = achar(g)
+        if vid is not None:
+            por.setdefault(str(vid), {"meses": {}})["equipe"] = lst
     for k in sorted(cache):
         for g, x in cache[k]["gabinetes"].items():
             vid = achar(g)
