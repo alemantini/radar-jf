@@ -152,7 +152,7 @@ function cracha(v) {
     <span class="cr-nums">
       <span><b>${fmt(c.total)}</b>propostas</span>
       ${sal ? `<span><b>${"R$ " + Math.round(sal).toLocaleString("pt-BR")}</b>salário por mês</span>` : ""}
-      ${v.votos_2024 ? `<span><b>${fmt(v.votos_2024)}</b>votos em 2024</span>` : ""}
+      ${votos24(v) ? `<span><b>${fmt(votos24(v))}</b>votos em 2024</span>` : ""}
     </span>
     ${(() => { const e = emendasDe(v); return e ? `<span class="cr-emendas">Emendas desde ${EMENDAS_R.desde}: <b>${reaisCurto(e.previsto)}</b> indicados, <b>${reaisCurto(e.pago)}</b> já pagos</span>` : ""; })()}
     <span class="barras">${barras(c)}</span>
@@ -308,7 +308,7 @@ async function pgVereador(id) {
     <div class="nums">
       <span><b>${fmt(c.total)}</b>propostas</span>
       ${sal ? `<span><b>R$ ${Math.round(sal).toLocaleString("pt-BR")}</b>salário por mês (<a href="${RESUMO.subsidio.fonte}" target="_blank" rel="noopener">lei</a>)</span>` : ""}
-      ${v.votos_2024 ? `<span><b>${fmt(v.votos_2024)}</b>votos em 2024</span>` : ""}
+      ${votos24(v) ? `<span><b>${fmt(votos24(v))}</b>votos em 2024</span>` : ""}
     </div>
     ${v.email_gabinete || v.telefone_gabinete ? `<p class="contato">Gabinete: ${v.email_gabinete ? `<a href="mailto:${esc(v.email_gabinete)}">${esc(v.email_gabinete)}</a>` : ""} ${esc(v.telefone_gabinete)}</p>` : ""}
     ${v.ficha ? `<p class="contato"><a href="${esc(v.ficha)}" target="_blank" rel="noopener">Ficha oficial na Câmara</a></p>` : ""}
@@ -507,6 +507,7 @@ window.addEventListener("load", () => {
 const mesBR = k => { const [a, m] = k.split("-"); return `${["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"][+m - 1]}/${a}`; };
 const gabDe = v => GAB_R && GAB_R.vereadores[String(v.id)];
 const tseDe = v => TSE_R && TSE_R.vereadores[String(v.id)];
+const votos24 = v => v.votos_2024 || (tseDe(v) || {}).votos || 0;
 
 function blocoGabinete(v) {
   const g = gabDe(v);
