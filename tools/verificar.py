@@ -6,7 +6,7 @@ import urllib.request
 from playwright.sync_api import sync_playwright
 
 BASE = sys.argv[1] if len(sys.argv) > 1 else "https://jflandia.com.br/"
-RUIM = re.compile(r"Não foi possível|ainda (está|não foi|não)|sendo feita|Carregando|undefined|NaN|null|\[object", re.I)
+RUIM = re.compile(r"Não foi possível|ainda (está|não foi|não)|sendo feita|Carregando|\bundefined\b|\bNaN\b|\bnull\b|\[object|Invalid Date|R\$ -?0,00\b")
 INICIAIS = ["", "#/camara", "#/placar", "#/busca", "#/repetidos", "#/sobre", "#/apoie", "#/prefeitura",
             "#/prefeitura/alertas", "#/prefeitura/impostometro", "#/prefeitura/placar", "#/prefeitura/comissionados",
             "#/prefeitura/emendas", "#/prefeitura/fornecedores", "#/prefeitura/busca"]
@@ -50,7 +50,7 @@ def main():
                 continue
             pg.wait_for_timeout(1500)
             txt = pg.inner_text("#app")
-            ruins = sorted(set(m.group(0) for m in RUIM.finditer(txt)))
+            ruins = sorted(set(txt[max(0, m.start() - 50):m.end() + 30].replace("\n", " ") for m in RUIM.finditer(txt)))[:4]
             linhas = len(txt.strip().splitlines())
             status = []
             if erros: status.append("JS: " + " | ".join(erros))
