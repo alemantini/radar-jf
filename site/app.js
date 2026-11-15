@@ -657,13 +657,13 @@ function setasSubnav() {
 
 
 // ---------- Apoie ----------
-// Enquanto a campanha no Apoia.se não estiver pronta, a página só avisa. Quando houver o link, preencher APOIA_SE.
+// Enquanto a campanha no Catarse não estiver pronta, a página só avisa. Quando houver o link, preencher APOIA_SE.
 const APOIA_SE = "";
 function pgApoie() {
   app.innerHTML = `
     <h1>Apoie o Radar JFlândia</h1>
     <p class="sub">O Radar coleta todo dia os dados oficiais da Câmara e da Prefeitura e mostra de um jeito que qualquer pessoa entende.</p>
-    ${APOIA_SE ? `<a class="btn-apoie" href="${APOIA_SE}" target="_blank" rel="noopener">${ic("coracao")}<span class="tx"><b>Apoiar pelo Apoia.se</b><small>Apoio mensal de qualquer valor</small></span><span class="seta">›</span></a>` : '<p>A página de apoio está sendo preparada. Volte em breve.</p>'}
+    ${APOIA_SE ? `<a class="btn-apoie" href="${APOIA_SE}" target="_blank" rel="noopener">${ic("coracao")}<span class="tx"><b>Apoiar pelo Catarse</b><small>Apoio mensal ou avulso, pelo cartão, Pix ou boleto</small></span><span class="seta">›</span></a>` : '<p>A página de apoio está sendo preparada. Volte em breve.</p>'}
     <h2>Quem não pode apoiar</h2>
     <p>Para o Radar continuar independente, <b>não aceitamos apoio</b> de partidos, candidatos, vereadores, da prefeita, de servidores comissionados nem de empresas e entidades que recebem dinheiro da Prefeitura ou da Câmara. Se um apoio desses chegar, ele é devolvido.</p>`;
 }
