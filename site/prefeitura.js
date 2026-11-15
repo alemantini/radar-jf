@@ -513,7 +513,7 @@ async function pgAlertas(tipo) {
       <li><b>Empresa recém-aberta:</b> matriz aberta menos de um ano antes do primeiro empenho, com R$ 100 mil ou mais. Consórcios formados para uma obra e órgãos públicos ficam de fora.</li>
       <li><b>Cadastro irregular:</b> CNPJ que não está "ativo" na Receita Federal.</li>
       <li><b>Capital social pequeno:</b> empresa com capital menor que 2% do que recebeu (acima de R$ 1 milhão).</li>
-      <li><b>Sócio doador de campanha:</b> sócio da empresa com o mesmo nome e os mesmos 6 dígitos do meio do CPF de um doador da eleição de 2024 em Juiz de Fora. O site não mostra o nome do sócio.</li>
+      <li><b>Sócio doador de campanha:</b> só para empresas (em associações e órgãos públicos, o cadastro lista dirigentes, não sócios). Sócio da empresa com o mesmo nome e os mesmos 6 dígitos do meio do CPF de um doador da eleição de 2024 em Juiz de Fora. O site não mostra o nome do sócio.</li>
       <li><b>Empresa inidônea ou proibida:</b> CNPJ no CEIS ou no CNEP (cadastros de punidos da Controladoria-Geral da União) com sanção que vale para toda a administração pública (inidoneidade ou proibição de contratar com o poder público), vigente enquanto recebia da Prefeitura.</li>
       <li><b>Punida por outro órgão:</b> sanções de impedimento ou suspensão aplicadas por outro órgão, vigentes no período. Em regra elas valem só para quem as aplicou, então não impedem o contrato com a Prefeitura; o sinal mostra histórico de problemas.</li>
     </ul>

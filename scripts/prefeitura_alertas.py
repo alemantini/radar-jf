@@ -296,14 +296,16 @@ def main():
                 f"Capital social declarado de {brl(cap)} para {brl(rec)} recebidos ou empenhados. Não é ilegal, mas pode indicar empresa sem estrutura.",
                 rec)
         # 7. sócio doou para campanha em JF em 2024
-        for s in x.get("socios") or []:
-            if s in doadores:
-                lst = doadores[s]
-                cand = "; ".join(sorted({f"{u} ({cg}, {pt})" for u, cg, pt, _ in lst}))
-                tot = sum(val for *_, val in lst)
-                add("doador", c, "Sócio doou para campanha em Juiz de Fora",
-                    f"Um sócio desta empresa aparece como doador da eleição de 2024 em JF ({brl(tot)}), para: {cand}. A empresa recebeu {brl(rec)} da Prefeitura no período. Doar é legal; o sinal é o cruzamento.",
-                    rec)
+        eh_empresa = re.search(r"empres[áa]ri|limitada|an[ôo]nima|eireli|individual", natureza, re.I) and not PUBLICA.search(natureza)
+        achados = [(s, doadores[s]) for s in (x.get("socios") or []) if s in doadores] if eh_empresa else []
+        if achados:
+            lst = [d for _, ds in achados for d in ds]
+            cand = "; ".join(sorted({f"{u} ({cg}, {pt})" for u, cg, pt, _ in lst}))
+            tot = sum(val for *_, val in lst)
+            quem = "Um sócio" if len(achados) == 1 else f"{len(achados)} sócios"
+            add("doador", c, "Sócio doou para campanha em Juiz de Fora",
+                f"{quem} desta empresa aparece{'m' if len(achados) > 1 else ''} como doador{'es' if len(achados) > 1 else ''} da eleição de 2024 em JF ({brl(tot)} no total), para: {cand}. A empresa recebeu {brl(rec)} da Prefeitura no período. Doar é legal; o sinal é o cruzamento.",
+                rec)
         # 8. empresa punida
         ultimo = data_br(ultimo_emp.get(c))
         for p in pun.get(c, []):
