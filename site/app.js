@@ -473,6 +473,7 @@ function pgEscolha() {
       <a href="#/prefeitura/impostometro"><b id="fx-imp">...</b><span>em impostos municipais pagos este ano</span></a>
       <a href="#/prefeitura/emendas"><b>${EMENDAS_R && EMENDAS_R.total ? reaisCurto(EMENDAS_R.total.previsto) : "Emendas"}</b><span>em emendas indicadas pelos vereadores</span></a>
     </div>
+    <div id="instalar-app"></div>
     <div class="escolhas">
       <a class="placa camara" href="#/camara">${ic("camara")}<span class="tx"><span class="tt">Câmara</span><span class="ds">O que cada um dos ${nV} vereadores apresentou, quanto custa cada gabinete e o que foi pedido para o seu bairro.</span><span class="num">${fmt(RESUMO.total)} propostas</span></span><span class="seta">›</span></a>
       <a class="placa prefeitura" href="#/prefeitura">${ic("dinheiro")}<span class="tx"><span class="tt">Prefeitura</span><span class="ds">Para onde vai o dinheiro: quanto cada secretaria gasta, com quem e em quê.</span><span class="num">Gastos por secretaria</span></span><span class="seta">›</span></a>
@@ -481,6 +482,7 @@ function pgEscolha() {
     <a class="btn-grande prefeitura" href="#/prefeitura/placar">${ic("balanca")}<span class="tx">Placar fiscal da Prefeitura<small>Gasta mais do que arrecada? Cumpre os mínimos de saúde e educação?</small></span>›</a>
     <a class="btn-grande prefeitura" href="#/prefeitura/busca">${ic("lupa")}<span class="tx">Pesquisar um gasto<small>Empresa, CNPJ ou palavra, como asfalto ou merenda</small></span>›</a>
     <div class="info">Câmara e Prefeitura são poderes diferentes. A Câmara (vereadores) faz leis, fiscaliza e pede melhorias. A Prefeitura (prefeita e secretarias) executa os serviços e gasta o orçamento.</div>`;
+  botaoInstalar();
   document.getElementById("esc-ver").onchange = e => { if (e.target.value) location.hash = "#/v/" + e.target.value; };
   document.getElementById("hero-busca").onsubmit = e => { e.preventDefault(); const q = document.getElementById("hb").value.trim(); location.hash = "#/busca" + (q ? "/" + encodeURIComponent(q) : ""); };
   if (window.prefReceitas) prefReceitas().then(R => { const x = R && impostometro(R); const el = document.getElementById("fx-imp"); if (el) el.textContent = x ? reaisCurto(x.total) : "ver"; });
@@ -666,4 +668,23 @@ function pgApoie() {
     ${APOIA_SE ? `<a class="btn-apoie" href="${APOIA_SE}" target="_blank" rel="noopener">${ic("coracao")}<span class="tx"><b>Apoiar pelo Catarse</b><small>Apoio mensal ou avulso, pelo cartão, Pix ou boleto</small></span><span class="seta">›</span></a>` : '<p>A página de apoio está sendo preparada. Volte em breve.</p>'}
     <h2>Quem não pode apoiar</h2>
     <p>Para o Radar continuar independente, <b>não aceitamos apoio</b> de partidos, candidatos, vereadores, da prefeita, de servidores comissionados nem de empresas e entidades que recebem dinheiro da Prefeitura ou da Câmara. Se um apoio desses chegar, ele é devolvido.</p>`;
+}
+
+
+// ---------- aplicativo (instalar na tela do celular) ----------
+let _pedidoInstalar = null;
+const jaInstalado = () => matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+const ehIphone = () => /iphone|ipad|ipod/i.test(navigator.userAgent);
+if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+addEventListener("beforeinstallprompt", e => { e.preventDefault(); _pedidoInstalar = e; botaoInstalar(); });
+addEventListener("appinstalled", () => { _pedidoInstalar = null; botaoInstalar(); });
+function botaoInstalar() {
+  const box = document.getElementById("instalar-app");
+  if (!box) return;
+  if (jaInstalado() || (!_pedidoInstalar && !ehIphone())) { box.innerHTML = ""; return; }
+  box.innerHTML = `<button class="btn-app" id="btn-app" type="button"><img src="icone-192.png" alt="" width="40" height="40"><span class="tx"><b>Instale o app JFlândia</b><small>Ícone na tela do celular, abre direto, sem precisar procurar o site.</small></span><span class="seta">›</span></button><div id="app-ios" class="app-ios" hidden>No iPhone: toque em <b>Compartilhar</b> (o quadrado com a seta para cima, embaixo da tela) e depois em <b>Adicionar à Tela de Início</b>.</div>`;
+  document.getElementById("btn-app").onclick = async () => {
+    if (_pedidoInstalar) { _pedidoInstalar.prompt(); await _pedidoInstalar.userChoice.catch(() => {}); _pedidoInstalar = null; botaoInstalar(); }
+    else document.getElementById("app-ios").hidden = false;
+  };
 }

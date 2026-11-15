@@ -385,3 +385,11 @@ html,body{overflow-x:clip}
 .pix-chave{background:var(--calcada);border-radius:8px;padding:8px 12px}
 .pix-chave span{display:block;font-size:13px;color:var(--apoio)}
 .pix-chave b{word-break:break-all}
+/* instalar o app */
+.btn-app{display:flex;align-items:center;gap:12px;width:100%;text-align:left;font:inherit;margin:0 0 14px;padding:12px 14px;border-radius:var(--raio);background:#fff;border:2px solid #0b2545;color:#0b2545;cursor:pointer}
+.btn-app img{border-radius:10px;flex:none}
+.btn-app .tx{flex:1}
+.btn-app b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:21px;line-height:1.1}
+.btn-app small{display:block;font-size:14px;color:var(--apoio)}
+.btn-app .seta{font-size:28px;font-weight:700}
+.app-ios{background:var(--calcada);border-radius:10px;padding:10px 12px;margin:-6px 0 14px;font-size:15px}
