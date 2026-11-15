@@ -499,6 +499,7 @@ async function rota() {
   sub.innerHTML = (SUBNAV[area] || []).map(([href, t, i]) => `<a href="${href}" class="${atual === href || (atual.startsWith(href + "/") && href !== "#/prefeitura") || (href === "#/prefeitura" && /^#\/prefeitura\/(ano|s)\b/.test(atual)) || (href === "#/camara" && (atual.startsWith("#/v/") || atual.startsWith("#/grupo"))) ? "ativo" : ""}">${ic(i)}${t}</a>`).join("");
   document.getElementById("selo").innerHTML = SELO[area] ? SELO[area]() : "";
   const at = sub.querySelector("a.ativo"); if (at) sub.scrollLeft = at.offsetLeft - 16;
+  setasSubnav();
   window.scrollTo(0, 0);
   try {
     if (pag === "v") await pgVereador(+arg);
@@ -630,4 +631,24 @@ function pgPlacar(arg) {
     try { await navigator.clipboard.writeText(url); document.getElementById("copiado").textContent = "Link copiado."; } catch (e) { document.getElementById("copiado").textContent = url; }
   };
   desenha();
+}
+
+
+// setas do menu de baixo quando as opções não cabem na tela
+function setasSubnav() {
+  const sub = document.getElementById("subnav"), w = sub.parentElement;
+  const esq = w.querySelector(".sn-seta.esq"), dir = w.querySelector(".sn-seta.dir");
+  const atualiza = () => {
+    const sobra = sub.scrollWidth - sub.clientWidth;
+    esq.hidden = !(sobra > 4 && sub.scrollLeft > 4);
+    dir.hidden = !(sobra > 4 && sub.scrollLeft < sobra - 4);
+  };
+  if (!w.dataset.ok) {
+    w.dataset.ok = 1;
+    esq.onclick = () => sub.scrollBy({left: -sub.clientWidth * 0.7, behavior: "smooth"});
+    dir.onclick = () => sub.scrollBy({left: sub.clientWidth * 0.7, behavior: "smooth"});
+    sub.addEventListener("scroll", atualiza, {passive: true});
+    window.addEventListener("resize", atualiza);
+  }
+  atualiza();
 }
