@@ -125,7 +125,10 @@ jobs:
         run: curl -fsSL "https://alemantini.github.io/radar-jf/dados/gabinetes.json" -o site/dados/gabinetes.json || echo "sem versão anterior"
 
       - name: Eleição 2024 (TSE, gerado pelo workflow TSE)
-        run: if [ -f data/tse.json ]; then cp data/tse.json site/dados/tse.json; fi
+        run: |
+          if [ -f data/tse.json ]; then cp data/tse.json site/dados/tse.json; fi
+          mkdir -p site/dados/prefeitura
+          if [ -f data/prefeitura/comissionados.json ]; then cp data/prefeitura/comissionados.json site/dados/prefeitura/; fi
 
       - name: Prefeitura, sinais de alerta (cruzamento de dados públicos)
         id: alertas

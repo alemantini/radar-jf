@@ -385,6 +385,7 @@ async function rotaPrefeitura(p) {
   if (sub === "impostometro") return pgImpostometro();
   if (sub === "placar") return pgPlacarFiscal(a);
   if (sub === "alertas") return pgAlertas(a);
+  if (sub === "comissionados") return pgComissionados(a);
   if (sub === "emendas") return pgEmendas(a);
   if (sub === "diario") return pgDiario(a, b);
   if (sub === "s") return pgPrefSecretaria(a, +b);
@@ -519,4 +520,74 @@ async function pgAlertas(tipo) {
       <li><b>Punida por outro órgão:</b> sanções de impedimento ou suspensão aplicadas por outro órgão, vigentes no período. Em regra elas valem só para quem as aplicou, então não impedem o contrato com a Prefeitura; o sinal mostra histórico de problemas.</li>
     </ul>
     <p class="sub fonte-linha">Atualizado em ${esc(A.coletado_em)}. Fontes: ${A.fontes.map(esc).join("; ")}. Os gastos da Prefeitura estão na última versão que o Radar conseguiu baixar. Achou um sinal errado? <a href="https://github.com/alemantini/radar-jf/issues" target="_blank" rel="noopener">Avise</a> que a gente corrige.</p>`;
+}
+
+
+// ---------- Cargos comissionados (lista pronta) ----------
+let COMISS = null;
+const FONTE_SERV = "https://www.pjf.mg.gov.br/transparencia/servidores/pesquisar.php?orgao_pesq=PJF";
+const MINUSC = new Set(["de", "da", "do", "das", "dos", "e", "d"]);
+const nomeBonito = n => n.toLowerCase().split(" ").map((w, i) => i && MINUSC.has(w) ? w : w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+const CARGO_TX = {SECRETARIO: "Secretário(a)", "SECRETARIO ADJUNTO": "Secretário(a) adjunto(a)", "SECRETARIO EXECUTIVO": "Secretário(a) executivo(a)", SUBSECRETARIO: "Subsecretário(a)", GERENTE: "Gerente"};
+const cargoTx = c => CARGO_TX[c] || c.replace(/^ASSESSOR/, "Assessor(a)");
+const ORDEM_CARGO = c => c === "SECRETARIO" ? 0 : c.startsWith("SECRETARIO") ? 1 : c === "SUBSECRETARIO" ? 2 : c === "GERENTE" ? 3 : 10 - ({VI: 6, V: 5, IV: 4, III: 3, II: 2, I: 1}[c.split(" ")[1]] || 0);
+
+async function pgComissionados(sigla) {
+  const $ = id => document.getElementById(id);
+  if (!COMISS) COMISS = await fetch("dados/prefeitura/comissionados.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  const C = COMISS;
+  if (!C) { app.innerHTML = "<h1>Cargos comissionados</h1><p>A lista ainda não foi publicada. Volte mais tarde.</p>"; return; }
+  const P = C.pessoas.map(([nome, cargo, lot, adm, sal, bruto]) => ({nome, cargo, lot, adm, sal, bruto}));
+  const nomeSec = s => C.siglas[s] ? `${C.siglas[s]} (${s})` : s;
+  const grupos = {};
+  P.forEach(p => (grupos[p.lot] = grupos[p.lot] || []).push(p));
+  Object.values(grupos).forEach(g => g.sort((a, b) => ORDEM_CARGO(a.cargo) - ORDEM_CARGO(b.cargo) || a.nome.localeCompare(b.nome)));
+  const ordem = Object.keys(grupos).sort((a, b) => grupos[b].length - grupos[a].length || a.localeCompare(b));
+  const soma = g => g.reduce((t, p) => t + p.bruto, 0);
+  const total = soma(P), maior = grupos[ordem[0]].length;
+  const contaCargo = re => P.filter(p => re.test(p.cargo)).length;
+
+  app.innerHTML = `
+    <h1>Cargos comissionados da Prefeitura</h1>
+    <p class="sub">Quem foi nomeado sem concurso para cargos de confiança: secretários, subsecretários, gerentes e assessores. Lista pronta, com dados de ${esc(C.competencia)}, separada por secretaria.</p>
+    <div class="faixa-nums">
+      <div><b>${fmt(P.length)}</b><span>comissionados</span></div>
+      <div><b>${reais(total)}</b><span>custo bruto no mês</span></div>
+      <div><b>${reais(total * 13.33)}</b><span>estimativa por ano (com 13º e férias)</span></div>
+    </div>
+    <p class="sub">${fmt(contaCargo(/^SECRETARIO/))} secretários, ${fmt(contaCargo(/^SUBSECRETARIO/))} subsecretários, ${fmt(contaCargo(/^GERENTE/))} gerentes e ${fmt(contaCargo(/^ASSESSOR/))} assessores.</p>
+    <label class="sr" for="cq">Buscar por nome ou cargo</label>
+    <input type="search" id="cq" placeholder="Buscar por nome ou cargo">
+    <label class="sr" for="cs">Secretaria</label>
+    <select id="cs" style="margin-top:8px"><option value="">Todas as secretarias</option>${ordem.map(s => `<option value="${esc(s)}" ${s === sigla ? "selected" : ""}>${esc(nomeSec(s))} (${grupos[s].length})</option>`).join("")}</select>
+    <div id="clista"></div>
+    <h2>Sobre esta lista</h2>
+    <ul class="metodo">
+      <li><b>De onde vem:</b> Portal da Transparência da Prefeitura, servidores da administração direta com vínculo "Comissionado". O Radar baixou as planilhas por cargo (secretário, subsecretário, gerente, assessor e coordenador) e juntou tudo aqui.</li>
+      <li><b>O que pode faltar:</b> comissionados com outro nome de cargo, e os das autarquias e empresas (Cesama, Demlurb, AMAC, Funalfa, Emcasa, JFPrev), que têm folha separada. Servidores concursados que recebem gratificação por chefia não entram, porque o vínculo deles é efetivo.</li>
+      <li><b>Salário do cargo</b> é o valor fixo. <b>Bruto no mês</b> inclui férias, gratificações e outras verbas daquele mês, por isso pode variar.</li>
+      <li>A lista é atualizada à mão, porque o site da Prefeitura bloqueia o robô do Radar. Para conferir ou ver um mês mais novo, use a <a href="${FONTE_SERV}" target="_blank" rel="noopener">pesquisa oficial de servidores</a>.</li>
+    </ul>
+    <p class="sub fonte-linha">Competência ${esc(C.competencia)}, baixado em ${esc(C.baixado_em.split("-").reverse().join("/"))}. Fonte: ${esc(C.fonte)}.</p>`;
+
+  const desenha = () => {
+    const q = $("cq").value.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().trim();
+    const sel = $("cs").value;
+    const secs = ordem.filter(s => !sel || s === sel);
+    let html = "";
+    secs.forEach(s => {
+      const g = grupos[s].filter(p => !q || p.nome.includes(q) || p.cargo.includes(q) || cargoTx(p.cargo).toUpperCase().includes(q));
+      if (!g.length) return;
+      const aberto = sel || q || secs.length === 1;
+      html += `<details class="equipe"${aberto ? " open" : ""}>
+        <summary>${ic("predios")}<span class="tx"><b>${esc(nomeSec(s))}</b><small>${fmt(grupos[s].length)} comissionados, ${reais(soma(grupos[s]))} no mês</small><span class="mini-barra"><i style="width:${Math.max(3, grupos[s].length / maior * 100)}%"></i></span></span></summary>
+        <table class="tab-equipe"><thead><tr><th>Nome e cargo</th><th>Bruto no mês</th></tr></thead><tbody>
+        ${g.map(p => `<tr><td>${esc(nomeBonito(p.nome))}<small class="sub" style="display:block">${esc(cargoTx(p.cargo))}, desde ${esc(p.adm.slice(3))}</small></td><td title="Salário do cargo: ${reais(p.sal, false)}">${reais(p.bruto, false)}</td></tr>`).join("")}
+        </tbody></table></details>`;
+    });
+    $("clista").innerHTML = html || '<p class="sub">Ninguém encontrado com essa busca.</p>';
+  };
+  let tm; $("cq").oninput = () => { clearTimeout(tm); tm = setTimeout(desenha, 200); };
+  $("cs").onchange = () => { history.replaceState(null, "", "#/prefeitura/comissionados" + ($("cs").value ? "/" + $("cs").value : "")); desenha(); };
+  desenha();
 }
