@@ -311,6 +311,7 @@ async function pgEmendasDe(prop) {
       <div class="topo"><span class="tag" style="background:${ETAPA_COR[e.et] || "#7a828e"}">${esc(e.et)}</span>${e.ano} · Emenda ${esc(e.id)} · ${esc(e.sit)}</div>
       <div class="txt">${esc(e.obj) || "Objeto não informado"}</div>
       <div class="pe">${e.benef ? "Para: " + esc(e.benef) + " · " : ""}${e.local ? esc(e.local) + " · " : ""}indicado ${reais(e.prev, false)} · pago ${reais(e.pago, false)}</div>
+      ${/^execut/i.test(e.sit) && !e.pago ? '<div class="pe sub">A planilha oficial marca como executada, mas não registra empenho nem pagamento. A informação está incompleta na fonte.</div>' : ""}
     </div>`;
   const mostra = () => { const q = norm(inp.value.trim()); const it = q ? itens.filter(e => norm(`${e.obj} ${e.benef} ${e.local} ${e.ug} ${e.sit} ${e.et} ${e.funcao}`).includes(q)) : itens; alvo.innerHTML = it.map(card).join("") || '<p class="sub">Nada encontrado.</p>'; };
   let tm; inp.oninput = () => { clearTimeout(tm); tm = setTimeout(mostra, 250); };
