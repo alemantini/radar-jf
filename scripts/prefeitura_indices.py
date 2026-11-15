@@ -94,12 +94,8 @@ def minimos():
     }
 
 
-def balanco():
-    """RREO Anexo 1: receita prevista x arrecadada e despesas x receitas correntes no ano (art. 167-A)."""
-    ano, bim, it = ultimo("rreo", "RREO-Anexo 01", JF, (6, 5, 4, 3, 2, 1))
-    if not it:
-        return None
-    print("  colunas anexo 1:", sorted({x.get("coluna") for x in it})[:30])
+def anexo1(ano, bim):
+    it = api("rreo", an_exercicio=ano, nr_periodo=bim, co_tipo_demonstrativo="RREO", no_anexo="RREO-Anexo 01", id_ente=JF) or []
     def v(conta, col):
         for x in it:
             if re.match(conta, x.get("conta", "").strip(), re.I) and re.search(col, x.get("coluna", ""), re.I):
@@ -108,14 +104,44 @@ def balanco():
                 except (TypeError, ValueError):
                     pass
         return None
-    rc_prev = v(r"^RECEITAS CORRENTES", r"PREVIS[ÃA]O ATUALIZADA")
-    rc_real = v(r"^RECEITAS CORRENTES", r"^At[ée] o Bimestre|REALIZADAS.*AT[ÉE] O BIMESTRE|^Até o Bimestre \(c\)")
-    dc_liq = v(r"^DESPESAS CORRENTES", r"LIQUIDADAS AT[ÉE] O BIMESTRE")
-    dc_emp = v(r"^DESPESAS CORRENTES", r"EMPENHADAS AT[ÉE] O BIMESTRE")
-    rt_prev = v(r"^RECEITAS \(EXCETO INTRA|^TOTAL DAS RECEITAS|^SUBTOTAL DAS RECEITAS", r"PREVIS[ÃA]O ATUALIZADA")
-    rt_real = v(r"^RECEITAS \(EXCETO INTRA|^TOTAL DAS RECEITAS|^SUBTOTAL DAS RECEITAS", r"^At[ée] o Bimestre|AT[ÉE] O BIMESTRE")
-    return {"ano": ano, "bimestre": bim, "rc_previsto_ano": rc_prev, "rc_realizado": rc_real,
-            "dc_liquidado": dc_liq, "dc_empenhado": dc_emp, "receita_prevista_ano": rt_prev, "receita_realizada": rt_real}
+    if not it:
+        return None
+    tot = r"^RECEITAS \(EXCETO INTRA|^TOTAL DAS RECEITAS|^SUBTOTAL DAS RECEITAS"
+    return {"rc_prev": v(r"^RECEITAS CORRENTES", r"PREVIS[ÃA]O ATUALIZADA"),
+            "rc": v(r"^RECEITAS CORRENTES", r"^At[ée] o Bimestre"),
+            "dc_liq": v(r"^DESPESAS CORRENTES", r"LIQUIDADAS AT[ÉE] O BIMESTRE"),
+            "dc_emp": v(r"^DESPESAS CORRENTES", r"EMPENHADAS AT[ÉE] O BIMESTRE"),
+            "rt_prev": v(tot, r"PREVIS[ÃA]O ATUALIZADA"), "rt": v(tot, r"^At[ée] o Bimestre")}
+
+
+def balanco():
+    """RREO Anexo 1: receita prevista x arrecadada; despesas correntes x receitas correntes em 12 meses (art. 167-A)."""
+    hoje = dt.date.today()
+    for ano in (hoje.year, hoje.year - 1):
+        for bim in (6, 5, 4, 3, 2, 1):
+            atual = anexo1(ano, bim)
+            if atual and atual["rc"]:
+                break
+        else:
+            continue
+        break
+    else:
+        return None
+    res = {"ano": ano, "bimestre": bim, "receita_prevista_ano": atual["rt_prev"], "receita_realizada": atual["rt"],
+           "rc_realizado": atual["rc"], "dc_liquidado": atual["dc_liq"], "dc_empenhado": atual["dc_emp"]}
+    # 12 meses: ano atual até o bimestre + resto do ano anterior
+    if bim == 6:
+        rc12, dc12 = atual["rc"], atual["dc_liq"]
+    else:
+        ant6, antb = anexo1(ano - 1, 6), anexo1(ano - 1, bim)
+        if ant6 and antb and None not in (ant6["rc"], antb["rc"], ant6["dc_liq"], antb["dc_liq"]):
+            rc12 = atual["rc"] + ant6["rc"] - antb["rc"]
+            dc12 = atual["dc_liq"] + ant6["dc_liq"] - antb["dc_liq"]
+        else:
+            rc12 = dc12 = None
+    if rc12 and dc12:
+        res.update({"rc_12m": round(rc12, 2), "dc_12m": round(dc12, 2), "relacao_12m": round(100 * dc12 / rc12, 2)})
+    return res
 
 
 def por_funcao(itens):
