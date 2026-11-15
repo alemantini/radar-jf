@@ -506,15 +506,16 @@ async function pgAlertas(tipo) {
       </div>`).join("") || '<p class="sub">Nenhum sinal deste tipo.</p>'}
     <h2>Como cada sinal é calculado</h2>
     <ul class="metodo">
-      <li><b>Possível fracionamento:</b> 3 ou mais empenhos no mesmo ano, mesmo fornecedor, mesma secretaria e mesmo tipo de despesa, cada um abaixo do limite de dispensa (em 2026, R$ 65.492,11 para compras e R$ 130.984,20 para obras), que somados passam do limite, sem citar licitação no histórico.</li>
+      <li><b>Possível fracionamento:</b> 4 ou mais empenhos de compras, serviços, equipamentos ou obras no mesmo ano, para o mesmo fornecedor, na mesma secretaria e no mesmo tipo de despesa, cada um abaixo do limite de dispensa (em 2026, R$ 65.492,11 para compras e R$ 130.984,20 para obras), que somados passam de uma vez e meia o limite, sem citar licitação, ata ou contrato no histórico.</li>
       <li><b>Muita contratação sem licitação:</b> pelo menos 3 empenhos que citam dispensa, inexigibilidade ou emergência, somando R$ 500 mil ou mais.</li>
       <li><b>Emergência que se repete:</b> empenhos citando emergência em 4 meses diferentes ou mais.</li>
-      <li><b>Fornecedor concentra pagamentos:</b> uma empresa ou entidade recebe 40% ou mais do que a secretaria pagou a empresas no ano (secretarias com mais de R$ 2 milhões).</li>
-      <li><b>Empresa recém-aberta:</b> aberta menos de um ano antes do primeiro empenho, com R$ 100 mil ou mais.</li>
+      <li><b>Fornecedor concentra pagamentos:</b> uma empresa ou entidade privada recebe 40% ou mais do que a secretaria pagou a empresas e entidades no ano (secretarias com mais de R$ 2 milhões; órgãos públicos como a JFPrev ficam de fora).</li>
+      <li><b>Empresa recém-aberta:</b> matriz aberta menos de um ano antes do primeiro empenho, com R$ 100 mil ou mais. Consórcios formados para uma obra e órgãos públicos ficam de fora.</li>
       <li><b>Cadastro irregular:</b> CNPJ que não está "ativo" na Receita Federal.</li>
       <li><b>Capital social pequeno:</b> empresa com capital menor que 2% do que recebeu (acima de R$ 1 milhão).</li>
       <li><b>Sócio doador de campanha:</b> sócio da empresa com o mesmo nome e os mesmos 6 dígitos do meio do CPF de um doador da eleição de 2024 em Juiz de Fora. O site não mostra o nome do sócio.</li>
-      <li><b>Empresa punida:</b> CNPJ que aparece no CEIS ou no CNEP, os cadastros de empresas punidas da Controladoria-Geral da União.</li>
+      <li><b>Empresa inidônea ou proibida:</b> CNPJ no CEIS ou no CNEP (cadastros de punidos da Controladoria-Geral da União) com sanção que vale para toda a administração pública (inidoneidade ou proibição de contratar com o poder público), vigente enquanto recebia da Prefeitura.</li>
+      <li><b>Punida por outro órgão:</b> sanções de impedimento ou suspensão aplicadas por outro órgão, vigentes no período. Em regra elas valem só para quem as aplicou, então não impedem o contrato com a Prefeitura; o sinal mostra histórico de problemas.</li>
     </ul>
     <p class="sub fonte-linha">Atualizado em ${esc(A.coletado_em)}. Fontes: ${A.fontes.map(esc).join("; ")}. Os gastos da Prefeitura estão na última versão que o Radar conseguiu baixar. Achou um sinal errado? <a href="https://github.com/alemantini/radar-jf/issues" target="_blank" rel="noopener">Avise</a> que a gente corrige.</p>`;
 }

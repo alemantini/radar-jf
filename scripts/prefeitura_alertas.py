@@ -46,6 +46,9 @@ LICITADO = re.compile(r"PREG[AÃ]O|ATA DE REGISTRO|\bATA\b|CONCORR|TOMADA DE PRE
                       r"TERMO DE (COLABORA|FOMENTO|CONV)|CONV[EÊ]NIO|PARCERIA|INEXIG|REPASSE|EMERG|\bLEI\b|DEA\b|"
                       r"EXERC[IÍ]CIO ANTERIOR|PESSOAL|AMORTIZ|SUBSTITUI|ALUGUEL|LOCA[CÇ][AÃ]O DO IM|TARIFA|FATURA|"
                       r"ENERGIA|[AÁ]GUA|TELEFON|CORREIOS|INSS|PASEP|FGTS|JUROS|PRECAT|SENTEN|JUDICIAL|DI[AÁ]RIA")
+ELEM_COMPRA = re.compile(r"material de consumo|outros serv.*terceiros.*jur|equipamentos e material permanente|obras e instala|"
+                        r"tecnologia da informa|distribui|g[êe]neros de alimenta", re.I)
+PUBLICA = re.compile(r"p[úu]blic|autarquia|munic[íi]pio|estado|uni[ãa]o|cons[óo]rcio p[úu]blico|economia mista|fundo", re.I)
 DISPENSA = re.compile(r"DISPENSA|CONTRATA[CÇ][AÃ]O DIRETA|COMPRA DIRETA")
 
 
@@ -190,24 +193,27 @@ def main():
                         "detalhe": detalhe, "valor": round(valor, 2), "secretaria": sec, "refs": refs or []})
 
     por_cred = defaultdict(lambda: {"p": 0.0, "e": 0.0, "primeiro": None})
+    ultimo_emp = {}
     for x in linhas:
         c = por_cred[x["cnpj"]]
         c["p"] += x["p"]
         c["e"] += max(x["e"], 0)
         if x["data"] and (c["primeiro"] is None or x["data"] < c["primeiro"]):
             c["primeiro"] = x["data"]
+        if x["data"] and x["data"] > ultimo_emp.get(x["cnpj"], ""):
+            ultimo_emp[x["cnpj"]] = x["data"]
 
     # 1. possível fracionamento: vários empenhos pequenos, mesmo fornecedor, secretaria e tipo de despesa,
     #    sem citar licitação, que somados passam do limite de dispensa do ano
     grupos = defaultdict(list)
     for x in linhas:
-        if x["e"] > 0 and not LICITADO.search(x["hist"]):
+        if x["e"] > 0 and ELEM_COMPRA.search(x["el"]) and not LICITADO.search(x["hist"]):
             grupos[(x["ano"], x["sec"], x["cnpj"], x["el"])].append(x)
     for (ano, sec, cnpj, el), xs in grupos.items():
         lim = LIMITE[ano]["obras" if re.search(r"obra|engenharia|instala", el, re.I) else "outros"]
         peq = [x for x in xs if x["e"] < lim]
         tot = sum(x["e"] for x in peq)
-        if len(peq) >= 3 and tot > lim * 1.1:
+        if len(peq) >= 4 and tot > lim * 1.5:
             add("fracionamento", cnpj, "Possível fracionamento de compra",
                 f"{len(peq)} empenhos em {ano}, todos abaixo do limite de dispensa ({brl(lim)}), somando {brl(tot)} "
                 f"para o mesmo fornecedor, na mesma secretaria e no mesmo tipo de despesa ({el}), sem citar licitação no histórico.",
@@ -234,6 +240,15 @@ def main():
                 f"Empenhos citando emergência em {len(d['emerg_meses'])} meses diferentes. Contratação emergencial deveria ser exceção e de curta duração.",
                 d["e"])
 
+    # cadastro de empresas
+    alvo = [c for c, v in sorted(por_cred.items(), key=lambda kv: -kv[1]["p"]) if v["p"] >= MIN_CNPJ or v["e"] >= MIN_CNPJ]
+    cad = consultar_cnpj(alvo)
+    doadores = {}
+    fd = RAIZ / "data" / "doadores_jf_2024.json"
+    if fd.exists():
+        doadores = json.loads(fd.read_text(encoding="utf-8"))
+    pun = punidas()
+
     # 3. concentração: um fornecedor leva grande parte do que a secretaria paga a empresas
     sec_tot = defaultdict(float)
     sec_cred = defaultdict(lambda: defaultdict(float))
@@ -244,20 +259,15 @@ def main():
     for sec, tot in sec_tot.items():
         if tot < 2_000_000:
             continue
-        cnpj, v = max(sec_cred[sec].items(), key=lambda kv: kv[1])
+        priv = {c: v for c, v in sec_cred[sec].items() if not PUBLICA.search((cad.get(c) or {}).get("natureza") or "")}
+        if not priv:
+            continue
+        cnpj, v = max(priv.items(), key=lambda kv: kv[1])
         if v / tot >= 0.4:
             add("concentracao", cnpj, "Um fornecedor concentra os pagamentos",
                 f"Recebeu {round(100 * v / tot)}% de tudo o que {sec} pagou a empresas e entidades em {ANOS[-1]} ({brl(v)} de {brl(tot)}). Pode ser normal (hospital conveniado, concessionária), mas vale conferir.",
                 v, sec)
 
-    # cadastro de empresas
-    alvo = [c for c, v in sorted(por_cred.items(), key=lambda kv: -kv[1]["p"]) if v["p"] >= MIN_CNPJ or v["e"] >= MIN_CNPJ]
-    cad = consultar_cnpj(alvo)
-    doadores = {}
-    fd = RAIZ / "data" / "doadores_jf_2024.json"
-    if fd.exists():
-        doadores = json.loads(fd.read_text(encoding="utf-8"))
-    pun = punidas()
 
     for c in alvo:
         x = cad.get(c) or {}
@@ -268,13 +278,14 @@ def main():
         ab = data_br(x.get("abertura"))
         prim = data_br(v["primeiro"])
         # 4. empresa nova
-        if ab and prim and 0 <= (prim - ab).days < 365 and rec >= 100_000:
+        natureza = x.get("natureza") or ""
+        if ab and prim and 0 <= (prim - ab).days < 365 and rec >= 100_000 and c[8:12] == "0001" and not PUBLICA.search(natureza) and "cons" not in natureza.lower():
             add("nova", c, "Empresa aberta pouco antes de vender para a Prefeitura",
                 f"Aberta em {ab.strftime('%d/%m/%Y')}; primeiro empenho no período em {prim.strftime('%d/%m/%Y')} ({(prim - ab).days} dias depois). Valor: {brl(rec)}.",
                 rec)
         # 5. situação cadastral
         sit = (x.get("situacao") or "").upper()
-        if sit and sit != "ATIVA" and "pública" not in (x.get("natureza") or "").lower():
+        if sit and sit != "ATIVA" and not PUBLICA.search(natureza):
             add("situacao", c, "Empresa com cadastro irregular na Receita",
                 f"Situação na Receita Federal: {sit.title()} desde {(data_br(x.get('data_situacao')) or dt.date(1900, 1, 1)).strftime('%d/%m/%Y')}. Valor no período: {brl(rec)}.", rec)
         # 6. capital social muito baixo para o volume recebido
@@ -294,10 +305,20 @@ def main():
                     f"Um sócio desta empresa aparece como doador da eleição de 2024 em JF ({brl(tot)}), para: {cand}. A empresa recebeu {brl(rec)} da Prefeitura no período. Doar é legal; o sinal é o cruzamento.",
                     rec)
         # 8. empresa punida
+        ultimo = data_br(ultimo_emp.get(c))
         for p in pun.get(c, []):
-            add("punida", c, "Empresa no cadastro de punidas da CGU",
-                f"{p['cadastro']}: {p['sancao']} aplicada por {p['orgao']} (de {p['inicio']} a {p['fim'] or 'sem data final'}). Valor no período: {brl(rec)}.",
-                rec)
+            ini, fim = data_br(p["inicio"]), data_br(p["fim"])
+            if not ini or not prim or (ultimo and ini > ultimo) or (fim and fim < prim):
+                continue  # sanção fora do período em que recebeu da Prefeitura
+            ampla = re.search(r"inidoneidade|sem prazo|proibi[çc][ãa]o de contratar com o poder p", p["sancao"], re.I)
+            if ampla:
+                add("punida", c, "Empresa declarada inidônea ou proibida de contratar",
+                    f"{p['cadastro']}: {p['sancao']} aplicada por {p['orgao']} (de {p['inicio']} a {p['fim'] or 'sem data final'}), período em que também recebeu da Prefeitura ({brl(rec)}). Esse tipo de sanção vale para toda a administração pública.",
+                    rec)
+            else:
+                add("punida_outro", c, "Empresa punida por outro órgão",
+                    f"{p['cadastro']}: {p['sancao']} aplicada por {p['orgao']} (de {p['inicio']} a {p['fim'] or 'sem data final'}). Em regra essa punição vale só para o órgão que a aplicou, mas mostra problema anterior na execução de contratos. Valor recebido da Prefeitura no período: {brl(rec)}.",
+                    rec)
 
     TIPOS = {
         "fracionamento": "Possível fracionamento",
@@ -308,7 +329,8 @@ def main():
         "situacao": "Cadastro irregular na Receita",
         "capital": "Capital social pequeno",
         "doador": "Sócio doador de campanha",
-        "punida": "Empresa punida (CGU)",
+        "punida": "Empresa inidônea ou proibida",
+        "punida_outro": "Punida por outro órgão",
     }
     alertas.sort(key=lambda a: -a["valor"])
     res = {"coletado_em": dt.datetime.now().strftime("%Y-%m-%d %H:%M"), "anos": list(ANOS),
