@@ -12,6 +12,8 @@ function reais(v, curto = true) {
   if (curto && a >= 1e4) return `${s}R$ ${(a / 1e3).toLocaleString("pt-BR", {maximumFractionDigits: 0})} mil`;
   return `${s}R$ ${a.toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 }
+const secNome = n => /^#?n\/?a$/i.test(String(n || "").trim()) ? "Unidade não informada pela Prefeitura" : String(n || "").replace(/\bMuncipal\b/g, "Municipal");
+const numEmp = n => /^\d{4}[A-Z]{0,2}$/i.test(String(n || "").trim()) ? "" : String(n || "").trim();
 const cnpjFmt = c => c && c.length === 14 ? `${c.slice(0, 2)}.${c.slice(2, 5)}.${c.slice(5, 8)}/${c.slice(8, 12)}-${c.slice(12)}` : c;
 const fonteLink = (t = "fonte oficial") => `<a href="${FONTE_PREF}" target="_blank" rel="noopener">${t}</a>`;
 
@@ -37,7 +39,7 @@ const explicacao = `<div class="info"><b>Como ler:</b> <b>empenhado</b> é o din
 function itemEmpenho(d, x) {
   const credor = x[2] >= 0 ? `<a href="#/prefeitura/empresa/${d.ano}/${d.credores[x[2]][0]}">${esc(d.credores[x[2]][1])}</a>` : "Pessoa física (nome não exibido)";
   return `<div class="item">
-    <div class="topo">${x[0] ? dataBR(x[0]) + " · " : ""}Empenho nº ${esc(x[7])} · ${esc(d.secretarias[x[1]])}</div>
+    <div class="topo">${x[0] ? dataBR(x[0]) + " · " : ""}${numEmp(x[7]) ? `Empenho nº ${esc(numEmp(x[7]))} · ` : ""}${esc(secNome(d.secretarias[x[1]]))}</div>
     <div class="txt"><b>${credor}</b>${x[6] ? "<br>" + esc(x[6]) : ""}</div>
     <div class="pe">${esc(d.elementos[x[3]])} · empenhado ${reais(x[4], false)} · pago ${reais(x[5], false)}</div>
   </div>`;
@@ -149,7 +151,7 @@ async function pgPrefInicio(ano) {
     ${explicacao}
     <h2>Quanto cada órgão pagou em ${ano}</h2>
     <p class="sub">${A.secretarias.length} unidades, da que mais pagou para a que menos pagou. Toque para ver em quê e com quem.</p>
-    ${A.secretarias.map((s, i) => `<a class="linha" href="#/prefeitura/s/${ano}/${i}"><span class="nm">${esc(s.nome)}<div class="barra-p" style="width:${Math.max(1, Math.round(100 * s.p / max))}%"></div></span><span class="vl">${reais(s.p)} ›</span></a>`).join("")}
+    ${A.secretarias.map((s, i) => `<a class="linha" href="#/prefeitura/s/${ano}/${i}"><span class="nm">${esc(secNome(s.nome))}<div class="barra-p" style="width:${Math.max(1, Math.round(100 * s.p / max))}%"></div></span><span class="vl">${reais(s.p)} ›</span></a>`).join("")}
     <h2>Pagamentos a pessoas físicas</h2>
     <p>${reais(A.pessoa_fisica.p)} pagos em ${fmt(A.pessoa_fisica.n)} lançamentos a pessoas físicas. A maior parte é folha de pagamento: salários de servidores, aposentadorias, pensões e contratos temporários. <b>Nomes e CPFs não são exibidos neste site.</b></p>
     ${(A.pessoa_fisica.elementos || []).map(e => `<div class="linha"><span class="nm">${esc(e.nome)}</span><span class="vl">${reais(e.p)}</span></div>`).join("")}`;
@@ -163,7 +165,7 @@ async function pgPrefSecretaria(ano, i) {
   const maxM = Math.max(...s.meses.map(v => Math.max(v, 0)), 1);
   const maxE = Math.max(...s.elementos.map(e => e.p), 1);
   app.innerHTML = `
-    <h1>${esc(s.nome)}</h1>
+    <h1>${esc(secNome(s.nome))}</h1>
     <p class="sub">${s.categoria ? esc(s.categoria) + " · " : ""}${ano} · ${fmt(s.n)} lançamentos · ${fonteLink()}</p>
     <div class="totais">
       <div><span>Empenhado</span><b>${reais(s.e)}</b></div>
@@ -195,7 +197,7 @@ async function pgPrefFornecedores(ano) {
   const mostra = () => {
     const q = norm(inp.value.trim()), qd = inp.value.replace(/\D/g, "");
     const it = A.fornecedores.filter(f => !q || norm(f.nome).includes(q) || (qd.length >= 4 && f.cnpj.includes(qd)));
-    document.getElementById("res").innerHTML = it.map((f, k) => `<a class="linha" href="#/prefeitura/empresa/${ano}/${f.cnpj}"><span class="nm">${esc(f.nome)}<br><small class="sub">CNPJ ${cnpjFmt(f.cnpj)} · ${esc(f.secretarias.slice(0, 2).join(", "))}</small></span><span class="vl">${reais(f.p)} ›</span></a>`).join("") || '<p class="sub">Ninguém encontrado nesta lista.</p>';
+    document.getElementById("res").innerHTML = it.map((f, k) => `<a class="linha" href="#/prefeitura/empresa/${ano}/${f.cnpj}"><span class="nm">${esc(f.nome)}<br><small class="sub">CNPJ ${cnpjFmt(f.cnpj)} · ${esc(f.secretarias.slice(0, 2).map(secNome).join(", "))}</small></span><span class="vl">${reais(f.p)} ›</span></a>`).join("") || '<p class="sub">Ninguém encontrado nesta lista.</p>';
   };
   let tm; inp.oninput = () => { clearTimeout(tm); tm = setTimeout(mostra, 200); };
   mostra();
@@ -502,7 +504,7 @@ async function pgAlertas(tipo) {
       <div class="alerta-card">
         <div class="ac-topo"><span class="ac-tipo">${esc(A.tipos[a.tipo] || a.tipo)}</span><span class="ac-valor">${reais(a.valor)}</span></div>
         <a class="ac-nome" href="#/prefeitura/empresa/${anoEmp}/${a.cnpj}">${esc(a.nome || "Empresa")}</a>
-        <small class="sub">CNPJ ${cnpjFmt(a.cnpj)}${a.secretaria ? ` · ${esc(a.secretaria)}` : ""}</small>
+        <small class="sub">CNPJ ${cnpjFmt(a.cnpj)}${a.secretaria ? ` · ${esc(secNome(a.secretaria))}` : ""}</small>
         <p>${esc(a.detalhe)}</p>
         ${a.refs.length ? `<small class="sub">Empenhos: ${a.refs.map(esc).join(", ")}</small>` : ""}
       </div>`).join("") || '<p class="sub">Nenhum sinal deste tipo.</p>'}

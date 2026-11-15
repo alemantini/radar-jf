@@ -171,7 +171,8 @@ def processar_ano(ano, registros):
 
     for x in registros:
         e, l, p = numero(x.get("empenhado")), numero(x.get("liquidado")), numero(x.get("pago"))
-        u = acentuar(titulo(x.get("unidade orcamentaria") or "Não informado"))
+        uo = str(x.get("unidade orcamentaria") or "").strip()
+        u = acentuar(titulo(uo if uo and uo.upper() != "#N/A" else "Unidade não informada pela Prefeitura"))
         el = acentuar(titulo(x.get("nome elemento de despesa orcamentaria") or x.get("nome natureza de despesa com subelemento") or ""))
         mes = mes_num(x.get("mes"))
         tipo, cnpj = tipo_credor(x.get("cpf/cnpj"))
