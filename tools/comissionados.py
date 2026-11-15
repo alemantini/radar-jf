@@ -35,6 +35,7 @@ SIGLAS = {
     "SETUR": "Secretaria de Turismo",
     "SF": "Secretaria da Fazenda",
     "SG": "Secretaria de Governo",
+    "SMA": "Secretaria de Meio Ambiente e Mudanças Climáticas",
     "SMU": "Secretaria de Mobilidade Urbana",
     "SO": "Secretaria de Obras",
     "SRH": "Secretaria de Recursos Humanos",
