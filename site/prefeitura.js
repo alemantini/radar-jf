@@ -451,6 +451,17 @@ async function pgPlacarFiscal(medida0) {
           <em style="left:${100 * P.alerta / escala}%"></em><em style="left:${100 * P.prudencial / escala}%"></em><em class="lim" style="left:${100 * P.limite / escala}%"></em></div>
         <p class="lrf-leg">Traços: alerta ${pct(P.alerta)}, prudencial ${pct(P.prudencial)} e <b>limite da lei ${pct(P.limite)}</b>.</p>
         <p class="sub">${reais(P.despesa)} com pessoal nos últimos 12 meses, de uma receita corrente líquida de ${reais(P.rcl)}.</p></div>` : ""}
+    ${I.balanco && I.balanco.relacao_12m ? (() => { const B = I.balanco, r = B.relacao_12m, ano_r = 100 * B.dc_liquidado / B.rc_realizado, pctAno = 100 * B.receita_realizada / B.receita_prevista_ano, pctTempo = 100 * B.bimestre / 6;
+      const c = r > 95 ? "vermelho" : r > 85 ? "amarelo" : "verde";
+      return `<h2>Gasta mais do que arrecada?</h2>
+      <p class="sub">A Constituição (art. 167-A) compara as despesas correntes (salários, custeio, contas do dia a dia) com as receitas correntes. Quando passa de 95% em 12 meses, a prefeitura fica perto de gastar tudo o que entra e pode adotar medidas de ajuste, como suspender reajustes e concursos.</p>
+      <div class="lrf ${c}"><div class="lrf-n"><b>${pct(r)}</b><span>${r > 95 ? "Acima de 95%" : r > 85 ? "Perto do limite de 95%" : "Folga confortável"}</span></div>
+        <div class="lrf-b"><i style="width:${Math.min(100, r)}%"></i><em class="lim" style="left:95%"></em></div>
+        <p class="lrf-leg">Traço vermelho: 95%. Últimos 12 meses até o ${B.bimestre}º bimestre de ${B.ano}: despesas correntes de ${reais(B.dc_12m)} para receitas correntes de ${reais(B.rc_12m)}.</p>
+        <p class="sub">Só em ${B.ano}, até o ${B.bimestre}º bimestre, a relação está em <b>${pct(ano_r)}</b>: ${reais(B.dc_liquidado)} em despesas correntes para ${reais(B.rc_realizado)} em receitas correntes.</p></div>
+      <div class="min-linha"><div class="ml-t"><b>Arrecadação do ano</b><small>Arrecadado até o ${B.bimestre}º bimestre, de ${reais(B.receita_prevista_ano)} previstos no orçamento de ${B.ano}</small></div>
+        <div class="ml-b"><i class="${pctAno >= pctTempo - 3 ? "ok" : "falta"}" style="width:${Math.min(100, pctAno)}%"></i><em style="left:${pctTempo}%" title="parte do ano que já passou"></em></div>
+        <div class="ml-v"><b>${pct(pctAno)}</b><small>${pct(pctTempo)} do ano já passou</small></div></div>`; })() : ""}
     ${M ? `<h2>Mínimos da Constituição</h2>
       <p class="sub">Percentual aplicado até o ${M.bimestre}º bimestre de ${M.ano}. A marca escura é o mínimo exigido; o ano só fecha em dezembro.</p>
       ${minimo("Educação", M.educacao, "Parte da receita de impostos aplicada no ensino")}
