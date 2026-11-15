@@ -448,9 +448,8 @@ async function pgPlacarFiscal(medida0) {
       <p class="sub">A Lei de Responsabilidade Fiscal limita o gasto com servidores da Prefeitura a 54% da receita corrente líquida. Situação em ${P.quadrimestre}º quadrimestre de ${P.ano}:</p>
       <div class="lrf ${cor}"><div class="lrf-n"><b>${pct(P.pct)}</b><span>${estado}</span></div>
         <div class="lrf-b"><i style="width:${100 * P.pct / escala}%"></i>
-          <em style="left:${100 * P.alerta / escala}%"><span>alerta ${pct(P.alerta)}</span></em>
-          <em style="left:${100 * P.prudencial / escala}%"><span>prudencial ${pct(P.prudencial)}</span></em>
-          <em class="lim" style="left:${100 * P.limite / escala}%"><span>limite ${pct(P.limite)}</span></em></div>
+          <em style="left:${100 * P.alerta / escala}%"></em><em style="left:${100 * P.prudencial / escala}%"></em><em class="lim" style="left:${100 * P.limite / escala}%"></em></div>
+        <p class="lrf-leg">Traços: alerta ${pct(P.alerta)}, prudencial ${pct(P.prudencial)} e <b>limite da lei ${pct(P.limite)}</b>.</p>
         <p class="sub">${reais(P.despesa)} com pessoal nos últimos 12 meses, de uma receita corrente líquida de ${reais(P.rcl)}.</p></div>` : ""}
     ${M ? `<h2>Mínimos da Constituição</h2>
       <p class="sub">Percentual aplicado até o ${M.bimestre}º bimestre de ${M.ano}. A marca escura é o mínimo exigido; o ano só fecha em dezembro.</p>

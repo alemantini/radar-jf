@@ -276,7 +276,8 @@ img.avatar.foto{object-fit:cover;width:46px;height:58px;border-radius:10px;backg
 .lrf.vermelho{background:#fdeaea}
 .lrf-n b{font-family:"Barlow Condensed",sans-serif;font-size:44px;line-height:1;margin-right:10px}
 .lrf-n span{font-weight:700}
-.lrf-b{position:relative;height:16px;background:#fff;border-radius:8px;margin:14px 0 30px}
+.lrf-b{position:relative;height:16px;background:#fff;border-radius:8px;margin:14px 0 6px}
+.lrf-leg{font-size:13px;color:var(--apoio);margin:0 0 8px}
 .lrf-b i{display:block;height:100%;border-radius:8px;background:var(--verde)}
 .lrf.amarelo .lrf-b i{background:var(--amarelo)}
 .lrf.vermelho .lrf-b i{background:#c62828}
