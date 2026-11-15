@@ -451,21 +451,38 @@ const SELO = {
 };
 
 function pgEscolha() {
-  const nV = RESUMO.vereadores.filter(v => !v.fora_da_lista).length;
+  const atuais = RESUMO.vereadores.filter(v => !v.fora_da_lista).sort((x, y) => x.apelido.localeCompare(y.apelido, "pt-BR"));
+  const nV = atuais.length;
   app.innerHTML = `
-    <div class="logo-home" role="img" aria-label="Radar JFlândia">
+    <section class="hero">
+      <svg class="hero-ondas" viewBox="0 0 400 400" aria-hidden="true"><g fill="none" stroke="currentColor"><circle cx="330" cy="200" r="40" stroke-width="10"/><circle cx="330" cy="200" r="95" stroke-width="8"/><circle cx="330" cy="200" r="150" stroke-width="6"/><circle cx="330" cy="200" r="205" stroke-width="4"/></g><circle cx="330" cy="200" r="14" fill="currentColor"/></svg>
+      <div class="logo-home" role="img" aria-label="Radar JFlândia">
       <div class="lh-1"><svg class="lh-ic" viewBox="0 0 120 80" aria-hidden="true"><circle cx="60" cy="40" r="11" fill="currentColor"/><path d="M40 18a32 32 0 0 0 0 44M80 18a32 32 0 0 1 0 44M24 6a52 52 0 0 0 0 68M96 6a52 52 0 0 1 0 68" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"/></svg><span>RADAR</span></div>
       <div class="lh-2"><span class="pt">JF</span><span>LÂNDIA</span><span class="lh-bands"><svg class="lh-band" viewBox="0 0 30 21" aria-label="Bandeira do Brasil" role="img"><rect width="30" height="21" fill="#009c3b"/><path d="M15 2.5 27.5 10.5 15 18.5 2.5 10.5z" fill="#ffdf00"/><circle cx="15" cy="10.5" r="4.6" fill="#002776"/></svg><svg class="lh-band" viewBox="0 0 30 21" aria-label="Bandeira de Minas Gerais" role="img"><rect width="30" height="21" fill="#fff" stroke="#c9ccd1" stroke-width=".6"/><path d="M15 4 21.5 16H8.5z" fill="#e8272c"/></svg><svg class="lh-band" viewBox="0 0 30 21" aria-label="Bandeira de Juiz de Fora" role="img"><rect width="30" height="21" fill="#1f4e9c"/><rect y="6.46" width="30" height="1.62" fill="#fff"/><rect y="8.08" width="30" height="4.85" fill="#d52b1e"/><rect y="12.92" width="30" height="1.62" fill="#fff"/><rect y="14.54" width="30" height="6.56" fill="#16924a"/><path d="M15 8.88 16.86 12.12 13.14 12.12z" fill="#fff"/></svg></span></div>
     </div>
-    <p class="lh-tag"><b>Raio-X de Juiz de Fora-MG.</b> O que cada vereador e a prefeita fazem desde a posse, contado todo dia.</p>
-    <p class="sub">Escolha o que você quer acompanhar. Cada número tem a fonte oficial ao lado.</p>
+      <h1 class="hero-t">Veja o que os vereadores e a prefeita de Juiz de Fora fazem com o <span>seu dinheiro</span></h1>
+      <p class="hero-sub">Raio-X de Juiz de Fora-MG. Cada proposta, cada gasto e cada salário, contados todo dia, só com dados oficiais.</p>
+      <label class="hero-sel"><span class="sr">Escolha um vereador</span>
+        <select id="esc-ver"><option value="">Escolha um vereador</option>${atuais.map(v => `<option value="${v.id}">${esc(v.apelido)} (${esc(v.partido || "")})</option>`).join("")}</select></label>
+      <form class="hero-busca" id="hero-busca"><label class="sr" for="hb">Pesquisar meu bairro</label><input id="hb" placeholder="Ou digite o seu bairro ou rua" autocomplete="off"><button type="submit">Buscar</button></form>
+    </section>
+    <div class="faixa-nums">
+      <a href="#/camara"><b id="fx-sal">${reaisCurto(salarioAcumulado())}</b><span>em salários de vereadores desde a posse</span></a>
+      <a href="#/prefeitura/impostometro"><b id="fx-imp">...</b><span>em impostos municipais pagos este ano</span></a>
+      <a href="#/prefeitura/alertas"><b id="fx-al">...</b><span>sinais de alerta nos gastos da Prefeitura</span></a>
+    </div>
     <div class="escolhas">
-      <a class="placa camara" href="#/camara">${ic("camara")}<span class="tx"><span class="tt">Câmara</span><span class="ds">O que cada um dos ${nV} vereadores apresentou, e o que foi pedido para o seu bairro.</span><span class="num">${fmt(RESUMO.total)} propostas</span></span><span class="seta">›</span></a>
+      <a class="placa camara" href="#/camara">${ic("camara")}<span class="tx"><span class="tt">Câmara</span><span class="ds">O que cada um dos ${nV} vereadores apresentou, quanto custa cada gabinete e o que foi pedido para o seu bairro.</span><span class="num">${fmt(RESUMO.total)} propostas</span></span><span class="seta">›</span></a>
       <a class="placa prefeitura" href="#/prefeitura">${ic("dinheiro")}<span class="tx"><span class="tt">Prefeitura</span><span class="ds">Para onde vai o dinheiro: quanto cada secretaria gasta, com quem e em quê.</span><span class="num">Gastos por secretaria</span></span><span class="seta">›</span></a>
     </div>
-    <a class="btn-grande camara" href="#/busca">${ic("pin")}<span class="tx">Pesquisar meu bairro<small>Pedidos dos vereadores para a sua rua</small></span>›</a>
+    <a class="btn-grande camara" href="#/placar">${ic("placar")}<span class="tx">Placar dos vereadores<small>Monte o seu ranking com os critérios que importam para você</small></span>›</a>
+    <a class="btn-grande prefeitura" href="#/prefeitura/placar">${ic("balanca")}<span class="tx">Placar fiscal da Prefeitura<small>Gasta mais do que arrecada? Cumpre os mínimos de saúde e educação?</small></span>›</a>
     <a class="btn-grande prefeitura" href="#/prefeitura/busca">${ic("lupa")}<span class="tx">Pesquisar um gasto<small>Empresa, CNPJ ou palavra, como asfalto ou merenda</small></span>›</a>
     <div class="info">Câmara e Prefeitura são poderes diferentes. A Câmara (vereadores) faz leis, fiscaliza e pede melhorias. A Prefeitura (prefeita e secretarias) executa os serviços e gasta o orçamento.</div>`;
+  document.getElementById("esc-ver").onchange = e => { if (e.target.value) location.hash = "#/v/" + e.target.value; };
+  document.getElementById("hero-busca").onsubmit = e => { e.preventDefault(); const q = document.getElementById("hb").value.trim(); location.hash = "#/busca" + (q ? "/" + encodeURIComponent(q) : ""); };
+  if (window.prefReceitas) prefReceitas().then(R => { const x = R && impostometro(R); const el = document.getElementById("fx-imp"); if (el) el.textContent = x ? reaisCurto(x.total) : "ver"; });
+  fetch("dados/prefeitura/alertas.json").then(r => r.ok ? r.json() : null).catch(() => null).then(A => { const el = document.getElementById("fx-al"); if (el) el.textContent = A ? fmt(A.alertas.length) : "ver"; });
 }
 
 async function rota() {
