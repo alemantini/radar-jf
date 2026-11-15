@@ -237,3 +237,63 @@ img.avatar.foto{object-fit:cover;width:46px;height:58px;border-radius:10px;backg
 .logo-home .r2{margin-right:.2em}
 .logo-home .lh-bands{display:flex;gap:.08em;margin:.08em 0 0 .12em;flex:none}
 .logo-home .lh-bands .lh-band{margin:0;box-shadow:0 0 0 1px rgba(0,0,0,.08)}
+
+/* custo do gabinete e eleição */
+.mini-barras{display:flex;align-items:flex-end;gap:3px;height:70px;margin:8px 0 4px;padding:6px 0;border-bottom:1px solid var(--linha)}
+.mini-barras span{flex:1;background:var(--azul);border-radius:3px 3px 0 0;min-width:4px}
+.fonte-linha{font-size:13px;margin-top:6px}
+.barra-l{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px 0;font-size:15px}
+.barra-l .bl-b{height:10px;background:var(--calcada);border-radius:5px;overflow:hidden}
+.barra-l .bl-b i{display:block;height:100%;background:var(--azul);border-radius:5px}
+.barra-l .bl-v{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+.barra-l.jf{background:var(--amarelo-claro);border-radius:8px;padding:6px 8px;margin:0 -8px}
+.barra-l.jf .bl-t{font-weight:700}
+.barra-l.jf .bl-b i{background:#e8272c}
+
+/* placar: monte o seu */
+.pesos{display:grid;gap:10px;margin:14px 0}
+.peso{border:1px solid var(--linha);border-radius:var(--raio);padding:10px 12px}
+.pz-t b{display:block}
+.pz-t small{color:var(--apoio);font-size:14px}
+.pz-b{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pz-b button{font:inherit;font-size:14px;border:1px solid var(--linha);background:#fff;border-radius:999px;padding:5px 12px;cursor:pointer;color:var(--tinta)}
+.pz-b button.on{background:var(--azul);border-color:var(--azul);color:#fff}
+.acoes-placar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn-sec{font:inherit;border:1px solid var(--azul);color:var(--azul);background:#fff;border-radius:8px;padding:8px 14px;cursor:pointer}
+.rk{display:grid;grid-template-columns:auto auto 1fr auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--linha);text-decoration:none;color:inherit}
+.rk-pos{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:20px;width:2.2em;color:var(--apoio)}
+.rk-cx{min-width:0}
+.rk-nm{display:block;font-weight:700}
+.rk-nm small{font-weight:400;color:var(--apoio);margin-left:6px}
+.rk-barra{display:block;height:8px;background:var(--calcada);border-radius:4px;margin:5px 0;overflow:hidden}
+.rk-barra i{display:block;height:100%;background:var(--azul)}
+.rk-partes{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12px;color:var(--apoio)}
+.rk-nota{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:26px;color:var(--azul)}
+
+/* placar fiscal */
+.lrf{border-radius:var(--raio);padding:12px 14px;background:var(--verde-claro);margin:10px 0}
+.lrf.amarelo{background:var(--amarelo-claro)}
+.lrf.vermelho{background:#fdeaea}
+.lrf-n b{font-family:"Barlow Condensed",sans-serif;font-size:44px;line-height:1;margin-right:10px}
+.lrf-n span{font-weight:700}
+.lrf-b{position:relative;height:16px;background:#fff;border-radius:8px;margin:14px 0 30px}
+.lrf-b i{display:block;height:100%;border-radius:8px;background:var(--verde)}
+.lrf.amarelo .lrf-b i{background:var(--amarelo)}
+.lrf.vermelho .lrf-b i{background:#c62828}
+.lrf-b em{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--tinta);font-style:normal}
+.lrf-b em span{position:absolute;top:24px;left:50%;transform:translateX(-50%);font-size:11px;white-space:nowrap;color:var(--apoio)}
+.lrf-b em:nth-of-type(2) span{top:38px}
+.lrf-b em.lim{background:#c62828;width:3px}
+.min-linha{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--linha)}
+.ml-t small,.ml-v small{display:block;color:var(--apoio);font-size:13px}
+.ml-b{position:relative;height:12px;background:var(--calcada);border-radius:6px}
+.ml-b i{display:block;height:100%;border-radius:6px}
+.ml-b i.ok{background:var(--verde)}
+.ml-b i.falta{background:#c62828}
+.ml-b em{position:absolute;top:-4px;bottom:-4px;width:3px;background:var(--tinta)}
+.ml-v{text-align:right;font-variant-numeric:tabular-nums}
+.destaque-cidade{font-size:19px;margin:10px 0}
+@media (max-width:520px){
+  .barra-l,.min-linha{grid-template-columns:1fr auto}
+  .barra-l .bl-b,.min-linha .ml-b{grid-column:1 / -1;grid-row:2}
+}

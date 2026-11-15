@@ -104,6 +104,29 @@ jobs:
           curl -fsS "$base/atos_resumo.json" -o site/dados/prefeitura/atos_resumo.json || echo "sem versão anterior"
           for a in 2025 2026 2027; do curl -fsS "$base/atos_$a.json" -o "site/dados/prefeitura/atos_$a.json" || true; done
 
+      - name: Prefeitura, placar fiscal e comparação com outras cidades (Siconfi)
+        id: indices
+        continue-on-error: true
+        run: python scripts/prefeitura_indices.py
+
+      - name: Reaproveitar placar fiscal publicado, se a coleta falhar
+        if: steps.indices.outcome != 'success'
+        run: |
+          mkdir -p site/dados/prefeitura
+          curl -fsS "https://alemantini.github.io/radar-jf/dados/prefeitura/indices.json" -o site/dados/prefeitura/indices.json || echo "sem versão anterior"
+
+      - name: Câmara, custo dos gabinetes (folha da Câmara)
+        id: gabinetes
+        continue-on-error: true
+        run: python scripts/camara_gabinetes.py
+
+      - name: Reaproveitar custo dos gabinetes publicado, se a coleta falhar
+        if: steps.gabinetes.outcome != 'success'
+        run: curl -fsS "https://alemantini.github.io/radar-jf/dados/gabinetes.json" -o site/dados/gabinetes.json || echo "sem versão anterior"
+
+      - name: Eleição 2024 (TSE, gerado pelo workflow TSE)
+        run: if [ -f data/tse.json ]; then cp data/tse.json site/dados/tse.json; fi
+
       - name: Guardar cache de datas e contagens
         run: |
           git config user.name "radar-robo"

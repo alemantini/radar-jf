@@ -1,0 +1,31 @@
+name: TSE (eleição 2024, sob demanda)
+on: workflow_dispatch
+permissions:
+  contents: write
+  actions: write
+env:
+  PYTHONUNBUFFERED: "1"
+jobs:
+  tse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with: {ref: main}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install requests
+      - run: python scripts/tse.py
+      - name: Guardar e publicar
+        run: |
+          git config user.name "radar-robo"
+          git config user.email "radar-robo@users.noreply.github.com"
+          git add data/tse.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Dados do TSE atualizados"
+            git pull --rebase origin main
+            git push origin HEAD:main
+          fi
+          gh workflow run radar.yml --ref main
+        env:
+          GH_TOKEN: ${{ github.token }}

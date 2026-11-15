@@ -7,6 +7,8 @@ const TIPOS = {REQ: "Requerimento", IND: "Indicação", PEDIF: "Pedido de Inform
 
 // ícones simples (traço), usados nos botões
 const ICONE = {
+  placar: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  balanca: '<path d="M12 3v18M5 21h14M3 7h18M6 7l-3 7a3 3 0 0 0 6 0zM18 7l-3 7a3 3 0 0 0 6 0z"/>',
   camara: '<path d="M3 21h18M5 21V10M9.5 21V10M14.5 21V10M19 21V10M2 10l10-6 10 6z"/>',
   dinheiro: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/>',
   pin: '<path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/>',
@@ -21,7 +23,7 @@ const ICONE = {
 const ic = (n, cls = "") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONE[n] || ""}</svg>`;
 const iniciais = n => String(n || "").replace(/^(Dr|Dra|Sargento|Prof|Profa)\.?\s+/i, "").split(/\s+/).filter(p => p.length > 2 || /^[A-ZÀ-Ý]/.test(p)).slice(0, 2).map(p => p[0]).join("").toUpperCase();
 
-let FOTOS = new Set(), CREDITO_FOTO = "", EMENDAS_R = null;
+let FOTOS = new Set(), CREDITO_FOTO = "", EMENDAS_R = null, GAB_R = null, TSE_R = null;
 // emendas do vereador: a planilha da Prefeitura usa o nome completo
 function emendasDe(v) {
   if (!EMENDAS_R || !v) return null;
@@ -52,6 +54,8 @@ async function carregarResumo() {
   RESUMO = await fetch("dados/resumo.json").then(r => r.json());
   RESUMO.vereadores.forEach(v => VER[v.id] = v);
   try { EMENDAS_R = await fetch("dados/prefeitura/emendas_resumo.json").then(r => r.ok ? r.json() : null); } catch (e) { EMENDAS_R = null; }
+  try { GAB_R = await fetch("dados/gabinetes.json").then(r => r.ok ? r.json() : null); } catch (e) { GAB_R = null; }
+  try { TSE_R = await fetch("dados/tse.json").then(r => r.ok ? r.json() : null); } catch (e) { TSE_R = null; }
   try { const f = await fetch("fotos/fotos.json").then(r => r.json()); FOTOS = new Set(f.ids); CREDITO_FOTO = f.credito; } catch (e) { /* sem fotos: ficam as iniciais */ }
   document.getElementById("atualizado").textContent = RESUMO.atualizado ? `Última coleta: ${RESUMO.atualizado}.` : "";
 }
@@ -316,6 +320,8 @@ async function pgVereador(id) {
       <p class="sub">Dinheiro do orçamento da Prefeitura que o vereador indicou para obras, serviços ou entidades, desde ${EMENDAS_R.desde}.</p>
       <div class="nums verde"><span><b>${reaisCurto(e.previsto)}</b>indicados em ${fmt(e.n)} emendas</span><span><b>${reaisCurto(e.pago)}</b>já pagos (${Math.round(100 * e.pago / (e.previsto || 1))}%)</span></div>
       <a class="btn-grande prefeitura" href="#/prefeitura/emendas/${encodeURIComponent(e.nome)}">${ic("dinheiro")}<span class="tx">Ver cada emenda e em que etapa está<small>Fonte: Monitor de Emendas da Prefeitura</small></span>›</a>`; })()}
+    ${blocoGabinete(v)}
+    ${blocoEleicao(v)}
     <h2>O que propôs até agora</h2>
     ${c.coautoria ? `<p class="sub">${fmt(c.coautoria)} delas foram assinadas junto com outros vereadores.</p>` : ""}
     <div id="grupos"></div>
@@ -435,8 +441,8 @@ function pgSobre() {
 
 // ---------- rotas ----------
 const SUBNAV = {
-  camara: [["#/camara", "Vereadores", "pessoas"], ["#/busca", "Meu bairro", "pin"], ["#/repetidos", "Pedidos que voltam", "repete"]],
-  prefeitura: [["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/diario", "Diário Oficial", "jornal"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
+  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Placar", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/repetidos", "Pedidos que voltam", "repete"]],
+  prefeitura: [["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/diario", "Diário Oficial", "jornal"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
 };
 const SELO = {
   camara: () => `<div class="placa camara">${ic("camara")}<span class="tx"><span class="tt">Câmara Municipal de Juiz de Fora</span><span class="ds">O que os vereadores apresentam. Fonte: sistema oficial da Câmara.</span></span></div>`,
@@ -466,7 +472,7 @@ async function rota() {
   const h = location.hash.replace(/^#\/?/, "");
   const partes = h.split("/").map(decodeURIComponent);
   const pag = partes[0], arg = partes.slice(1).join("/");
-  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
+  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
   document.querySelectorAll("nav.areas a").forEach(a => a.classList.toggle("ativo", a.dataset.area === area));
   const sub = document.getElementById("subnav");
   const atual = "#/" + h;
@@ -480,6 +486,7 @@ async function rota() {
     else if (pag === "busca") await pgBusca(arg);
     else if (pag === "repetidos") await pgRepetidos(arg);
     else if (pag === "grupo") await pgGrupo(arg);
+    else if (pag === "placar") pgPlacar(arg);
     else if (pag === "sobre") { pgSobre(); if (window.sobrePrefeitura) await sobrePrefeitura(); }
     else if (pag === "camara") pgInicio();
     else if (pag === "prefeitura" && window.rotaPrefeitura) await rotaPrefeitura(partes.slice(1));
@@ -494,3 +501,110 @@ window.addEventListener("load", () => {
   document.querySelectorAll("[data-ic]").forEach(e => e.outerHTML = ic(e.dataset.ic));
   rota();
 });
+
+
+// ---------- custo do gabinete e eleição de 2024 (perfil do vereador) ----------
+const mesBR = k => { const [a, m] = k.split("-"); return `${["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"][+m - 1]}/${a}`; };
+const gabDe = v => GAB_R && GAB_R.vereadores[String(v.id)];
+const tseDe = v => TSE_R && TSE_R.vereadores[String(v.id)];
+
+function blocoGabinete(v) {
+  const g = gabDe(v);
+  if (!g) return "";
+  const meses = Object.entries(g.meses).sort();
+  const max = Math.max(...meses.map(([, x]) => x[1]), 1);
+  return `<h2>Custo do gabinete</h2>
+    <p class="sub">Quanto a Câmara paga, por mês, à equipe que o vereador escolhe (assessores nomeados por ele). Soma dos salários brutos; não inclui o salário do próprio vereador nem encargos.</p>
+    <div class="nums"><span><b>${reaisCurto(g.atual.custo)}</b>em ${mesBR(GAB_R.ultimo_mes)}, com ${fmt(g.atual.n)} ${g.atual.n === 1 ? "pessoa" : "pessoas"}</span>
+      <span><b>${reaisCurto(g.media)}</b>por mês, em média</span><span><b>${reaisCurto(g.total)}</b>desde ${esc(GAB_R.desde)}</span></div>
+    <div class="mini-barras" role="img" aria-label="Custo do gabinete mês a mês">${meses.map(([k, x]) => `<span title="${mesBR(k)}: ${reais(x[1], false)}, ${x[0]} pessoas" style="height:${Math.max(4, Math.round(100 * x[1] / max))}%"></span>`).join("")}</div>
+    <p class="sub fonte-linha">Fonte: <a href="${esc(GAB_R.fonte_url)}" target="_blank" rel="noopener">remuneração dos servidores, Portal da Transparência da Câmara</a>. Nomes dos assessores não são mostrados aqui.</p>`;
+}
+
+const ORIGEM = {fundo_eleitoral: "Fundo eleitoral (dinheiro público)", fundo_partidario: "Fundo partidário (dinheiro público)", pessoas_fisicas: "Doações de pessoas", proprios: "Dinheiro do próprio candidato", partido_e_outros_candidatos: "Partido e outros candidatos", outros: "Outros"};
+function blocoEleicao(v) {
+  const t = tseDe(v);
+  if (!t) return "";
+  const porVoto = t.votos ? t.gasto / t.votos : 0;
+  const ori = Object.entries(t.origem || {}).sort((a, b) => b[1] - a[1]);
+  const tot = ori.reduce((s, [, x]) => s + x, 0) || 1;
+  const e20 = t.eleicao_2020;
+  return `<h2>Eleição de 2024</h2>
+    <div class="nums"><span><b>${fmt(t.votos)}</b>votos</span><span><b>${reaisCurto(t.gasto)}</b>gastos na campanha</span>${porVoto ? `<span><b>R$ ${porVoto.toLocaleString("pt-BR", {maximumFractionDigits: 2, minimumFractionDigits: 2})}</b>por voto</span>` : ""}</div>
+    ${ori.length ? `<p class="sub">De onde veio o dinheiro da campanha (${reaisCurto(t.receita)}):</p>
+      ${ori.map(([k, x]) => `<div class="barra-l"><span class="bl-t">${ORIGEM[k] || k}</span><span class="bl-b"><i style="width:${Math.round(100 * x / tot)}%"></i></span><span class="bl-v">${Math.round(100 * x / tot)}%</span></div>`).join("")}` : ""}
+    <p class="sub" style="margin-top:12px">Bens declarados à Justiça Eleitoral: <b>${reaisCurto(t.bens_2024)}</b> em 2024${e20 ? `; em 2020, quando concorreu a ${esc(e20.cargo.toLowerCase())}, declarou <b>${reaisCurto(e20.bens)}</b>` : ""}.</p>
+    <p class="sub fonte-linha">Fonte: <a href="${esc(TSE_R.fonte_url)}" target="_blank" rel="noopener">Portal de Dados Abertos do TSE</a> (prestação de contas e bens declarados pelo próprio candidato).</p>`;
+}
+
+// ---------- Placar: monte seu ranking ----------
+const CRITERIOS = [
+  {k: "leis", t: "Propostas de lei", d: "Projetos de lei, de resolução e emendas à Lei Orgânica apresentados.", mais: true, p: 2},
+  {k: "pedidos", t: "Pedidos para os bairros", d: "Pedidos de obra e serviço (buraco, luz, capina...).", mais: true, p: 1},
+  {k: "cobrancas", t: "Fiscalização", d: "Perguntas e cobranças à Prefeitura, pedidos de informação.", mais: true, p: 2},
+  {k: "emendas", t: "Emendas que viraram pagamento", d: "Parte do dinheiro indicado em emendas que a Prefeitura já pagou.", mais: true, p: 1},
+  {k: "gabinete", t: "Gabinete econômico", d: "Custo médio mensal da equipe do gabinete. Quanto menor, mais pontos.", mais: false, p: 1},
+  {k: "homenagens", t: "Menos homenagens", d: "Moções, títulos e nomes de rua. Quanto menos, mais pontos.", mais: false, p: 0},
+  {k: "porvoto", t: "Campanha barata", d: "Gasto de campanha em 2024 dividido pelos votos. Quanto menor, mais pontos.", mais: false, p: 0},
+];
+function valorCriterio(v, k) {
+  const c = v.contagem || {};
+  if (k === "emendas") { const e = emendasDe(v); return e && e.previsto ? e.pago / e.previsto : null; }
+  if (k === "gabinete") { const g = gabDe(v); return g ? g.media : null; }
+  if (k === "porvoto") { const t = tseDe(v); return t && t.votos ? t.gasto / t.votos : null; }
+  return c[k] ?? 0;
+}
+function pgPlacar(arg) {
+  const atuais = RESUMO.vereadores.filter(v => !v.fora_da_lista);
+  const pesos = {};
+  const vindos = (arg || "").split("-").map(Number);
+  CRITERIOS.forEach((c, i) => pesos[c.k] = Number.isFinite(vindos[i]) && arg ? Math.max(0, Math.min(3, vindos[i])) : c.p);
+  const faixas = {};
+  CRITERIOS.forEach(c => {
+    const vals = atuais.map(v => valorCriterio(v, c.k)).filter(x => x !== null);
+    faixas[c.k] = [Math.min(...vals), Math.max(...vals)];
+  });
+  const nota = (v, c) => {
+    const x = valorCriterio(v, c.k); if (x === null) return null;
+    const [a, b] = faixas[c.k]; if (b === a) return 10;
+    const n = 10 * (x - a) / (b - a);
+    return c.mais ? n : 10 - n;
+  };
+  app.innerHTML = `
+    <h1>Placar dos vereadores: monte o seu</h1>
+    <p class="sub">Você escolhe o que pesa mais. Cada critério vira uma nota de 0 a 10 (10 para o melhor da Câmara naquele item) e o placar é a média com os pesos que você escolher. Todos os vereadores são contados com a mesma regra, a partir de dados oficiais.</p>
+    <div class="info">Quantidade não mede qualidade: um projeto de lei importante vale mais que dez simbólicos. Use o placar como ponto de partida e abra o perfil de cada vereador para ver o que ele apresentou.</div>
+    <div class="pesos" id="pesos">${CRITERIOS.map(c => `
+      <div class="peso"><div class="pz-t"><b>${c.t}</b><small>${c.d}</small></div>
+        <div class="pz-b" role="radiogroup" aria-label="Peso de ${c.t}">${[0, 1, 2, 3].map(n => `<button data-k="${c.k}" data-n="${n}" class="${pesos[c.k] === n ? "on" : ""}" aria-pressed="${pesos[c.k] === n}">${["Não conta", "Peso 1", "Peso 2", "Peso 3"][n]}</button>`).join("")}</div></div>`).join("")}
+    </div>
+    <div class="acoes-placar"><button id="copiar-placar" class="btn-sec">Copiar link deste placar</button><span id="copiado" class="sub"></span></div>
+    <h2>Resultado</h2>
+    <div id="ranking"></div>
+    <p class="sub fonte-linha">Fontes: sistema de proposições da Câmara, Monitor de Emendas da Prefeitura, folha de pagamento da Câmara e TSE. Critérios sem dado para um vereador ficam de fora da média dele.</p>`;
+  const desenha = () => {
+    const tot = CRITERIOS.reduce((s, c) => s + pesos[c.k], 0);
+    const linhas = atuais.map(v => {
+      let soma = 0, peso = 0; const partes = [];
+      CRITERIOS.forEach(c => { const n = nota(v, c); if (pesos[c.k] && n !== null) { soma += n * pesos[c.k]; peso += pesos[c.k]; partes.push([c, n]); } });
+      return {v, nota: peso ? soma / peso : null, partes};
+    }).sort((a, b) => (b.nota ?? -1) - (a.nota ?? -1));
+    document.getElementById("ranking").innerHTML = !tot ? '<p class="sub">Escolha o peso de pelo menos um critério.</p>' : linhas.map((l, i) => `
+      <a class="rk" href="#/v/${l.v.id}"><span class="rk-pos">${i + 1}º</span>${avatar(l.v)}
+        <span class="rk-cx"><span class="rk-nm">${esc(l.v.apelido)}<small>${esc(l.v.partido || "")}</small></span>
+          <span class="rk-barra"><i style="width:${l.nota === null ? 0 : l.nota * 10}%"></i></span>
+          <span class="rk-partes">${l.partes.map(([c, n]) => `<span>${c.t}: ${n.toFixed(1).replace(".", ",")}</span>`).join("")}</span></span>
+        <span class="rk-nota">${l.nota === null ? "sem dados" : l.nota.toFixed(1).replace(".", ",")}</span></a>`).join("");
+  };
+  document.querySelectorAll("#pesos button").forEach(b => b.onclick = () => {
+    pesos[b.dataset.k] = +b.dataset.n;
+    document.querySelectorAll(`#pesos button[data-k="${b.dataset.k}"]`).forEach(x => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); });
+    history.replaceState(null, "", "#/placar/" + CRITERIOS.map(c => pesos[c.k]).join("-"));
+    desenha();
+  });
+  document.getElementById("copiar-placar").onclick = async () => {
+    const url = location.href.split("#")[0] + "#/placar/" + CRITERIOS.map(c => pesos[c.k]).join("-");
+    try { await navigator.clipboard.writeText(url); document.getElementById("copiado").textContent = "Link copiado."; } catch (e) { document.getElementById("copiado").textContent = url; }
+  };
+  desenha();
+}

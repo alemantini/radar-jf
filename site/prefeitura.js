@@ -382,6 +382,7 @@ async function rotaPrefeitura(p) {
   const [sub, a, b] = p;
   if (sub === "ano") return pgPrefInicio(a);
   if (sub === "impostometro") return pgImpostometro();
+  if (sub === "placar") return pgPlacarFiscal(a);
   if (sub === "emendas") return pgEmendas(a);
   if (sub === "diario") return pgDiario(a, b);
   if (sub === "s") return pgPrefSecretaria(a, +b);
@@ -403,4 +404,66 @@ async function sobrePrefeitura() {
       <li>Nomes de órgãos e empresas aparecem como estão no arquivo oficial, só com letras maiúsculas e minúsculas e acentos ajustados para facilitar a leitura.</li>
       <li>O site não julga se um gasto é bom ou ruim: mostra o dado oficial para cada pessoa tirar suas conclusões.</li>
     </ul>`);
+}
+
+
+// ---------- Placar fiscal: Lei de Responsabilidade Fiscal, mínimos e comparação com outras cidades ----------
+let INDICES = null;
+const pct = x => (x ?? 0).toLocaleString("pt-BR", {maximumFractionDigits: 1}) + "%";
+const MEDIDAS = [
+  ["Saúde", "Saúde", "f"], ["Educação", "Educação", "f"], ["Assistência Social", "Assistência social", "f"],
+  ["Urbanismo", "Urbanismo (ruas, praças, obras)", "f"], ["Transporte", "Transporte", "f"], ["Segurança Pública", "Segurança pública", "f"],
+  ["Saneamento", "Saneamento", "f"], ["Cultura", "Cultura", "f"], ["Desporto e Lazer", "Esporte e lazer", "f"],
+  ["Legislativa", "Câmara Municipal", "f"], ["Administração", "Administração (máquina pública)", "f"],
+  ["iptu", "IPTU arrecadado", "r"], ["iss", "ISS arrecadado", "r"], ["impostos", "Impostos e taxas municipais", "r"], ["rcl", "Receita corrente líquida", "r"],
+];
+async function pgPlacarFiscal(medida0) {
+  if (!INDICES) INDICES = await fetch("dados/prefeitura/indices.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  const I = INDICES;
+  if (!I) { app.innerHTML = "<h1>Placar fiscal</h1><p>Os dados ainda estão sendo coletados. Volte mais tarde.</p>"; return; }
+  const P = I.pessoal, M = I.minimos;
+  const medida = MEDIDAS.find(m => m[0] === medida0) || MEDIDAS[0];
+  let estado = "", cor = "verde";
+  if (P) {
+    if (P.pct >= P.limite) { estado = "Acima do limite da lei"; cor = "vermelho"; }
+    else if (P.pct >= P.prudencial) { estado = "Acima do limite prudencial"; cor = "vermelho"; }
+    else if (P.pct >= P.alerta) { estado = "Em alerta"; cor = "amarelo"; }
+    else estado = "Dentro do limite";
+  }
+  const escala = 60;
+  const minimo = (t, x, nota) => x && x.aplicado != null ? `
+    <div class="min-linha"><div class="ml-t"><b>${t}</b><small>${nota}</small></div>
+      <div class="ml-b"><i class="${x.aplicado >= x.minimo ? "ok" : "falta"}" style="width:${Math.min(100, x.aplicado)}%"></i><em style="left:${x.minimo}%" title="mínimo"></em></div>
+      <div class="ml-v"><b>${pct(x.aplicado)}</b><small>mínimo ${pct(x.minimo)}</small></div></div>` : "";
+  const cid = (I.cidades || []).map(c => {
+    const v = medida[2] === "f" ? (c.funcoes || {})[medida[0]] : c[medida[0]];
+    return {...c, pc: v != null && c.pop ? v / c.pop : null};
+  }).filter(c => c.pc != null).sort((a, b) => b.pc - a.pc);
+  const maxpc = Math.max(...cid.map(c => c.pc), 1);
+  const posJF = cid.findIndex(c => c.cod === 3136702) + 1;
+  app.innerHTML = `
+    <h1>Placar fiscal da Prefeitura</h1>
+    <p class="sub">As contas que a própria Prefeitura entrega ao Tesouro Nacional, comparadas com o que a lei exige e com outras cidades grandes de Minas.</p>
+    ${P ? `<h2>Gasto com pessoal</h2>
+      <p class="sub">A Lei de Responsabilidade Fiscal limita o gasto com servidores da Prefeitura a 54% da receita corrente líquida. Situação em ${P.quadrimestre}º quadrimestre de ${P.ano}:</p>
+      <div class="lrf ${cor}"><div class="lrf-n"><b>${pct(P.pct)}</b><span>${estado}</span></div>
+        <div class="lrf-b"><i style="width:${100 * P.pct / escala}%"></i>
+          <em style="left:${100 * P.alerta / escala}%"><span>alerta ${pct(P.alerta)}</span></em>
+          <em style="left:${100 * P.prudencial / escala}%"><span>prudencial ${pct(P.prudencial)}</span></em>
+          <em class="lim" style="left:${100 * P.limite / escala}%"><span>limite ${pct(P.limite)}</span></em></div>
+        <p class="sub">${reais(P.despesa)} com pessoal nos últimos 12 meses, de uma receita corrente líquida de ${reais(P.rcl)}.</p></div>` : ""}
+    ${M ? `<h2>Mínimos da Constituição</h2>
+      <p class="sub">Percentual aplicado até o ${M.bimestre}º bimestre de ${M.ano}. A marca escura é o mínimo exigido; o ano só fecha em dezembro.</p>
+      ${minimo("Educação", M.educacao, "Parte da receita de impostos aplicada no ensino")}
+      ${minimo("Saúde", M.saude, "Parte da receita de impostos aplicada na saúde")}
+      ${minimo("Fundeb", M.fundeb, "Parte do Fundeb usada para pagar os profissionais da educação")}` : ""}
+    ${cid.length ? `<h2>Juiz de Fora e outras cidades mineiras</h2>
+      <p class="sub">Valor por habitante em ${I.ano_comparacao}, nas ${cid.length} maiores cidades de Minas que entregaram os dados. Escolha o que comparar:</p>
+      <div class="filtros-linha"><select id="medida" aria-label="O que comparar">${MEDIDAS.map(m => `<option value="${m[0]}" ${m === medida ? "selected" : ""}>${m[2] === "f" ? "Gasto: " : "Receita: "}${m[1]}</option>`).join("")}</select></div>
+      ${posJF ? `<p class="destaque-cidade">Juiz de Fora fica em <b>${posJF}º lugar</b> de ${cid.length} em ${medida[1].toLowerCase()} por habitante.</p>` : ""}
+      ${cid.map((c, i) => `<div class="barra-l ${c.cod === 3136702 ? "jf" : ""}"><span class="bl-t">${i + 1}º ${esc(c.nome)}</span><span class="bl-b"><i style="width:${Math.round(100 * c.pc / maxpc)}%"></i></span><span class="bl-v">R$ ${Math.round(c.pc).toLocaleString("pt-BR")}</span></div>`).join("")}
+      <p class="sub" style="margin-top:8px">Gasto = despesa liquidada no ano pela função de governo. Gastar mais não quer dizer gastar melhor; a comparação serve para fazer perguntas.</p>` : ""}
+    <p class="sub fonte-linha">Fonte: <a href="${esc(I.fonte_url)}" target="_blank" rel="noopener">Siconfi, Tesouro Nacional</a> (Relatório de Gestão Fiscal e Relatório Resumido da Execução Orçamentária enviados por cada prefeitura). Coletado em ${esc(I.coletado_em)}.</p>`;
+  const sel = document.getElementById("medida");
+  if (sel) sel.onchange = () => { location.hash = "#/prefeitura/placar/" + encodeURIComponent(sel.value); };
 }
