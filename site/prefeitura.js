@@ -134,6 +134,7 @@ async function pgPrefInicio(ano) {
   const max = Math.max(...A.secretarias.map(s => s.p), 1);
   const REC = await prefReceitas();
   app.innerHTML = `
+    <a class="btn-alerta" href="#/prefeitura/alertas">${ic("alerta")}<span class="tx"><b>Sinais de alerta nos gastos</b><small>Compras fatiadas, empresas punidas, sócios que doaram para campanhas e mais.</small></span><span class="seta">›</span></a>
     ${REC ? blocoImpostometro(REC) + `<a class="btn-grande prefeitura" href="#/prefeitura/impostometro">${ic("dinheiro")}<span class="tx">Ver o impostômetro completo<small>IPTU, ISS, ITBI, por morador e mês a mês</small></span>›</a>` : ""}
     <h1>Para onde vai o dinheiro da Prefeitura</h1>
     <p class="sub">Quanto cada secretaria e órgão da Prefeitura de Juiz de Fora gastou, segundo os arquivos oficiais de despesas. ${fonteLink("Ver fonte oficial")}${R.fonte_atualizada_em ? ` (atualizada pela Prefeitura em ${esc(R.fonte_atualizada_em)})` : ""}.</p>

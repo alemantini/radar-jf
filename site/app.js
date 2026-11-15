@@ -443,7 +443,7 @@ function pgSobre() {
 // ---------- rotas ----------
 const SUBNAV = {
   camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Placar", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/repetidos", "Pedidos que voltam", "repete"]],
-  prefeitura: [["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/diario", "Diário Oficial", "jornal"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
+  prefeitura: [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
 };
 const SELO = {
   camara: () => `<div class="placa camara">${ic("camara")}<span class="tx"><span class="tt">Câmara Municipal de Juiz de Fora</span><span class="ds">O que os vereadores apresentam. Fonte: sistema oficial da Câmara.</span></span></div>`,
@@ -466,10 +466,11 @@ function pgEscolha() {
         <select id="esc-ver"><option value="">Escolha um vereador</option>${atuais.map(v => `<option value="${v.id}">${esc(v.apelido)} (${esc(v.partido || "")})</option>`).join("")}</select></label>
       <form class="hero-busca" id="hero-busca"><label class="sr" for="hb">Pesquisar meu bairro</label><input id="hb" placeholder="Ou digite o seu bairro ou rua" autocomplete="off"><button type="submit">Buscar</button></form>
     </section>
+    <a class="btn-alerta" href="#/prefeitura/alertas">${ic("alerta")}<span class="tx"><b><span id="ba-n">Sinais</span> de alerta nos gastos da Prefeitura</b><small>Compras fatiadas, empresas punidas, sócios que doaram para campanhas e mais. Veja o que merece uma pergunta.</small></span><span class="seta">›</span></a>
     <div class="faixa-nums">
       <a href="#/camara"><b id="fx-sal">${reaisCurto(salarioAcumulado())}</b><span>em salários de vereadores desde a posse</span></a>
       <a href="#/prefeitura/impostometro"><b id="fx-imp">...</b><span>em impostos municipais pagos este ano</span></a>
-      <a href="#/prefeitura/alertas"><b id="fx-al">...</b><span>sinais de alerta nos gastos da Prefeitura</span></a>
+      <a href="#/prefeitura/emendas"><b>${EMENDAS_R && EMENDAS_R.total ? reaisCurto(EMENDAS_R.total.previsto) : "Emendas"}</b><span>em emendas indicadas pelos vereadores</span></a>
     </div>
     <div class="escolhas">
       <a class="placa camara" href="#/camara">${ic("camara")}<span class="tx"><span class="tt">Câmara</span><span class="ds">O que cada um dos ${nV} vereadores apresentou, quanto custa cada gabinete e o que foi pedido para o seu bairro.</span><span class="num">${fmt(RESUMO.total)} propostas</span></span><span class="seta">›</span></a>
@@ -482,7 +483,7 @@ function pgEscolha() {
   document.getElementById("esc-ver").onchange = e => { if (e.target.value) location.hash = "#/v/" + e.target.value; };
   document.getElementById("hero-busca").onsubmit = e => { e.preventDefault(); const q = document.getElementById("hb").value.trim(); location.hash = "#/busca" + (q ? "/" + encodeURIComponent(q) : ""); };
   if (window.prefReceitas) prefReceitas().then(R => { const x = R && impostometro(R); const el = document.getElementById("fx-imp"); if (el) el.textContent = x ? reaisCurto(x.total) : "ver"; });
-  fetch("dados/prefeitura/alertas.json").then(r => r.ok ? r.json() : null).catch(() => null).then(A => { const el = document.getElementById("fx-al"); if (el) el.textContent = A ? fmt(A.alertas.length) : "ver"; });
+  fetch("dados/prefeitura/alertas.json").then(r => r.ok ? r.json() : null).catch(() => null).then(A => { const el = document.getElementById("ba-n"); if (el && A) el.textContent = fmt(A.alertas.length) + " sinais"; });
 }
 
 async function rota() {

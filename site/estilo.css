@@ -351,3 +351,11 @@ details.equipe[open] summary{border-bottom:1px solid var(--linha)}
 @media (max-width:520px){.faixa-nums{grid-template-columns:1fr}.faixa-nums a{display:flex;align-items:baseline;gap:10px}.faixa-nums b{flex:none;min-width:6.5em}}
 html,body{overflow-x:clip}
 @media (min-width:700px){.hero-t{max-width:20ch}.hero{padding-top:30px;padding-bottom:40px}}
+/* botão de destaque dos sinais de alerta */
+.btn-alerta{display:flex;align-items:center;gap:14px;margin:14px 0;padding:14px 16px;border-radius:var(--raio);background:#f5c518;color:#0b2545;text-decoration:none;box-shadow:0 0 0 3px #0b2545 inset}
+.btn-alerta svg{width:34px;height:34px;flex:none;stroke-width:2.4}
+.btn-alerta .tx{flex:1}
+.btn-alerta b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:22px;line-height:1.1}
+.btn-alerta small{display:block;font-size:14px;line-height:1.35;margin-top:3px;color:#2b3445}
+.btn-alerta .seta{font-size:30px;font-weight:700}
+.btn-alerta:hover{background:#ffd23a}
