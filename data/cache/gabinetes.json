@@ -1,0 +1,2150 @@
+{
+"2025-01": {
+"folha_total": 3388307.4,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 24139.52,
+"n": 6
+},
+"André Luiz Vieira da Silva": {
+"custo": 31075.86,
+"n": 6
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 48629.79,
+"n": 9
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 44357.16,
+"n": 8
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 51322.19,
+"n": 9
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 39363.02,
+"n": 7
+},
+"Carlos José de Souza - Fiote": {
+"custo": 75169.22,
+"n": 11
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 35417.14,
+"n": 7
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 41445.94,
+"n": 7
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 54915.12,
+"n": 9
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 76232.21,
+"n": 13
+},
+"Juraci Scheffer": {
+"custo": 58468.58,
+"n": 12
+},
+"Júlio César Rossignoli Barros": {
+"custo": 47049.8,
+"n": 7
+},
+"Kátia Aparecida Franco": {
+"custo": 33476.49,
+"n": 7
+},
+"Laiz Perrut Marendino": {
+"custo": 39002.33,
+"n": 9
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 31978.18,
+"n": 7
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 25719.87,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 40458.52,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 30988.06,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 40008.39,
+"n": 8
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 37350.68,
+"n": 8
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 48792.81,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 51255.16,
+"n": 7
+}
+},
+"pessoas": 501
+},
+"2025-02": {
+"folha_total": 3122252.63,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 28601.02,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 26352.85,
+"n": 6
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 51915.43,
+"n": 9
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 36502.19,
+"n": 7
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 44378.75,
+"n": 9
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 39363.02,
+"n": 7
+},
+"Carlos José de Souza - Fiote": {
+"custo": 61299.38,
+"n": 9
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 36846.22,
+"n": 7
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 39657.91,
+"n": 8
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 57787.58,
+"n": 9
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 51597.57,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 40672.26,
+"n": 7
+},
+"Júlio César Rossignoli Barros": {
+"custo": 40701.37,
+"n": 8
+},
+"Kátia Aparecida Franco": {
+"custo": 32360.23,
+"n": 6
+},
+"Laiz Perrut Marendino": {
+"custo": 39074.59,
+"n": 7
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 36522.77,
+"n": 8
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 35137.81,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 42246.67,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 36706.74,
+"n": 8
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 47889.36,
+"n": 8
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 39681.12,
+"n": 8
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 46158.82,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 54832.6,
+"n": 7
+}
+},
+"pessoas": 453
+},
+"2025-03": {
+"folha_total": 3415083.71,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 33358.96,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 33735.09,
+"n": 8
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 58693.47,
+"n": 9
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 41256.06,
+"n": 7
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 50711.61,
+"n": 9
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 48718.47,
+"n": 7
+},
+"Carlos José de Souza - Fiote": {
+"custo": 66689.31,
+"n": 9
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 41475.62,
+"n": 7
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 40736.77,
+"n": 7
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 62853.21,
+"n": 9
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 55613.88,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 46078.05,
+"n": 7
+},
+"Júlio César Rossignoli Barros": {
+"custo": 46722.68,
+"n": 8
+},
+"Kátia Aparecida Franco": {
+"custo": 36729.06,
+"n": 6
+},
+"Laiz Perrut Marendino": {
+"custo": 44227.25,
+"n": 7
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 42472.53,
+"n": 8
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 29646.2,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 47561.63,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 36723.23,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 47965.93,
+"n": 8
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 41934.02,
+"n": 7
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 50819.1,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 68803.86,
+"n": 11
+}
+},
+"pessoas": 454
+},
+"2025-04": {
+"folha_total": 3338457.52,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 30869.17,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 22996.84,
+"n": 5
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 45620.28,
+"n": 9
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 40944.17,
+"n": 7
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 53659.03,
+"n": 11
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 47675.8,
+"n": 8
+},
+"Carlos José de Souza - Fiote": {
+"custo": 70218.4,
+"n": 11
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 38851.73,
+"n": 7
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 35036.91,
+"n": 7
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 58028.31,
+"n": 9
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 52055.2,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 46200.12,
+"n": 8
+},
+"Júlio César Rossignoli Barros": {
+"custo": 56516.93,
+"n": 10
+},
+"Kátia Aparecida Franco": {
+"custo": 39327.27,
+"n": 7
+},
+"Laiz Perrut Marendino": {
+"custo": 41785.38,
+"n": 7
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 41747.0,
+"n": 9
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 27566.24,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 44453.67,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 58605.98,
+"n": 8
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 66194.73,
+"n": 13
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 36551.48,
+"n": 7
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 44495.03,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 72523.31,
+"n": 13
+}
+},
+"pessoas": 468
+},
+"2025-05": {
+"folha_total": 3226088.72,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 30869.17,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 22996.84,
+"n": 5
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 48765.14,
+"n": 8
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 48025.41,
+"n": 8
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 49271.07,
+"n": 9
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 43083.12,
+"n": 7
+},
+"Carlos José de Souza - Fiote": {
+"custo": 66200.37,
+"n": 9
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 38851.73,
+"n": 7
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 35036.91,
+"n": 7
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 60993.15,
+"n": 9
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 53976.96,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 43197.1,
+"n": 7
+},
+"Júlio César Rossignoli Barros": {
+"custo": 46632.7,
+"n": 9
+},
+"Kátia Aparecida Franco": {
+"custo": 43516.13,
+"n": 7
+},
+"Laiz Perrut Marendino": {
+"custo": 41785.38,
+"n": 7
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 40753.66,
+"n": 8
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 27566.24,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 46375.43,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 38397.32,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 46412.76,
+"n": 8
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 31771.36,
+"n": 6
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 45874.13,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 66173.68,
+"n": 9
+}
+},
+"pessoas": 444
+},
+"2025-06": {
+"folha_total": 3301065.66,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 30869.17,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 22996.84,
+"n": 5
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 45033.77,
+"n": 8
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 37704.24,
+"n": 7
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 49271.07,
+"n": 9
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 44748.56,
+"n": 7
+},
+"Carlos José de Souza - Fiote": {
+"custo": 66200.37,
+"n": 9
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 38851.73,
+"n": 7
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 35036.91,
+"n": 7
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 61996.38,
+"n": 9
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 53976.96,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 43623.61,
+"n": 7
+},
+"Júlio César Rossignoli Barros": {
+"custo": 47071.33,
+"n": 9
+},
+"Kátia Aparecida Franco": {
+"custo": 41113.68,
+"n": 7
+},
+"Laiz Perrut Marendino": {
+"custo": 41785.38,
+"n": 7
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 48783.17,
+"n": 9
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 27566.24,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 46375.43,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 43183.26,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 46412.76,
+"n": 8
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 36383.98,
+"n": 6
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 46476.79,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 66173.68,
+"n": 9
+}
+},
+"pessoas": 447
+},
+"2025-07": {
+"folha_total": 3352265.85,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 30869.17,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 30798.48,
+"n": 7
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 46265.1,
+"n": 8
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 37704.24,
+"n": 7
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 49703.9,
+"n": 9
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 43040.0,
+"n": 7
+},
+"Carlos José de Souza - Fiote": {
+"custo": 66200.37,
+"n": 9
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 38851.73,
+"n": 7
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 35036.91,
+"n": 7
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 61996.38,
+"n": 9
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 53976.96,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 54776.31,
+"n": 9
+},
+"Júlio César Rossignoli Barros": {
+"custo": 46292.17,
+"n": 8
+},
+"Kátia Aparecida Franco": {
+"custo": 41203.68,
+"n": 7
+},
+"Laiz Perrut Marendino": {
+"custo": 41785.38,
+"n": 7
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 47464.89,
+"n": 9
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 27566.24,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 46375.43,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 38318.57,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 46412.76,
+"n": 8
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 53071.34,
+"n": 8
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 50283.33,
+"n": 9
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 66064.59,
+"n": 9
+}
+},
+"pessoas": 454
+},
+"2025-08": {
+"folha_total": 3365557.51,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 30869.17,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 31196.44,
+"n": 6
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 46242.6,
+"n": 8
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 37704.24,
+"n": 7
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 51041.13,
+"n": 9
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 45511.44,
+"n": 7
+},
+"Carlos José de Souza - Fiote": {
+"custo": 66200.37,
+"n": 9
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 38575.35,
+"n": 7
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 35036.91,
+"n": 7
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 60216.71,
+"n": 9
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 53976.96,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 46395.59,
+"n": 8
+},
+"Júlio César Rossignoli Barros": {
+"custo": 46292.17,
+"n": 8
+},
+"Kátia Aparecida Franco": {
+"custo": 41203.68,
+"n": 7
+},
+"Laiz Perrut Marendino": {
+"custo": 41785.38,
+"n": 7
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 42863.97,
+"n": 8
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 27566.24,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 46375.43,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 38397.32,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 46412.76,
+"n": 8
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 27488.39,
+"n": 5
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 50765.15,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 69899.42,
+"n": 10
+}
+},
+"pessoas": 452
+},
+"2025-09": {
+"folha_total": 2992559.88,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 30998.54,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 29045.23,
+"n": 6
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 46383.21,
+"n": 8
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 37811.09,
+"n": 7
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 48637.51,
+"n": 8
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 38928.68,
+"n": 6
+},
+"Carlos José de Souza - Fiote": {
+"custo": 66346.59,
+"n": 9
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 34918.66,
+"n": 6
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 35098.78,
+"n": 7
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 68384.58,
+"n": 8
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 62308.74,
+"n": 9
+},
+"Juraci Scheffer": {
+"custo": 46530.57,
+"n": 8
+},
+"Júlio César Rossignoli Barros": {
+"custo": 46421.52,
+"n": 8
+},
+"Kátia Aparecida Franco": {
+"custo": 41316.17,
+"n": 7
+},
+"Laiz Perrut Marendino": {
+"custo": 41920.38,
+"n": 7
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 43150.87,
+"n": 8
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 29918.06,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 46487.92,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 38492.93,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 46547.75,
+"n": 8
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 29264.01,
+"n": 5
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 46533.03,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 66319.91,
+"n": 9
+}
+},
+"pessoas": 422
+},
+"2025-10": {
+"folha_total": 2943558.58,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 39248.31,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 29116.49,
+"n": 6
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 46336.35,
+"n": 8
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 37775.49,
+"n": 7
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 45382.6,
+"n": 8
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 38893.08,
+"n": 6
+},
+"Carlos José de Souza - Fiote": {
+"custo": 66297.87,
+"n": 9
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 34923.89,
+"n": 6
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 35364.91,
+"n": 7
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 46304.1,
+"n": 6
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 46579.42,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 46485.59,
+"n": 8
+},
+"Júlio César Rossignoli Barros": {
+"custo": 46378.42,
+"n": 8
+},
+"Kátia Aparecida Franco": {
+"custo": 46908.54,
+"n": 8
+},
+"Laiz Perrut Marendino": {
+"custo": 57785.69,
+"n": 7
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 43105.88,
+"n": 8
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 27494.99,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 46450.43,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 38461.07,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 46502.76,
+"n": 8
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 30560.93,
+"n": 5
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 46566.79,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 66216.63,
+"n": 9
+}
+},
+"pessoas": 420
+},
+"2025-11": {
+"folha_total": 2971520.37,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 40779.44,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 28951.49,
+"n": 6
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 58211.82,
+"n": 8
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 37632.99,
+"n": 7
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 50080.42,
+"n": 8
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 38750.58,
+"n": 6
+},
+"Carlos José de Souza - Fiote": {
+"custo": 66102.87,
+"n": 9
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 34773.89,
+"n": 6
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 32999.94,
+"n": 6
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 51742.79,
+"n": 7
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 46421.92,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 46305.59,
+"n": 8
+},
+"Júlio César Rossignoli Barros": {
+"custo": 46205.92,
+"n": 8
+},
+"Kátia Aparecida Franco": {
+"custo": 36189.99,
+"n": 6
+},
+"Laiz Perrut Marendino": {
+"custo": 38262.6,
+"n": 6
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 42925.88,
+"n": 8
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 34817.02,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 46300.43,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 38333.57,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 46322.76,
+"n": 8
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 27993.09,
+"n": 5
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 46386.79,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 66076.18,
+"n": 9
+}
+},
+"pessoas": 417
+},
+"2025-12": {
+"folha_total": 3100245.98,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 56142.32,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 33031.94,
+"n": 6
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 53863.67,
+"n": 8
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 37668.59,
+"n": 7
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 45253.21,
+"n": 8
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 47860.48,
+"n": 6
+},
+"Carlos José de Souza - Fiote": {
+"custo": 66151.59,
+"n": 9
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 51816.65,
+"n": 6
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 30588.11,
+"n": 6
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 44154.87,
+"n": 5
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 49290.2,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 55263.83,
+"n": 8
+},
+"Júlio César Rossignoli Barros": {
+"custo": 50537.38,
+"n": 8
+},
+"Kátia Aparecida Franco": {
+"custo": 39347.41,
+"n": 6
+},
+"Laiz Perrut Marendino": {
+"custo": 40674.57,
+"n": 7
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 44808.74,
+"n": 8
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 27553.11,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 53614.95,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 40814.39,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 53644.78,
+"n": 8
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 26564.44,
+"n": 4
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 46431.78,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 66015.81,
+"n": 9
+}
+},
+"pessoas": 409
+},
+"2026-01": {
+"folha_total": 3012695.65,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 40593.8,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 28949.61,
+"n": 6
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 45951.97,
+"n": 8
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 37704.24,
+"n": 7
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 45380.73,
+"n": 8
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 43455.89,
+"n": 6
+},
+"Carlos José de Souza - Fiote": {
+"custo": 70403.36,
+"n": 10
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 34548.88,
+"n": 6
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 30713.74,
+"n": 6
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 45335.87,
+"n": 5
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 46350.67,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 50413.95,
+"n": 8
+},
+"Júlio César Rossignoli Barros": {
+"custo": 48520.24,
+"n": 8
+},
+"Kátia Aparecida Franco": {
+"custo": 36171.24,
+"n": 6
+},
+"Laiz Perrut Marendino": {
+"custo": 41608.0,
+"n": 7
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 50052.39,
+"n": 8
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 30693.67,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 48635.38,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 38364.21,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 48016.32,
+"n": 8
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 24804.91,
+"n": 3
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 46476.79,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 67335.92,
+"n": 9
+}
+},
+"pessoas": 408
+},
+"2026-02": {
+"folha_total": 2968335.79,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 47000.52,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 34315.9,
+"n": 7
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 46101.96,
+"n": 8
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 37653.59,
+"n": 7
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 48378.76,
+"n": 8
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 38647.43,
+"n": 6
+},
+"Carlos José de Souza - Fiote": {
+"custo": 64930.12,
+"n": 9
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 34736.38,
+"n": 6
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 39638.5,
+"n": 6
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 45279.61,
+"n": 5
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 46382.53,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 46193.07,
+"n": 8
+},
+"Júlio César Rossignoli Barros": {
+"custo": 46072.77,
+"n": 8
+},
+"Kátia Aparecida Franco": {
+"custo": 36159.98,
+"n": 6
+},
+"Laiz Perrut Marendino": {
+"custo": 41420.5,
+"n": 7
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 42730.87,
+"n": 8
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 34736.39,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 46540.76,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 38344.21,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 46187.75,
+"n": 8
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 9774.35,
+"n": 2
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 46341.78,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 74649.05,
+"n": 9
+}
+},
+"pessoas": 407
+},
+"2026-03": {
+"folha_total": 2983126.54,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 40621.93,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 42530.59,
+"n": 8
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 46336.35,
+"n": 8
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 37899.24,
+"n": 7
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 48510.03,
+"n": 8
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 38893.08,
+"n": 6
+},
+"Carlos José de Souza - Fiote": {
+"custo": 74650.64,
+"n": 9
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 34923.89,
+"n": 6
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 25519.0,
+"n": 5
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 45373.37,
+"n": 5
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 62384.94,
+"n": 9
+},
+"Juraci Scheffer": {
+"custo": 46485.59,
+"n": 8
+},
+"Júlio César Rossignoli Barros": {
+"custo": 51164.36,
+"n": 8
+},
+"Kátia Aparecida Franco": {
+"custo": 36309.99,
+"n": 6
+},
+"Laiz Perrut Marendino": {
+"custo": 41698.0,
+"n": 7
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 44014.43,
+"n": 8
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 27592.49,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 46266.68,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 49024.88,
+"n": 7
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 50776.94,
+"n": 8
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 6837.37,
+"n": 1
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 46566.79,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 62695.88,
+"n": 8
+}
+},
+"pessoas": 409
+},
+"2026-04": {
+"folha_total": 3426794.18,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 49182.49,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 53716.31,
+"n": 8
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 55293.97,
+"n": 8
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 47551.25,
+"n": 7
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 54625.94,
+"n": 8
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 50449.84,
+"n": 7
+},
+"Carlos José de Souza - Fiote": {
+"custo": 71790.14,
+"n": 8
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 43263.79,
+"n": 6
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 33944.35,
+"n": 5
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 50754.67,
+"n": 6
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 59324.76,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 55753.69,
+"n": 8
+},
+"Júlio César Rossignoli Barros": {
+"custo": 60812.42,
+"n": 8
+},
+"Kátia Aparecida Franco": {
+"custo": 43449.87,
+"n": 6
+},
+"Laiz Perrut Marendino": {
+"custo": 49775.88,
+"n": 7
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 54179.25,
+"n": 8
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 33853.1,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 59151.35,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 50361.5,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 65201.27,
+"n": 8
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 5823.35,
+"n": 1
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 55597.11,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 66377.06,
+"n": 7
+}
+},
+"pessoas": 410
+},
+"2026-05": {
+"folha_total": 3118943.32,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 43144.7,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 49070.02,
+"n": 8
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 48960.88,
+"n": 8
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 39923.69,
+"n": 7
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 53124.89,
+"n": 8
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 45531.92,
+"n": 7
+},
+"Carlos José de Souza - Fiote": {
+"custo": 80853.84,
+"n": 9
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 36894.8,
+"n": 6
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 30255.67,
+"n": 5
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 50681.31,
+"n": 6
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 48574.48,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 49125.29,
+"n": 8
+},
+"Júlio César Rossignoli Barros": {
+"custo": 49017.91,
+"n": 8
+},
+"Kátia Aparecida Franco": {
+"custo": 38388.96,
+"n": 6
+},
+"Laiz Perrut Marendino": {
+"custo": 44050.47,
+"n": 7
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 45542.82,
+"n": 8
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 29204.45,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 48955.43,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 41624.45,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 48978.49,
+"n": 8
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 49211.37,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 64005.88,
+"n": 8
+}
+},
+"pessoas": 417
+},
+"2026-06": {
+"folha_total": 3153958.58,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 46459.76,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 55802.8,
+"n": 8
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 48960.88,
+"n": 8
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 49599.63,
+"n": 8
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 47973.03,
+"n": 8
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 45531.92,
+"n": 7
+},
+"Carlos José de Souza - Fiote": {
+"custo": 63222.61,
+"n": 8
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 39346.01,
+"n": 6
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 30340.05,
+"n": 5
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 56450.93,
+"n": 7
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 49130.36,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 49125.29,
+"n": 8
+},
+"Júlio César Rossignoli Barros": {
+"custo": 51469.12,
+"n": 8
+},
+"Kátia Aparecida Franco": {
+"custo": 38388.96,
+"n": 6
+},
+"Laiz Perrut Marendino": {
+"custo": 44050.47,
+"n": 7
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 54203.19,
+"n": 9
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 29204.45,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 49000.43,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 40677.83,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 49143.49,
+"n": 8
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 49211.37,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 64485.32,
+"n": 8
+}
+},
+"pessoas": 416
+},
+"2026-07": {
+"folha_total": 3302308.1,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 43229.05,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 53904.93,
+"n": 8
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 49101.49,
+"n": 8
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 55221.76,
+"n": 7
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 48181.13,
+"n": 8
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 45638.77,
+"n": 7
+},
+"Carlos José de Souza - Fiote": {
+"custo": 69932.24,
+"n": 8
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 36902.29,
+"n": 6
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 30373.79,
+"n": 5
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 63826.52,
+"n": 8
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 52606.93,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 53805.93,
+"n": 8
+},
+"Júlio César Rossignoli Barros": {
+"custo": 49147.26,
+"n": 8
+},
+"Kátia Aparecida Franco": {
+"custo": 38478.95,
+"n": 6
+},
+"Laiz Perrut Marendino": {
+"custo": 63953.89,
+"n": 8
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 47985.19,
+"n": 7
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 31695.03,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 56009.3,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 40765.38,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 59880.39,
+"n": 9
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 10226.67,
+"n": 3
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 49346.36,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 71200.59,
+"n": 8
+}
+},
+"pessoas": 421
+},
+"2026-08": {
+"folha_total": 3191743.86,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 43172.8,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 49000.63,
+"n": 8
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 49007.74,
+"n": 8
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 41265.22,
+"n": 6
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 53914.97,
+"n": 8
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 45567.52,
+"n": 7
+},
+"Carlos José de Souza - Fiote": {
+"custo": 65227.7,
+"n": 8
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 36932.29,
+"n": 6
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 35618.21,
+"n": 6
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 57916.97,
+"n": 8
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 49167.84,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 49091.52,
+"n": 8
+},
+"Júlio César Rossignoli Barros": {
+"custo": 49061.01,
+"n": 8
+},
+"Kátia Aparecida Franco": {
+"custo": 43631.52,
+"n": 6
+},
+"Laiz Perrut Marendino": {
+"custo": 44333.7,
+"n": 7
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 47852.07,
+"n": 7
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 29105.07,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 48737.4,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 40639.19,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 47216.06,
+"n": 8
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 17349.85,
+"n": 3
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 101431.96,
+"n": 9
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 66379.61,
+"n": 8
+}
+},
+"pessoas": 414
+},
+"2026-09": {
+"folha_total": 3067819.67,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 43172.8,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 49113.13,
+"n": 8
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 49007.74,
+"n": 8
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 41018.18,
+"n": 7
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 47753.64,
+"n": 8
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 45567.52,
+"n": 7
+},
+"Carlos José de Souza - Fiote": {
+"custo": 68879.8,
+"n": 8
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 36932.29,
+"n": 6
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 34806.55,
+"n": 5
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 57916.97,
+"n": 8
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 49167.84,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 53451.84,
+"n": 8
+},
+"Júlio César Rossignoli Barros": {
+"custo": 49061.01,
+"n": 8
+},
+"Kátia Aparecida Franco": {
+"custo": 38720.56,
+"n": 6
+},
+"Laiz Perrut Marendino": {
+"custo": 44333.7,
+"n": 7
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 47913.94,
+"n": 7
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 29217.57,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 49032.3,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 40687.15,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 47300.43,
+"n": 8
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 22118.0,
+"n": 5
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 48993.86,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 79476.03,
+"n": 10
+}
+},
+"pessoas": 410
+},
+"2026-10": {
+"folha_total": 3135312.72,
+"gabinetes": {
+"André Luiz Gomes Mariano - André Mariano": {
+"custo": 43144.7,
+"n": 7
+},
+"André Luiz Vieira da Silva": {
+"custo": 49070.02,
+"n": 8
+},
+"Antônio Santos de Aguiar - Dr. Antônio Ag": {
+"custo": 48960.88,
+"n": 8
+},
+"Aparecida de Oliveira Pinto - Cida Olivei": {
+"custo": 41166.33,
+"n": 7
+},
+"Aparecido Reis Miguel Oliveira - Cido Rei": {
+"custo": 48051.78,
+"n": 8
+},
+"Carlos Alberto de Mello - Sargento Mello": {
+"custo": 45531.92,
+"n": 7
+},
+"Carlos José de Souza - Fiote": {
+"custo": 68840.45,
+"n": 8
+},
+"Jefferson da Silva Januário - Negro Bússo": {
+"custo": 36894.8,
+"n": 6
+},
+"José Márcio Lopes Guedes - Zé Márcio-Garo": {
+"custo": 34789.69,
+"n": 5
+},
+"João Evangelista de Almeida - João do Joa": {
+"custo": 62948.84,
+"n": 8
+},
+"João Wagner de Siqueira Antoniol": {
+"custo": 49130.36,
+"n": 8
+},
+"Juraci Scheffer": {
+"custo": 49046.54,
+"n": 8
+},
+"Júlio César Rossignoli Barros": {
+"custo": 52332.97,
+"n": 8
+},
+"Kátia Aparecida Franco": {
+"custo": 40390.36,
+"n": 7
+},
+"Laiz Perrut Marendino": {
+"custo": 46929.34,
+"n": 8
+},
+"Letícia Fonseca Paiva Delgado - Letícia D": {
+"custo": 47878.33,
+"n": 7
+},
+"Luiz Otávio Fernandes Coelho Pardal": {
+"custo": 29204.45,
+"n": 4
+},
+"Marcelo Vitor Mendes Condé - Dr. Marcelo": {
+"custo": 49000.43,
+"n": 8
+},
+"Marlon Siqueira Rodrigues Martins": {
+"custo": 40631.18,
+"n": 6
+},
+"Maurício Henrique Pinto de Oliveira Delga": {
+"custo": 47208.57,
+"n": 8
+},
+"Roberta Lopes Alves - Roberta Lopes": {
+"custo": 30212.4,
+"n": 5
+},
+"Tiago Rocha dos Santos - Bonecão": {
+"custo": 49211.37,
+"n": 8
+},
+"Victor Paulo de Oliveira - Vitinho": {
+"custo": 85739.58,
+"n": 9
+}
+},
+"pessoas": 410
+}
+}
