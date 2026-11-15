@@ -519,7 +519,8 @@ function blocoGabinete(v) {
     <div class="nums"><span><b>${reaisCurto(g.atual.custo)}</b>em ${mesBR(GAB_R.ultimo_mes)}, com ${fmt(g.atual.n)} ${g.atual.n === 1 ? "pessoa" : "pessoas"}</span>
       <span><b>${reaisCurto(g.media)}</b>por mês, em média</span><span><b>${reaisCurto(g.total)}</b>desde ${esc(GAB_R.desde)}</span></div>
     <div class="mini-barras" role="img" aria-label="Custo do gabinete mês a mês">${meses.map(([k, x]) => `<span title="${mesBR(k)}: ${reais(x[1], false)}, ${x[0]} pessoas" style="height:${Math.max(4, Math.round(100 * x[1] / max))}%"></span>`).join("")}</div>
-    <p class="sub fonte-linha">Fonte: <a href="${esc(GAB_R.fonte_url)}" target="_blank" rel="noopener">remuneração dos servidores, Portal da Transparência da Câmara</a>. Nomes dos assessores não são mostrados aqui.</p>`;
+    <a class="linha-acao" href="${esc(GAB_R.fonte_url)}" target="_blank" rel="noopener">${ic("pessoas")}<span><b>Ver a lista oficial de assessores</b><small>No portal da Câmara, em "Lotação", escolha "Gabinete ${esc(v.nome)}"</small></span><span aria-hidden="true">›</span></a>
+    <p class="sub fonte-linha">Fonte: remuneração dos servidores, Portal da Transparência da Câmara. Os nomes ficam no portal oficial; aqui mostramos só os totais.</p>`;
 }
 
 const ORIGEM = {fundo_eleitoral: "Fundo eleitoral (dinheiro público)", fundo_partidario: "Fundo partidário (dinheiro público)", pessoas_fisicas: "Doações de pessoas", proprios: "Dinheiro do próprio candidato", partido_e_outros_candidatos: "Partido e outros candidatos", outros: "Outros"};

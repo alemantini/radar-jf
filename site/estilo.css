@@ -298,3 +298,7 @@ img.avatar.foto{object-fit:cover;width:46px;height:58px;border-radius:10px;backg
   .barra-l,.min-linha{grid-template-columns:1fr auto}
   .barra-l .bl-b,.min-linha .ml-b{grid-column:1 / -1;grid-row:2}
 }
+.linha-acao{display:flex;align-items:center;gap:12px;border:2px solid var(--azul);border-radius:var(--raio);padding:10px 14px;margin:10px 0;text-decoration:none;color:var(--azul)}
+.linha-acao span:nth-child(2){flex:1}
+.linha-acao small{display:block;color:var(--apoio);font-size:13px}
+.linha-acao svg{width:22px;height:22px;flex:none}
