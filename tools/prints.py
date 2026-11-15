@@ -2,7 +2,7 @@
 import sys
 from playwright.sync_api import sync_playwright
 BASE = "https://alemantini.github.io/radar-jf/?v=conferir"
-PAGS = sys.argv[1:] or ["#/placar", "#/prefeitura/placar", "#/v/24"]
+PAGS = ["#/" + a.lstrip("#/") for a in sys.argv[1:]] or ["#/placar", "#/prefeitura/placar", "#/v/24"]
 with sync_playwright() as p:
     b = p.chromium.launch()
     pg = b.new_page(viewport={"width": 390, "height": 844}, device_scale_factor=1)
