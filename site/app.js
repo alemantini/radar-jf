@@ -163,7 +163,7 @@ function cracha(v) {
 
 
 // ---------- cobrar o vereador ----------
-const SITE = "https://jflandia.com.br/";
+const SITE = "https://alemantini.github.io/radar-jf/";
 function mensagemCobranca(v, r, n) {
   const tema = (r.tm || "melhoria").toLowerCase();
   return `Olá, ${v.apelido}. Sou morador(a) de Juiz de Fora. A Câmara já recebeu ${r.q} pedidos de ${tema} para a ${r.r}${r.b ? ", " + r.b : ""}${periodo(r.d1, r.d2) ? ", " + periodo(r.d1, r.d2) : ""}. ${n} ${n > 1 ? "deles saíram" : "deles saiu"} do seu gabinete. O problema continua? O que a Prefeitura respondeu e o que ainda pode ser feito?\n\nFonte: ${SITE}#/repetidos/${encodeURIComponent(r.r)}`;
