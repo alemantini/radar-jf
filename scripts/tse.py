@@ -39,6 +39,12 @@ def chave(s):
     return re.sub(r"[^a-z0-9]", "", s)
 
 
+def codigo_pessoa(nome, meio_cpf):
+    """Código não reversível na prática para cruzar pessoas sem publicar nome nem CPF."""
+    import hashlib
+    return hashlib.sha256(f"{chave(nome)}|{meio_cpf}".encode()).hexdigest()[:20]
+
+
 def num(s):
     try:
         return float((s or "0").replace(".", "").replace(",", "."))
@@ -124,9 +130,22 @@ def main():
         if d["SG_UE"] == UE and d["SQ_CANDIDATO"] in alvo:
             gasto[d["SQ_CANDIDATO"]] += num(d["VR_DESPESA_CONTRATADA"])
     receita = defaultdict(lambda: defaultdict(float))
+    # doadores pessoas físicas de todas as candidaturas de JF (vereador e prefeito), guardados só como
+    # código (nome + 6 dígitos do meio do CPF), para cruzar com sócios de fornecedores sem publicar nomes
+    todas = {d["SQ_CANDIDATO"]: d for d in linhas(baixar("consulta_cand/consulta_cand_2024.zip"), "_MG.csv") if d["SG_UE"] == UE}
+    doadores = defaultdict(list)
     for d in linhas(z, "receitas_candidatos_2024_MG.csv"):
-        if d["SG_UE"] == UE and d["SQ_CANDIDATO"] in alvo:
+        if d["SG_UE"] != UE:
+            continue
+        if d["SQ_CANDIDATO"] in alvo:
             receita[d["SQ_CANDIDATO"]][origem(d)] += num(d["VR_RECEITA"])
+        cpf = re.sub(r"\D", "", d.get("NR_CPF_CNPJ_DOADOR", ""))
+        c = todas.get(d["SQ_CANDIDATO"])
+        if len(cpf) == 11 and c and origem(d) in ("pessoas_fisicas", "proprios"):
+            k = codigo_pessoa(d.get("NM_DOADOR_RFB") or d.get("NM_DOADOR", ""), cpf[3:9])
+            doadores[k].append([c["NM_URNA_CANDIDATO"], c["DS_CARGO"].title(), c["SG_PARTIDO"], round(num(d["VR_RECEITA"]), 2)])
+    (RAIZ / "data" / "doadores_jf_2024.json").write_text(json.dumps(doadores, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    print("doadores (códigos):", len(doadores))
 
     bens24 = defaultdict(float)
     for d in linhas(baixar("bem_candidato/bem_candidato_2024.zip"), "_MG.csv"):

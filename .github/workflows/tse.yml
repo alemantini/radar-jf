@@ -20,7 +20,7 @@ jobs:
         run: |
           git config user.name "radar-robo"
           git config user.email "radar-robo@users.noreply.github.com"
-          git add data/tse.json
+          git add data/tse.json data/doadores_jf_2024.json
           if ! git diff --cached --quiet; then
             git commit -m "Dados do TSE atualizados"
             git pull --rebase origin main

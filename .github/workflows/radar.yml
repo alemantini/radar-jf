@@ -127,6 +127,15 @@ jobs:
       - name: Eleição 2024 (TSE, gerado pelo workflow TSE)
         run: if [ -f data/tse.json ]; then cp data/tse.json site/dados/tse.json; fi
 
+      - name: Prefeitura, sinais de alerta (cruzamento de dados públicos)
+        id: alertas
+        continue-on-error: true
+        run: python scripts/prefeitura_alertas.py
+
+      - name: Reaproveitar sinais de alerta publicados, se a análise falhar
+        if: steps.alertas.outcome != 'success'
+        run: curl -fsS "https://alemantini.github.io/radar-jf/dados/prefeitura/alertas.json" -o site/dados/prefeitura/alertas.json || echo "sem versão anterior"
+
       - name: Guardar cache de datas e contagens
         run: |
           git config user.name "radar-robo"

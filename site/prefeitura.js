@@ -383,6 +383,7 @@ async function rotaPrefeitura(p) {
   if (sub === "ano") return pgPrefInicio(a);
   if (sub === "impostometro") return pgImpostometro();
   if (sub === "placar") return pgPlacarFiscal(a);
+  if (sub === "alertas") return pgAlertas(a);
   if (sub === "emendas") return pgEmendas(a);
   if (sub === "diario") return pgDiario(a, b);
   if (sub === "s") return pgPrefSecretaria(a, +b);
@@ -476,4 +477,44 @@ async function pgPlacarFiscal(medida0) {
     <p class="sub fonte-linha">Fonte: <a href="${esc(I.fonte_url)}" target="_blank" rel="noopener">Siconfi, Tesouro Nacional</a> (Relatório de Gestão Fiscal e Relatório Resumido da Execução Orçamentária enviados por cada prefeitura). Coletado em ${esc(I.coletado_em)}.</p>`;
   const sel = document.getElementById("medida");
   if (sel) sel.onchange = () => { location.hash = "#/prefeitura/placar/" + encodeURIComponent(sel.value); };
+}
+
+
+// ---------- Sinais de alerta ----------
+let ALERTAS = null;
+async function pgAlertas(tipo) {
+  if (!ALERTAS) ALERTAS = await fetch("dados/prefeitura/alertas.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  const A = ALERTAS;
+  if (!A) { app.innerHTML = "<h1>Sinais de alerta</h1><p>A análise ainda está sendo feita. Volte mais tarde.</p>"; return; }
+  const lista = A.alertas.filter(a => !tipo || a.tipo === tipo);
+  const anoEmp = Math.max(...A.anos);
+  app.innerHTML = `
+    <h1>Sinais de alerta nos gastos</h1>
+    <p class="sub">O Radar cruza dados públicos (empenhos da Prefeitura, cadastro de empresas da Receita, doações de campanha do TSE e cadastros de punidos da CGU) e aponta situações que merecem uma pergunta.</p>
+    <div class="aviso-forte"><b>Sinal não é prova.</b> Cada item abaixo pode ter explicação legal: emergência real, fornecedor único, contrato antigo, hospital conveniado. Ninguém aqui está sendo acusado de nada. Use os sinais para perguntar à Prefeitura, à Câmara ou ao Tribunal de Contas, sempre conferindo nos documentos oficiais.</div>
+    <div class="chips-filtro">
+      <a href="#/prefeitura/alertas" class="${!tipo ? "on" : ""}">Todos <b>${fmt(A.alertas.length)}</b></a>
+      ${Object.entries(A.tipos).filter(([k]) => A.contagem[k]).map(([k, t]) => `<a href="#/prefeitura/alertas/${k}" class="${tipo === k ? "on" : ""}">${t} <b>${fmt(A.contagem[k])}</b></a>`).join("")}
+    </div>
+    ${lista.map(a => `
+      <div class="alerta-card">
+        <div class="ac-topo"><span class="ac-tipo">${esc(A.tipos[a.tipo] || a.tipo)}</span><span class="ac-valor">${reais(a.valor)}</span></div>
+        <a class="ac-nome" href="#/prefeitura/empresa/${anoEmp}/${a.cnpj}">${esc(a.nome || "Empresa")}</a>
+        <small class="sub">CNPJ ${cnpjFmt(a.cnpj)}${a.secretaria ? ` · ${esc(a.secretaria)}` : ""}</small>
+        <p>${esc(a.detalhe)}</p>
+        ${a.refs.length ? `<small class="sub">Empenhos: ${a.refs.map(esc).join(", ")}</small>` : ""}
+      </div>`).join("") || '<p class="sub">Nenhum sinal deste tipo.</p>'}
+    <h2>Como cada sinal é calculado</h2>
+    <ul class="metodo">
+      <li><b>Possível fracionamento:</b> 3 ou mais empenhos no mesmo ano, mesmo fornecedor, mesma secretaria e mesmo tipo de despesa, cada um abaixo do limite de dispensa (em 2026, R$ 65.492,11 para compras e R$ 130.984,20 para obras), que somados passam do limite, sem citar licitação no histórico.</li>
+      <li><b>Muita contratação sem licitação:</b> pelo menos 3 empenhos que citam dispensa, inexigibilidade ou emergência, somando R$ 500 mil ou mais.</li>
+      <li><b>Emergência que se repete:</b> empenhos citando emergência em 4 meses diferentes ou mais.</li>
+      <li><b>Fornecedor concentra pagamentos:</b> uma empresa ou entidade recebe 40% ou mais do que a secretaria pagou a empresas no ano (secretarias com mais de R$ 2 milhões).</li>
+      <li><b>Empresa recém-aberta:</b> aberta menos de um ano antes do primeiro empenho, com R$ 100 mil ou mais.</li>
+      <li><b>Cadastro irregular:</b> CNPJ que não está "ativo" na Receita Federal.</li>
+      <li><b>Capital social pequeno:</b> empresa com capital menor que 2% do que recebeu (acima de R$ 1 milhão).</li>
+      <li><b>Sócio doador de campanha:</b> sócio da empresa com o mesmo nome e os mesmos 6 dígitos do meio do CPF de um doador da eleição de 2024 em Juiz de Fora. O site não mostra o nome do sócio.</li>
+      <li><b>Empresa punida:</b> CNPJ que aparece no CEIS ou no CNEP, os cadastros de empresas punidas da Controladoria-Geral da União.</li>
+    </ul>
+    <p class="sub fonte-linha">Atualizado em ${esc(A.coletado_em)}. Fontes: ${A.fontes.map(esc).join("; ")}. Os gastos da Prefeitura estão na última versão que o Radar conseguiu baixar. Achou um sinal errado? <a href="https://github.com/alemantini/radar-jf/issues" target="_blank" rel="noopener">Avise</a> que a gente corrige.</p>`;
 }
