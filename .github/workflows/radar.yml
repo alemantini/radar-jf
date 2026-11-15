@@ -63,8 +63,8 @@ jobs:
         run: |
           mkdir -p site/dados/prefeitura
           base=https://alemantini.github.io/radar-jf/dados/prefeitura
-          curl -fsS "$base/resumo.json" -o site/dados/prefeitura/resumo.json || echo "sem versão anterior"
-          for a in 2025 2026; do curl -fsS "$base/empenhos_$a.json" -o "site/dados/prefeitura/empenhos_$a.json" || true; done
+          curl -fsSL "$base/resumo.json" -o site/dados/prefeitura/resumo.json || echo "sem versão anterior"
+          for a in 2025 2026; do curl -fsSL "$base/empenhos_$a.json" -o "site/dados/prefeitura/empenhos_$a.json" || true; done
 
       - name: Prefeitura, receitas para o impostômetro (Siconfi, Tesouro Nacional)
         id: receitas
@@ -75,7 +75,7 @@ jobs:
         if: steps.receitas.outcome != 'success'
         run: |
           mkdir -p site/dados/prefeitura
-          curl -fsS "https://alemantini.github.io/radar-jf/dados/prefeitura/receitas.json" -o site/dados/prefeitura/receitas.json || echo "sem versão anterior"
+          curl -fsSL "https://alemantini.github.io/radar-jf/dados/prefeitura/receitas.json" -o site/dados/prefeitura/receitas.json || echo "sem versão anterior"
 
       - name: Prefeitura, emendas dos vereadores (Monitor de Emendas)
         id: emendas
@@ -87,7 +87,7 @@ jobs:
         run: |
           mkdir -p site/dados/prefeitura
           base=https://alemantini.github.io/radar-jf/dados/prefeitura
-          for f in emendas_resumo.json emendas.json; do curl -fsS "$base/$f" -o "site/dados/prefeitura/$f" || echo "sem $f anterior"; done
+          for f in emendas_resumo.json emendas.json; do curl -fsSL "$base/$f" -o "site/dados/prefeitura/$f" || echo "sem $f anterior"; done
 
       - name: Prefeitura, Diário Oficial (Atos do Governo)
         id: atos
@@ -101,8 +101,8 @@ jobs:
         run: |
           mkdir -p site/dados/prefeitura
           base=https://alemantini.github.io/radar-jf/dados/prefeitura
-          curl -fsS "$base/atos_resumo.json" -o site/dados/prefeitura/atos_resumo.json || echo "sem versão anterior"
-          for a in 2025 2026 2027; do curl -fsS "$base/atos_$a.json" -o "site/dados/prefeitura/atos_$a.json" || true; done
+          curl -fsSL "$base/atos_resumo.json" -o site/dados/prefeitura/atos_resumo.json || echo "sem versão anterior"
+          for a in 2025 2026 2027; do curl -fsSL "$base/atos_$a.json" -o "site/dados/prefeitura/atos_$a.json" || true; done
 
       - name: Prefeitura, placar fiscal e comparação com outras cidades (Siconfi)
         id: indices
@@ -113,7 +113,7 @@ jobs:
         if: steps.indices.outcome != 'success'
         run: |
           mkdir -p site/dados/prefeitura
-          curl -fsS "https://alemantini.github.io/radar-jf/dados/prefeitura/indices.json" -o site/dados/prefeitura/indices.json || echo "sem versão anterior"
+          curl -fsSL "https://alemantini.github.io/radar-jf/dados/prefeitura/indices.json" -o site/dados/prefeitura/indices.json || echo "sem versão anterior"
 
       - name: Câmara, custo dos gabinetes (folha da Câmara)
         id: gabinetes
@@ -122,7 +122,7 @@ jobs:
 
       - name: Reaproveitar custo dos gabinetes publicado, se a coleta falhar
         if: steps.gabinetes.outcome != 'success'
-        run: curl -fsS "https://alemantini.github.io/radar-jf/dados/gabinetes.json" -o site/dados/gabinetes.json || echo "sem versão anterior"
+        run: curl -fsSL "https://alemantini.github.io/radar-jf/dados/gabinetes.json" -o site/dados/gabinetes.json || echo "sem versão anterior"
 
       - name: Eleição 2024 (TSE, gerado pelo workflow TSE)
         run: if [ -f data/tse.json ]; then cp data/tse.json site/dados/tse.json; fi
@@ -134,7 +134,7 @@ jobs:
 
       - name: Reaproveitar sinais de alerta publicados, se a análise falhar
         if: steps.alertas.outcome != 'success'
-        run: curl -fsS "https://alemantini.github.io/radar-jf/dados/prefeitura/alertas.json" -o site/dados/prefeitura/alertas.json || echo "sem versão anterior"
+        run: curl -fsSL "https://alemantini.github.io/radar-jf/dados/prefeitura/alertas.json" -o site/dados/prefeitura/alertas.json || echo "sem versão anterior"
 
       - name: Guardar cache de datas e contagens
         run: |
