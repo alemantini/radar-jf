@@ -7,6 +7,7 @@ const TIPOS = {REQ: "Requerimento", IND: "Indicação", PEDIF: "Pedido de Inform
 
 // ícones simples (traço), usados nos botões
 const ICONE = {
+  coracao: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
   alerta: '<path d="M12 3 2 20h20zM12 10v4M12 17h.01"/>',
   placar: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   balanca: '<path d="M12 3v18M5 21h14M3 7h18M6 7l-3 7a3 3 0 0 0 6 0zM18 7l-3 7a3 3 0 0 0 6 0z"/>',
@@ -479,6 +480,7 @@ function pgEscolha() {
     <a class="btn-grande camara" href="#/placar">${ic("placar")}<span class="tx">Placar dos vereadores<small>Monte o seu ranking com os critérios que importam para você</small></span>›</a>
     <a class="btn-grande prefeitura" href="#/prefeitura/placar">${ic("balanca")}<span class="tx">Placar fiscal da Prefeitura<small>Gasta mais do que arrecada? Cumpre os mínimos de saúde e educação?</small></span>›</a>
     <a class="btn-grande prefeitura" href="#/prefeitura/busca">${ic("lupa")}<span class="tx">Pesquisar um gasto<small>Empresa, CNPJ ou palavra, como asfalto ou merenda</small></span>›</a>
+    <a class="btn-apoie" href="#/apoie">${ic("coracao")}<span class="tx"><b>Apoie o Radar</b><small>O Radar é independente e não aceita dinheiro de político nem de fornecedor da Prefeitura. Ajude com um Pix de qualquer valor.</small></span><span class="seta">›</span></a>
     <div class="info">Câmara e Prefeitura são poderes diferentes. A Câmara (vereadores) faz leis, fiscaliza e pede melhorias. A Prefeitura (prefeita e secretarias) executa os serviços e gasta o orçamento.</div>`;
   document.getElementById("esc-ver").onchange = e => { if (e.target.value) location.hash = "#/v/" + e.target.value; };
   document.getElementById("hero-busca").onsubmit = e => { e.preventDefault(); const q = document.getElementById("hb").value.trim(); location.hash = "#/busca" + (q ? "/" + encodeURIComponent(q) : ""); };
@@ -507,6 +509,7 @@ async function rota() {
     else if (pag === "repetidos") await pgRepetidos(arg);
     else if (pag === "grupo") await pgGrupo(arg);
     else if (pag === "placar") pgPlacar(arg);
+    else if (pag === "apoie") pgApoie();
     else if (pag === "sobre") { pgSobre(); if (window.sobrePrefeitura) await sobrePrefeitura(); }
     else if (pag === "camara") pgInicio();
     else if (pag === "prefeitura" && window.rotaPrefeitura) await rotaPrefeitura(partes.slice(1));
@@ -651,4 +654,31 @@ function setasSubnav() {
     window.addEventListener("resize", atualiza);
   }
   atualiza();
+}
+
+
+// ---------- Apoie ----------
+const PIX = {chave: "paispelaeducacaojf@gmail.com", copiaecola: "00020126500014br.gov.bcb.pix0128paispelaeducacaojf@gmail.com5204000053039865802BR5914RADAR JFLANDIA6012JUIZ DE FORA62070503***6304EEB6"};
+function pgApoie() {
+  app.innerHTML = `
+    <h1>Apoie o Radar JFlândia</h1>
+    <p class="sub">O Radar coleta todo dia os dados oficiais da Câmara e da Prefeitura e mostra de um jeito que qualquer pessoa entende. Seu apoio paga o domínio, a manutenção e as horas de trabalho para criar novas ferramentas.</p>
+    <div class="pix-box">
+      <img src="pix.svg" alt="QR Code do Pix para apoiar o Radar" width="220" height="220">
+      <div class="pix-tx">
+        <p><b>Pix de qualquer valor</b><br>Aponte a câmera do app do banco para o QR Code ou use a chave abaixo.</p>
+        <p class="pix-chave"><span>Chave Pix (e-mail)</span><b>${PIX.chave}</b></p>
+        <button class="btn-sec" id="cp-chave">Copiar chave Pix</button>
+        <button class="btn-sec" id="cp-cola">Copiar Pix copia e cola</button>
+        <span class="sub" id="cp-ok"></span>
+      </div>
+    </div>
+    <h2>Quem não pode apoiar</h2>
+    <p>Para o Radar continuar independente, <b>não aceitamos apoio</b> de partidos, candidatos, vereadores, da prefeita, de servidores comissionados nem de empresas e entidades que recebem dinheiro da Prefeitura ou da Câmara. Se um apoio desses chegar, ele é devolvido.</p>
+    <h2>Prestação de contas</h2>
+    <p class="sub">Vamos publicar aqui, todo mês, quanto entrou e no que foi gasto. Ainda não há apoios registrados.</p>`;
+  const ok = t => { document.getElementById("cp-ok").textContent = t; };
+  const copiar = async (txt, msg) => { try { await navigator.clipboard.writeText(txt); ok(msg); } catch (e) { ok(txt); } };
+  document.getElementById("cp-chave").onclick = () => copiar(PIX.chave, "Chave copiada. Cole no app do seu banco, na opção Pix.");
+  document.getElementById("cp-cola").onclick = () => copiar(PIX.copiaecola, "Código copiado. No app do banco, escolha Pix copia e cola.");
 }

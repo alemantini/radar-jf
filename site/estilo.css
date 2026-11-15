@@ -371,3 +371,17 @@ html,body{overflow-x:clip}
   #subnav{flex-wrap:wrap;overflow:visible}
   .sn-seta{display:none}
 }
+/* apoie */
+.btn-apoie{display:flex;align-items:center;gap:14px;margin:14px 0;padding:14px 16px;border-radius:var(--raio);background:#fff;border:2px solid #c2185b;color:#7a0f3a;text-decoration:none}
+.btn-apoie svg{width:30px;height:30px;flex:none;color:#c2185b;fill:#fde4ee}
+.btn-apoie .tx{flex:1}
+.btn-apoie b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:22px;line-height:1.1}
+.btn-apoie small{display:block;font-size:14px;line-height:1.35;margin-top:3px;color:var(--apoio)}
+.btn-apoie .seta{font-size:30px;font-weight:700}
+.pix-box{display:flex;flex-wrap:wrap;gap:18px;align-items:center;border:1px solid var(--linha);border-radius:var(--raio);padding:16px;margin:14px 0}
+.pix-box img{width:220px;height:220px;flex:none;background:#fff}
+.pix-tx{flex:1;min-width:220px}
+.pix-tx .btn-sec{margin:4px 6px 4px 0}
+.pix-chave{background:var(--calcada);border-radius:8px;padding:8px 12px}
+.pix-chave span{display:block;font-size:13px;color:var(--apoio)}
+.pix-chave b{word-break:break-all}
