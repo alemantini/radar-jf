@@ -3,11 +3,17 @@ import csv, io, json, re, zipfile, requests
 UA = {"User-Agent": "RadarJF/1.0 (robo de transparencia; https://github.com/alemantini/radar-jf)"}
 S = "https://apidatalake.tesouro.gov.br/ords/siconfi/tt"
 
-print("=== anexos")
-r = requests.get(f"{S}/anexos-relatorios", headers=UA, timeout=120)
-for x in r.json().get("items", []):
-    if x.get("esfera") in ("M", "U", None) and x.get("demonstrativo") in ("RREO", "RGF"):
-        print("  ", x)
+print("=== anexos RREO JF 2025 bim 6")
+for n in ["06", "07", "08", "09", "10", "11", "12", "13", "14"]:
+    try:
+        r = requests.get(f"{S}/rreo", params=dict(an_exercicio=2025, nr_periodo=6, co_tipo_demonstrativo="RREO", no_anexo=f"RREO-Anexo {n}", id_ente=3136702), headers=UA, timeout=180)
+        it = r.json().get("items", [])
+        print("Anexo", n, len(it))
+        for x in it:
+            if re.search(r"percentual|m[íi]nimo|25%|15%", x.get("conta", "") + " " + x.get("coluna", ""), re.I):
+                print("   ", x["conta"][:120], "|", x["coluna"][:60], "|", x["valor"])
+    except Exception as e:
+        print("Anexo", n, "erro", e)
 
 print("=== Câmara remuneração")
 r = requests.get("https://www.camarajf.mg.gov.br/transparencia/remuneracaoServidores.php", headers=UA, timeout=60)
