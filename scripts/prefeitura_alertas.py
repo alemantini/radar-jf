@@ -320,6 +320,11 @@ def main():
                     f"{p['cadastro']}: {p['sancao']} aplicada por {p['orgao']} (de {p['inicio']} a {p['fim'] or 'sem data final'}). Em regra essa punição vale só para o órgão que a aplicou, mas mostra problema anterior na execução de contratos. Valor recebido da Prefeitura no período: {brl(rec)}.",
                     rec)
 
+    # fracionamento só faz sentido para empresas (associações e órgãos recebem repasses parcelados)
+    def empresa(c):
+        return bool(re.search(r"empres[áa]ri|limitada|an[ôo]nima|eireli|individual", (cad.get(c) or {}).get("natureza") or "", re.I))
+    alertas[:] = [a for a in alertas if a["tipo"] != "fracionamento" or empresa(a["cnpj"])]
+
     TIPOS = {
         "fracionamento": "Possível fracionamento",
         "direta": "Muita contratação sem licitação",

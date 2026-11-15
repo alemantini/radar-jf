@@ -506,7 +506,7 @@ async function pgAlertas(tipo) {
       </div>`).join("") || '<p class="sub">Nenhum sinal deste tipo.</p>'}
     <h2>Como cada sinal é calculado</h2>
     <ul class="metodo">
-      <li><b>Possível fracionamento:</b> 4 ou mais empenhos de compras, serviços, equipamentos ou obras no mesmo ano, para o mesmo fornecedor, na mesma secretaria e no mesmo tipo de despesa, cada um abaixo do limite de dispensa (em 2026, R$ 65.492,11 para compras e R$ 130.984,20 para obras), que somados passam de uma vez e meia o limite, sem citar licitação, ata ou contrato no histórico.</li>
+      <li><b>Possível fracionamento:</b> só para empresas (associações e órgãos públicos recebem repasses parcelados). 4 ou mais empenhos de compras, serviços, equipamentos ou obras no mesmo ano, para o mesmo fornecedor, na mesma secretaria e no mesmo tipo de despesa, cada um abaixo do limite de dispensa (em 2026, R$ 65.492,11 para compras e R$ 130.984,20 para obras), que somados passam de uma vez e meia o limite, sem citar licitação, ata ou contrato no histórico.</li>
       <li><b>Muita contratação sem licitação:</b> pelo menos 3 empenhos que citam dispensa, inexigibilidade ou emergência, somando R$ 500 mil ou mais.</li>
       <li><b>Emergência que se repete:</b> empenhos citando emergência em 4 meses diferentes ou mais.</li>
       <li><b>Fornecedor concentra pagamentos:</b> uma empresa ou entidade privada recebe 40% ou mais do que a secretaria pagou a empresas e entidades no ano (secretarias com mais de R$ 2 milhões; órgãos públicos como a JFPrev ficam de fora).</li>
