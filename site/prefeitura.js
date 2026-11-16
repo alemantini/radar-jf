@@ -522,7 +522,7 @@ async function pgAlertas(tipo) {
       <li><b>Empresa inidônea ou proibida:</b> CNPJ no CEIS ou no CNEP (cadastros de punidos da Controladoria-Geral da União) com sanção que vale para toda a administração pública (inidoneidade ou proibição de contratar com o poder público), vigente enquanto recebia da Prefeitura.</li>
       <li><b>Punida por outro órgão:</b> sanções de impedimento ou suspensão aplicadas por outro órgão, vigentes no período. Em regra elas valem só para quem as aplicou, então não impedem o contrato com a Prefeitura; o sinal mostra histórico de problemas.</li>
     </ul>
-    <p class="sub fonte-linha">Atualizado em ${esc(A.coletado_em)}. Fontes: ${A.fontes.map(esc).join("; ")}. Os gastos da Prefeitura estão na última versão que o Radar conseguiu baixar. Achou um sinal errado? <a href="https://github.com/alemantini/radar-jf/issues" target="_blank" rel="noopener">Avise</a> que a gente corrige.</p>`;
+    <p class="sub fonte-linha">Atualizado em ${esc(A.coletado_em)}. Fontes: ${A.fontes.map(esc).join("; ")}. Os gastos da Prefeitura estão na última versão que o Radar conseguiu baixar. Achou um sinal errado? <a href="mailto:radarjflandia@gmail.com?subject=Sinal%20de%20alerta%20errado">Avise pelo e-mail radarjflandia@gmail.com</a> que a gente corrige.</p>`;
 }
 
 
