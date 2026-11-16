@@ -48,5 +48,11 @@
 </footer>
 <script src="app.js?v=__VERSAO__"></script>
 <script src="prefeitura.js?v=__VERSAO__"></script>
+<!-- Contador de visitas (GoatCounter: sem cookies, sem dados pessoais) -->
+<script>
+window.goatcounter = {path: function (p) { return (location.hash.replace(/^#/, "") || "/").split("?")[0]; }};
+addEventListener("hashchange", function () { if (window.goatcounter.count) window.goatcounter.count({path: (location.hash.replace(/^#/, "") || "/").split("?")[0]}); });
+</script>
+<script data-goatcounter="https://jflandia.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>

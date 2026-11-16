@@ -437,6 +437,8 @@ function pgSobre() {
     </ul>
     <h2>O que este site ainda não mostra</h2>
     <p>Presença dos vereadores nas reuniões e como cada um votou. A Câmara de Juiz de Fora não publica esses registros de forma que possam ser baixados (as atas aparecem na lista, mas o texto não abre). Sem dado oficial, o site não mostra número nenhum, e falta de registro não é tratada como falta do vereador.</p>
+    <h2>Privacidade</h2>
+    <p>O site não usa cookies e não pede cadastro. Para saber quantas pessoas visitam cada página, usamos o <a href="https://www.goatcounter.com" target="_blank" rel="noopener">GoatCounter</a>, um contador aberto que não guarda dados pessoais nem identifica quem visita.</p>
     <h2>Achou um erro?</h2>
     <p><a href="https://github.com/alemantini/radar-jf/issues/new" target="_blank" rel="noopener">Avise aqui</a>. Erros são corrigidos o mais rápido possível. O código do site é aberto e pode ser conferido por qualquer pessoa.</p>`;
 }
