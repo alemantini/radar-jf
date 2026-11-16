@@ -440,7 +440,7 @@ function pgSobre() {
     <h2>Privacidade</h2>
     <p>O site não usa cookies e não pede cadastro. Para saber quantas pessoas visitam cada página, usamos o <a href="https://www.goatcounter.com" target="_blank" rel="noopener">GoatCounter</a>, um contador aberto que não guarda dados pessoais nem identifica quem visita.</p>
     <h2>Achou um erro?</h2>
-    <p><a href="https://github.com/alemantini/radar-jf/issues/new" target="_blank" rel="noopener">Avise aqui</a>. Erros são corrigidos o mais rápido possível. O código do site é aberto e pode ser conferido por qualquer pessoa.</p>`;
+    <p><a href="mailto:radarjflandia@gmail.com?subject=Erro%20no%20Radar%20JFl%C3%A2ndia" >Avise aqui</a> pelo e-mail radarjflandia@gmail.com. Erros são corrigidos o mais rápido possível. O código do site é aberto e pode ser conferido por qualquer pessoa.</p>`;
 }
 
 // ---------- rotas ----------
