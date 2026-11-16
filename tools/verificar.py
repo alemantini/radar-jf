@@ -17,7 +17,7 @@ problemas = []
 
 def checa_http():
     for u in ["http://jflandia.com.br/", "https://www.jflandia.com.br/", "https://alemantini.github.io/radar-jf/",
-              BASE + "manifest.webmanifest", BASE + "sw.js", BASE + "icone-192.png", BASE + "dados/resumo.json"]:
+              BASE + "manifest.webmanifest", BASE + "sw.js", BASE + "icone-192.png", BASE + "dados/resumo.json", BASE + "sitemap.xml", BASE + "robots.txt", BASE + "v/13/", BASE + "v/13/card.jpg", BASE + "empresa/13304478000157/"]:
         try:
             r = urllib.request.urlopen(urllib.request.Request(u, headers={"User-Agent": "RadarJF-verificacao"}), timeout=30)
             print(f"HTTP {r.status} {u} -> {r.geturl()}")
