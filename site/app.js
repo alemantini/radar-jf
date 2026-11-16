@@ -517,10 +517,26 @@ async function rota() {
     else if (pag === "camara") pgInicio();
     else if (pag === "prefeitura" && window.rotaPrefeitura) await rotaPrefeitura(partes.slice(1));
     else pgEscolha();
+    botaoZap(pag, partes);
   } catch (e) {
     app.innerHTML = `<p>Não foi possível carregar os dados agora. Tente de novo em instantes.</p>`;
     console.error(e);
   }
+}
+// botão flutuante para compartilhar a página atual no WhatsApp
+function botaoZap(pag, partes) {
+  let b = document.getElementById("zap");
+  if (!b) { b = document.createElement("a"); b.id = "zap"; b.target = "_blank"; b.rel = "noopener"; b.setAttribute("aria-label", "Compartilhar esta página no WhatsApp"); document.body.appendChild(b); }
+  let url = SITE + (location.hash || "");
+  if (pag === "v" && partes[1]) url = SITE + "v/" + partes[1] + "/";
+  if (pag === "prefeitura" && partes[1] === "empresa" && partes[3]) url = SITE + "empresa/" + partes[3] + "/";
+  const h1 = (app.querySelector("h1") || {}).textContent || "";
+  const msg = pag === "v" ? `Veja o que ${h1.trim()} fez na Câmara de Juiz de Fora, com dados oficiais:`
+    : pag === "placar" ? "Qual vereador de Juiz de Fora trabalha mais? Monte o seu ranking:"
+    : !pag ? "Veja o que fazem com o seu dinheiro em Juiz de Fora, com dados oficiais:"
+    : `${h1.trim() || "Radar JFlândia"}: veja no Radar JFlândia, com dados oficiais:`;
+  b.href = "https://wa.me/?text=" + encodeURIComponent(msg + "\n" + url);
+  b.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2s.2-1.1.2-1.2-.2-.2-.4-.3z"/></svg><span>Compartilhar</span>`;
 }
 window.addEventListener("hashchange", rota);
 window.addEventListener("load", () => {

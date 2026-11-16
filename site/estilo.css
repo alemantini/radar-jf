@@ -398,3 +398,10 @@ html,body{overflow-x:clip}
 .mini-barra{display:block;height:6px;background:var(--calcada);border-radius:3px;margin-top:6px;overflow:hidden;max-width:260px}
 .mini-barra i{display:block;height:100%;background:var(--azul)}
 details.equipe summary .tx{flex:1;min-width:0}
+
+/* botão flutuante de compartilhar no WhatsApp */
+#zap{position:fixed;right:16px;bottom:16px;z-index:50;display:flex;align-items:center;gap:8px;background:#1f9d55;color:#fff;text-decoration:none;font-weight:700;padding:12px 16px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.25)}
+#zap svg{width:24px;height:24px}#zap:focus-visible{outline:3px solid #f2b705;outline-offset:2px}
+@media (max-width:520px){#zap span{display:none}#zap{padding:14px}}
+body{padding-bottom:84px}
+@media print{#zap{display:none}}
