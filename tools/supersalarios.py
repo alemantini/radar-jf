@@ -36,7 +36,7 @@ def main(arq):
     pref = next(r for r in rows if r["Cargo"].strip() == "PREFEITO")
     teto = valor(pref["Cargo/Emprego(R$)"])
     m = re.search(r"(\d{2})(20\d{2})", Path(arq).name)
-    acima, maiores, com_ret = [], [], 0
+    acima, maiores, com_ret, cortes = [], [], 0, []
     for r in rows:
         if r["Cargo"].strip() in ("PREFEITO", "VICE-PREFEITO"):
             continue
@@ -51,6 +51,9 @@ def main(arq):
         perm = min(perm, max(bruto - fora, 0))
         if ret > 0:
             com_ret += 1
+            fn = (r.get("Função") or "-").strip()
+            cortes.append([r["Cargo"].strip(), "" if fn == "-" else fn, r["Lotação"].strip(), round(bruto, 2), round(ret, 2),
+                           round(valor(r["Remuneração Líquida(R$)"]), 2)])
         lim = TETO_PROCURADOR if cargo.startswith("PROCURADOR MUNICIPAL") else teto
         func = (r.get("Função") or "-").strip()
         base = [r["Nome"].strip(), cargo, "" if func == "-" else func, r["Vínculo"].strip(), r["Lotação"].strip()]
@@ -60,6 +63,28 @@ def main(arq):
                                  round(perm - ret, 2), lim, round(perm - ret - lim, 2), round(bruto, 2)])
         maiores.append(base + [round(bruto, 2), round(max(perm - ret, 0), 2), round(valor(r["Remuneração Líquida(R$)"]), 2)])
     acima.sort(key=lambda x: -x[-2])
+    cortes.sort(key=lambda x: -x[4])
+
+    def grupo(c):
+        if c.startswith("PR B"):
+            return "Cargo PR B (Educação; pela sigla, professor)"
+        if c.startswith("COORD"):
+            return "Coordenador pedagógico"
+        if c.startswith("AUDITOR FISCAL"):
+            return "Auditor fiscal"
+        if c.startswith("MEDICO"):
+            return "Médico"
+        if c.startswith("PROCURADOR"):
+            return "Procurador municipal"
+        return re.sub(r"\b(Ii|Iii|Iv|Vi|Vii)\b", lambda m: m.group(1).upper(), c.title())
+    gr = {}
+    for c in cortes:
+        g = gr.setdefault(grupo(c[0]), [0, 0.0, 0.0])
+        g[0] += 1
+        g[1] += c[4]
+        g[2] = max(g[2], c[4])
+    grupos = sorted(([k, v[0], round(v[1], 2), round(v[2], 2)] for k, v in gr.items()), key=lambda x: (-x[1], -x[2]))
+    proc = [r for r in rows if r["Cargo"].strip().startswith("PROCURADOR MUNICIPAL")]
     maiores.sort(key=lambda x: -x[5])
     out = {
         "competencia": f"{m.group(1)}/{m.group(2)}" if m else "",
@@ -71,6 +96,10 @@ def main(arq):
         "acima": acima,
         "maiores_cols": ["nome", "cargo", "funcao", "vinculo", "lotacao", "bruto", "sujeito_ao_teto", "liquido"],
         "maiores": maiores[:50],
+        "abate": {"total": round(sum(c[4] for c in cortes), 2), "n": len(cortes),
+                  "grupos": grupos, "cols": ["cargo", "funcao", "lotacao", "bruto", "corte", "liquido"], "lista": cortes,
+                  "procuradores": len(proc),
+                  "procuradores_com_corte": sum(1 for r in proc if valor(r["Retenção por Teto Constitucional(R$)"]) > 0)},
         "fonte": "Portal da Transparência da Prefeitura de Juiz de Fora, Servidores (PJF), planilha de todos os servidores da competência",
     }
     SAIDA.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")

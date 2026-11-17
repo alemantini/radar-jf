@@ -695,6 +695,16 @@ async function pgSupersalarios() {
         <p>Pela conta mais conservadora, recebeu pelo menos ${r2(suj)} em parcelas que contam para o teto, contra um limite de ${r2(lim)}. Na planilha aparecem: cargo ${r2(ce)}${perm ? `, verbas permanentes ${r2(perm)}` : ""}${fg ? `, função gratificada ${r2(fg)}` : ""}${hon ? `, honorários ${r2(hon)}` : ""}${ret ? `, e ${r2(ret)} já cortados pelo abate-teto` : ""}. Bruto do mês: ${r2(bruto)}.</p>
       </div>`; }).join("") || '<p class="sub">Ninguém passou do teto pela conta do Radar neste mês.</p>'}
     <p class="sub">Pode haver explicação que a planilha não mostra, como decisão judicial, pagamento atrasado lançado no mês ou regra específica da carreira. É uma pergunta a fazer à Prefeitura, não uma acusação.</p>
+    ${S.abate ? `<h2>O abate-teto deste mês</h2>
+    <p>A Prefeitura cortou <b>${r2(S.abate.total)}</b> de <b>${fmt(S.abate.n)} servidores</b> que passariam do teto. Cada um recebeu até o limite e o que passou ficou retido. Os cortes foram de ${r2(Math.min(...S.abate.lista.map(x => x[4])))} a ${r2(Math.max(...S.abate.lista.map(x => x[4])))}.</p>
+    <table class="tab-equipe"><thead><tr><th>Carreira</th><th>Pessoas</th><th>Total cortado</th><th>Maior corte</th></tr></thead><tbody>
+    ${S.abate.grupos.map(([g, n, t, mx]) => `<tr><td>${esc(g)}</td><td>${fmt(n)}</td><td>${r2(t)}</td><td>${r2(mx)}</td></tr>`).join("")}
+    </tbody></table>
+    <p class="sub">Quase todos os cortes são em carreiras da Educação e da Fazenda, de quem está no topo da carreira, com muitos anos de casa e adicionais por tempo de serviço. ${S.abate.procuradores ? `Dos ${fmt(S.abate.procuradores)} procuradores municipais, ${S.abate.procuradores_com_corte ? fmt(S.abate.procuradores_com_corte) + " tiveram corte" : "nenhum teve corte"}, porque o limite deles é maior (${r2(S.teto_procurador)}).` : ""} "PR B" é como o portal abrevia o cargo; pela sigla e pela lotação na Educação, deve ser professor, mas o portal não explica a abreviação.</p>
+    <details class="equipe"><summary>${ic("pessoas")}<span class="tx"><b>Ver os ${fmt(S.abate.n)} cortes, um por um</b><small>Por cargo e lotação. Sem nomes, porque aqui a lei foi cumprida.</small></span></summary>
+    <table class="tab-equipe"><thead><tr><th>Cargo e lotação</th><th>Bruto</th><th>Corte</th><th>Líquido</th></tr></thead><tbody>
+    ${S.abate.lista.map(([c, f, l, b, ret, liq]) => `<tr><td>${esc(f ? cargoTx(f) + " (cargo de origem: " + c + ")" : c)}<small class="sub" style="display:block">${esc(nomeSec(l))}</small></td><td>${r2(b)}</td><td>${r2(ret)}</td><td>${r2(liq)}</td></tr>`).join("")}
+    </tbody></table></details>` : ""}
     <h2>Os 50 maiores salários brutos do mês</h2>
     <p class="sub">O bruto inclui férias, 13º, abono e pagamentos atrasados, que não contam para o teto. Por isso alguém pode aparecer aqui com bruto alto e estar dentro da lei.</p>
     <table class="tab-equipe"><thead><tr><th>Nome e cargo</th><th>Bruto no mês</th></tr></thead><tbody>
@@ -708,6 +718,9 @@ async function pgSupersalarios() {
       <li><b>Conta conservadora:</b> na planilha da Prefeitura as parcelas nem sempre somam o bruto. Por isso o Radar usa o menor valor entre a soma das parcelas que contam para o teto e o bruto sem 13º, férias, abono e verbas temporárias. Assim só aparece quem passou do teto pelas duas contas.</li>
       <li>Cada linha da planilha é uma matrícula. Quem tem dois cargos que a lei permite acumular aparece duas vezes, e o teto vale para cada cargo separadamente.</li>
       <li>Ficam de fora as autarquias e empresas (Cesama, Demlurb, AMAC, Funalfa, Emcasa, JFPrev), que têm folha própria. Prefeita e vice não entram na lista.</li>
+      <li><b>Como conferir:</b> no Portal da Transparência da Prefeitura, em Servidores, escolha o órgão PJF e a competência, pesquise sem preencher nada e baixe o CSV. A coluna "Retenção por Teto Constitucional" mostra o abate-teto de cada servidor. Qualquer pessoa chega aos mesmos números.</li>
+      <li><b>Bruto, líquido e corte:</b> bruto é tudo o que foi pago no mês antes dos descontos; líquido é o que caiu na conta depois de previdência, imposto de renda e abate-teto.</li>
+      <li>Os valores são de um mês só. Um mês com férias, 13º ou atrasados pode ficar bem acima dos outros.</li>
       <li>Salário de servidor é informação pública por lei (Lei de Acesso à Informação e decisão do STF). O Radar mostra exatamente o que a Prefeitura publica.</li>
     </ul>
     <p class="sub fonte-linha">Competência ${esc(S.competencia)}, baixado em ${esc(S.baixado_em.split("-").reverse().join("/"))}. Fonte: ${esc(S.fonte)}. Confira na <a href="${FONTE_SERV}" target="_blank" rel="noopener">pesquisa oficial de servidores</a>.</p>`;
