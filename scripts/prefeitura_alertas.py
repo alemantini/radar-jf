@@ -342,19 +342,20 @@ def main():
     comiss = {}
     if fc.exists():
         C = json.loads(fc.read_text(encoding="utf-8"))
-        for nome, cargo, lot, *_ in C.get("pessoas", []):
+        for nome, cargo, lot, *resto in C.get("pessoas", []):
             if len(nome.split()) >= 3:
-                comiss.setdefault(codigo_nome(nome), []).append((nome, cargo, C.get("siglas", {}).get(lot, lot)))
+                tipo = resto[4] if len(resto) > 4 else "c"
+                comiss.setdefault(codigo_nome(nome), []).append((nome, cargo, C.get("siglas", {}).get(lot, lot), tipo))
     for c in alvo:
         x = cad.get(c) or {}
         if PUBLICA.search(x.get("natureza") or ""):
             continue
         for h, qual in x.get("socios_n") or []:
-            for nome, cargo, sec in comiss.get(h, []):
+            for nome, cargo, sec, tipo in comiss.get(h, []):
                 rec = max(por_cred[c]["p"], por_cred[c]["e"])
                 mesma = any(sec.lower() in l["sec"].lower() or l["sec"].lower() in sec.lower() for l in linhas if l["cnpj"] == c)
-                add("comissionado", c, "Comissionado da Prefeitura com nome igual ao de sócio ou dirigente",
-                    f"{nome.title()}, comissionado(a) como {cargo.title()} em {sec}, tem o mesmo nome completo de quem aparece como {qual.lower() or 'sócio'} desta empresa ou entidade no cadastro da Receita. "
+                add("comissionado", c, "Ocupante de cargo de confiança com nome igual ao de sócio ou dirigente",
+                    f"{nome.title()}, {'comissionado(a)' if tipo == 'c' else 'servidor(a) concursado(a) na função de confiança'} como {cargo.title()} em {sec}, tem o mesmo nome completo de quem aparece como {qual.lower() or 'sócio'} desta empresa ou entidade no cadastro da Receita. "
                     f"Ela recebeu {brl(rec)} da Prefeitura no período{', inclusive da mesma secretaria' if mesma else ''}. Pode ser outra pessoa com o mesmo nome: confira antes de concluir.",
                     rec)
 
@@ -486,7 +487,7 @@ def main():
         "doador": "Sócio doador de campanha",
         "punida": "Empresa inidônea ou proibida",
         "punida_outro": "Punida por outro órgão",
-        "comissionado": "Comissionado com nome de sócio",
+        "comissionado": "Cargo de confiança com nome de sócio",
         "atividade": "Atividade não combina com o pagamento",
         "aditivo": "Contrato cresceu muito",
         "acima": "Licitação acima do orçado",

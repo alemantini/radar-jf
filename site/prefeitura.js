@@ -497,7 +497,7 @@ async function pgAlertas(tipo) {
   const anoEmp = Math.max(...A.anos);
   app.innerHTML = `
     <h1>Sinais de alerta nos gastos</h1>
-    <p class="sub">O Radar cruza dados públicos (empenhos da Prefeitura, cadastro de empresas da Receita, doações de campanha do TSE, cadastros de punidos da CGU, lista de comissionados e contratos publicados no Portal Nacional de Contratações Públicas) e aponta situações que merecem uma pergunta.</p>
+    <p class="sub">O Radar cruza dados públicos (empenhos da Prefeitura, cadastro de empresas da Receita, doações de campanha do TSE, cadastros de punidos da CGU, lista de cargos de confiança e contratos publicados no Portal Nacional de Contratações Públicas) e aponta situações que merecem uma pergunta.</p>
     <div class="aviso-forte"><b>Sinal não é prova.</b> Cada item abaixo pode ter explicação legal: emergência real, fornecedor único, contrato antigo, hospital conveniado. Ninguém aqui está sendo acusado de nada. Use os sinais para perguntar à Prefeitura, à Câmara ou ao Tribunal de Contas, sempre conferindo nos documentos oficiais.</div>
     <div class="chips-filtro">
       <a href="#/prefeitura/alertas" class="${!tipo ? "on" : ""}">Todos <b>${fmt(A.alertas.length)}</b></a>
@@ -524,7 +524,7 @@ async function pgAlertas(tipo) {
       <li><b>Sócio doador de campanha:</b> só para empresas (em associações e órgãos públicos, o cadastro lista dirigentes, não sócios). Sócio da empresa com o mesmo nome e os mesmos 6 dígitos do meio do CPF de um doador da eleição de 2024 em Juiz de Fora. O site não mostra o nome do sócio.</li>
       <li><b>Empresa inidônea ou proibida:</b> CNPJ no CEIS ou no CNEP (cadastros de punidos da Controladoria-Geral da União) com sanção que vale para toda a administração pública (inidoneidade ou proibição de contratar com o poder público), vigente enquanto recebia da Prefeitura.</li>
       <li><b>Punida por outro órgão:</b> sanções de impedimento ou suspensão aplicadas por outro órgão, vigentes no período. Em regra elas valem só para quem as aplicou, então não impedem o contrato com a Prefeitura; o sinal mostra histórico de problemas.</li>
-      <li><b>Comissionado com nome de sócio:</b> o nome completo (três palavras ou mais) de um cargo comissionado da Prefeitura é igual ao de um sócio ou dirigente de empresa ou entidade que recebe da Prefeitura, segundo a Receita Federal. A lista de comissionados não traz CPF, então pode ser outra pessoa com o mesmo nome. Servidor pode ser sócio de empresa, mas não pode contratar com o próprio órgão nem participar da escolha dela.</li>
+      <li><b>Cargo de confiança com nome de sócio:</b> o nome completo (três palavras ou mais) de um comissionado ou de um concursado em função de confiança da Prefeitura é igual ao de um sócio ou dirigente de empresa ou entidade que recebe da Prefeitura, segundo a Receita Federal. A lista de servidores não traz CPF, então pode ser outra pessoa com o mesmo nome. Servidor pode ser sócio de empresa, mas não pode contratar com o próprio órgão nem participar da escolha dela.</li>
       <li><b>Atividade não combina com o pagamento:</b> R$ 100 mil ou mais em empenhos de um tipo de serviço (mão de obra, obras, medicamentos, combustível, alimentos, transporte, informática ou cuidado de animais) para empresa ou entidade cuja atividade principal e secundárias na Receita não são desse ramo.</li>
       <li><b>Contrato cresceu muito:</b> contrato publicado pela Prefeitura no Portal Nacional de Contratações Públicas cujo valor global passou 25% do valor inicial (e pelo menos R$ 100 mil a mais). A lei limita acréscimos a 25% (50% em reforma), mas prorrogar serviço contínuo é permitido: confira os termos aditivos.</li>
       <li><b>Licitação acima do orçado:</b> pregão ou concorrência de R$ 500 mil ou mais homologado por valor maior que o estimado pela própria Prefeitura.</li>
@@ -550,7 +550,9 @@ async function pgComissionados(sigla) {
   if (!COMISS) COMISS = await fetch("dados/prefeitura/comissionados.json").then(r => r.ok ? r.json() : null).catch(() => null);
   const C = COMISS;
   if (!C) { app.innerHTML = "<h1>Cargos comissionados</h1><p>A lista ainda não foi publicada. Volte mais tarde.</p>"; return; }
-  const P = C.pessoas.map(([nome, cargo, lot, adm, sal, bruto]) => ({nome, cargo, lot, adm, sal, bruto}));
+  const TODOS = C.pessoas.map(([nome, cargo, lot, adm, sal, bruto, tipo, origem, fg]) => ({nome, cargo, lot, adm, sal, bruto, tipo: tipo || "c", origem: origem || "", fg: fg || 0}));
+  const nC = TODOS.filter(p => p.tipo === "c").length, nF = TODOS.filter(p => p.tipo === "f").length;
+  const P = TODOS;
   const nomeSec = s => C.siglas[s] ? `${C.siglas[s]} (${s})` : s;
   const grupos = {};
   P.forEach(p => (grupos[p.lot] = grupos[p.lot] || []).push(p));
@@ -561,14 +563,19 @@ async function pgComissionados(sigla) {
   const contaCargo = re => P.filter(p => re.test(p.cargo)).length;
 
   app.innerHTML = `
-    <h1>Cargos comissionados da Prefeitura</h1>
-    <p class="sub">Quem foi nomeado sem concurso para cargos de confiança: secretários, subsecretários, gerentes e assessores. Lista pronta, com dados de ${esc(C.competencia)}, separada por secretaria.</p>
+    <h1>Cargos de confiança da Prefeitura</h1>
+    <p class="sub">Quem a Prefeitura escolheu para secretarias, subsecretarias, gerências e assessorias, com dados de ${esc(C.competencia)}, separados por secretaria. São dois grupos:</p>
+    <ul class="metodo">
+      <li><b>Comissionados (${fmt(nC)}):</b> nomeados sem concurso. Saem da Prefeitura quando são exonerados.</li>
+      ${nF ? `<li><b>Concursados em função de confiança (${fmt(nF)}):</b> servidores de carreira que assumiram uma chefia. Quando saem da função, voltam ao cargo de origem.</li>` : ""}
+    </ul>
     <div class="faixa-nums">
-      <div><b>${fmt(P.length)}</b><span>comissionados</span></div>
-      <div><b>${reais(total)}</b><span>custo bruto no mês</span></div>
-      <div><b>${reais(total * 13.33)}</b><span>estimativa por ano (com 13º e férias)</span></div>
+      <div><b>${fmt(nC)}</b><span>comissionados</span></div>
+      ${nF ? `<div><b>${fmt(nF)}</b><span>concursados em função de confiança</span></div>` : ""}
+      <div><b>${reais(total)}</b><span>custo bruto no mês (os dois grupos)</span></div>
     </div>
-    <p class="sub">${fmt(contaCargo(/^SECRETARIO/))} secretários, ${fmt(contaCargo(/^SUBSECRETARIO/))} subsecretários, ${fmt(contaCargo(/^GERENTE/))} gerentes e ${fmt(contaCargo(/^ASSESSOR/))} assessores.</p>
+    <p class="sub">${fmt(contaCargo(/^SECRETARIO/))} secretários, ${fmt(contaCargo(/^SUBSECRETARIO/))} subsecretários, ${fmt(contaCargo(/^GERENTE/))} gerentes e ${fmt(contaCargo(/^ASSESSOR/))} assessores, somando os dois grupos.</p>
+    ${nF ? `<label class="sr" for="ct">Tipo</label><select id="ct"><option value="">Os dois grupos</option><option value="c">Só comissionados (sem concurso)</option><option value="f">Só concursados em função de confiança</option></select>` : ""}
     <label class="sr" for="cq">Buscar por nome ou cargo</label>
     <input type="search" id="cq" placeholder="Buscar por nome ou cargo">
     <label class="sr" for="cs">Secretaria</label>
@@ -576,8 +583,8 @@ async function pgComissionados(sigla) {
     <div id="clista"></div>
     <h2>Sobre esta lista</h2>
     <ul class="metodo">
-      <li><b>De onde vem:</b> Portal da Transparência da Prefeitura, servidores da administração direta com vínculo "Comissionado". O Radar baixou as planilhas por cargo (secretário, subsecretário, gerente, assessor e coordenador) e juntou tudo aqui.</li>
-      <li><b>O que pode faltar:</b> comissionados com outro nome de cargo, e os das autarquias e empresas (Cesama, Demlurb, AMAC, Funalfa, Emcasa, JFPrev), que têm folha separada. Servidores concursados que recebem gratificação por chefia não entram, porque o vínculo deles é efetivo.</li>
+      <li><b>De onde vem:</b> Portal da Transparência da Prefeitura, planilha com todos os servidores da administração direta no mês. Entram quem tem vínculo "Comissionado" e quem tem a coluna "Função" preenchida (concursados em função de confiança). Prefeita e vice-prefeito, que são eleitos, não entram.</li>
+      <li><b>O que fica de fora:</b> as autarquias e empresas (Cesama, Demlurb, AMAC, Funalfa, Emcasa, JFPrev), que têm folha separada, e servidores que recebem gratificação sem ocupar uma função de chefia listada.</li>
       <li><b>Salário do cargo</b> é o valor fixo. <b>Bruto no mês</b> inclui férias, gratificações e outras verbas daquele mês, por isso pode variar.</li>
       <li>A lista é atualizada à mão, porque o site da Prefeitura bloqueia o robô do Radar. Para conferir ou ver um mês mais novo, use a <a href="${FONTE_SERV}" target="_blank" rel="noopener">pesquisa oficial de servidores</a>.</li>
     </ul>
@@ -585,22 +592,23 @@ async function pgComissionados(sigla) {
 
   const desenha = () => {
     const q = $("cq").value.normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().trim();
-    const sel = $("cs").value;
+    const sel = $("cs").value, tp = $("ct") ? $("ct").value : "";
     const secs = ordem.filter(s => !sel || s === sel);
     let html = "";
     secs.forEach(s => {
-      const g = grupos[s].filter(p => !q || p.nome.includes(q) || p.cargo.includes(q) || cargoTx(p.cargo).toUpperCase().includes(q));
+      const g = grupos[s].filter(p => (!tp || p.tipo === tp) && (!q || p.nome.includes(q) || p.cargo.includes(q) || p.origem.includes(q) || cargoTx(p.cargo).toUpperCase().includes(q)));
       if (!g.length) return;
       const aberto = sel || q || secs.length === 1;
       html += `<details class="equipe"${aberto ? " open" : ""}>
-        <summary>${ic("predios")}<span class="tx"><b>${esc(nomeSec(s))}</b><small>${fmt(grupos[s].length)} comissionados, ${reais(soma(grupos[s]))} no mês</small><span class="mini-barra"><i style="width:${Math.max(3, grupos[s].length / maior * 100)}%"></i></span></span></summary>
+        <summary>${ic("predios")}<span class="tx"><b>${esc(nomeSec(s))}</b><small>${fmt(grupos[s].length)} ${grupos[s].length === 1 ? "pessoa" : "pessoas"}, ${reais(soma(grupos[s]))} no mês</small><span class="mini-barra"><i style="width:${Math.max(3, grupos[s].length / maior * 100)}%"></i></span></span></summary>
         <table class="tab-equipe"><thead><tr><th>Nome e cargo</th><th>Bruto no mês</th></tr></thead><tbody>
-        ${g.map(p => `<tr><td>${esc(nomeBonito(p.nome))}<small class="sub" style="display:block">${esc(cargoTx(p.cargo))}, desde ${esc(p.adm.slice(3))}</small></td><td title="Salário do cargo: ${reais(p.sal, false)}">${reais(p.bruto, false)}</td></tr>`).join("")}
+        ${g.map(p => `<tr><td>${esc(nomeBonito(p.nome))}<small class="sub" style="display:block">${esc(cargoTx(p.cargo))}${p.tipo === "f" ? ` <b class="tag-conc">concursado</b>, no quadro desde ${esc(p.adm.slice(3))} (cargo de origem: ${esc(p.origem)})` : `, comissionado desde ${esc(p.adm.slice(3))}`}</small></td><td title="Salário do cargo: ${reais(p.sal, false)}">${reais(p.bruto, false)}</td></tr>`).join("")}
         </tbody></table></details>`;
     });
     $("clista").innerHTML = html || '<p class="sub">Ninguém encontrado com essa busca.</p>';
   };
   let tm; $("cq").oninput = () => { clearTimeout(tm); tm = setTimeout(desenha, 200); };
+  if ($("ct")) $("ct").onchange = desenha;
   $("cs").onchange = () => { history.replaceState(null, "", "#/prefeitura/comissionados" + ($("cs").value ? "/" + $("cs").value : "")); desenha(); };
   desenha();
 }
