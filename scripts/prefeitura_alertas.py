@@ -410,6 +410,15 @@ def main():
     def recebido(c):
         v = por_cred.get(c) or {}
         return max(v.get("p", 0), v.get("e", 0))
+    SAUDE_SUS = re.compile(r"atendimento|atividade m[ée]dica|diagn[óo]s|laborat[óo]rios? cl[íi]nic|fisioterapia|odontol|hemoterapia|di[áa]lise|nefrolog", re.I)
+    def ramo(c):
+        x = cad.get(c) or {}
+        return {x.get("cnae") or ""} | set(x.get("cnaes2") or [])
+    def mesmo_ramo(a, b):
+        ca, cb = (cad.get(a) or {}).get("cnae") or "", (cad.get(b) or {}).get("cnae") or ""
+        if not ca or not cb or SAUDE_SUS.search(ca) or SAUDE_SUS.search(cb):
+            return False  # prestadores do SUS são credenciados, não disputam preço entre si
+        return ca in ramo(b) or cb in ramo(a)
     por_socio = defaultdict(set)
     for c, x in cad.items():
         if recebido(c) >= 50_000 and eh_emp(c):
@@ -424,13 +433,13 @@ def main():
                         pares[a].add(b)
     for c, outras in pares.items():
         comuns = [(o, set(sec_de[c]) & set(sec_de[o])) for o in outras]
-        comuns = [(o, ss) for o, ss in comuns if ss]
+        comuns = [(o, ss) for o, ss in comuns if ss and mesmo_ramo(c, o)]
         if not comuns:
             continue
         lista = "; ".join(f"{nomes.get(o) or o} (CNPJ {o[:2]}.{o[2:5]}.{o[5:8]}/{o[8:12]}-{o[12:]}, {brl(recebido(o))})" for o, _ in comuns[:4])
         secs = sorted({s for _, ss in comuns for s in ss})[:3]
         add("socio_comum", c, "Tem sócio em comum com outro fornecedor da mesma secretaria",
-            f"Pelo menos um sócio desta empresa também é sócio de: {lista}. As duas receberam da mesma unidade ({', '.join(secs)}). Ter sócio em comum não é ilegal; o ponto de atenção é se elas disputaram a mesma compra como se fossem concorrentes.",
+            f"Pelo menos um sócio desta empresa também é sócio de: {lista}. Atuam no mesmo ramo segundo a Receita e receberam da mesma unidade ({', '.join(secs)}). Ter sócio em comum não é ilegal; o ponto de atenção é se elas disputaram a mesma compra como se fossem concorrentes.",
             recebido(c), sec=secs[0])
 
     # 13. empresas diferentes no mesmo endereço (mesmo CEP, número e complemento), pagas pela mesma secretaria
@@ -443,7 +452,7 @@ def main():
         if len(raizes) < 2 or len(raizes) > 5:
             continue
         for c in cs:
-            outras = [o for o in cs if o[:8] != c[:8] and o not in pares.get(c, set()) and set(sec_de[c]) & set(sec_de[o])]
+            outras = [o for o in cs if o[:8] != c[:8] and o not in pares.get(c, set()) and set(sec_de[c]) & set(sec_de[o]) and mesmo_ramo(c, o)]
             if not outras:
                 continue
             x = cad[c]
@@ -451,7 +460,7 @@ def main():
             lista = "; ".join(f"{nomes.get(o) or o} ({brl(recebido(o))})" for o in outras[:4])
             secs = sorted({s for o in outras for s in set(sec_de[c]) & set(sec_de[o])})[:3]
             add("endereco", c, "Mesmo endereço de outro fornecedor da mesma secretaria",
-                f"No cadastro da Receita esta empresa fica em {ender}, o mesmo endereço de: {lista}. As duas receberam da mesma unidade ({', '.join(secs)}). Pode ser um prédio comercial ou um contador em comum; o ponto de atenção é se disputaram a mesma compra.",
+                f"No cadastro da Receita esta empresa fica em {ender}, o mesmo endereço de: {lista}. Atuam no mesmo ramo segundo a Receita e receberam da mesma unidade ({', '.join(secs)}). Pode ser um prédio comercial ou um contador em comum; o ponto de atenção é se disputaram a mesma compra.",
                 recebido(c), sec=secs[0])
 
     # 11. sinais do PNCP (contratos que cresceram, licitação acima do orçado ou sem desconto)
