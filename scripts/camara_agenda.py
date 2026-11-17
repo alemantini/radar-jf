@@ -1,7 +1,8 @@
 """Agenda de audiências públicas da Câmara de Juiz de Fora.
 
 Lê a página oficial https://www.camarajf.mg.gov.br/www/audiencias-publicas (que mostra só
-as audiências do mês corrente), guarda o histórico em data/cache/agenda.json e gera:
+as audiências do mês corrente) e a Ordem do Dia das reuniões (pauta do plenário, de hoje
+e dos próximos dias já publicados), guarda o histórico em data/cache/ e gera:
   - site/dados/agenda.json (lido pela página #/agenda);
   - site/agenda.ics (calendário para assinar no celular ou no Google Agenda).
 """
@@ -70,6 +71,90 @@ def coletar():
     return eventos
 
 
+SAL = "https://www.camarajf.mg.gov.br/sal/"
+CACHE_PAUTAS = RAIZ / "data" / "cache" / "pautas.json"
+ITEM = re.compile(
+    r"(?P<n>\d{1,3}) (?P<fase>[^:]{3,40}?) Proposição: (?P<prop>.*?) Processo: (?P<proc>\S+) Ementa: (?P<ementa>.*?)"
+    r" Autoria: (?P<autoria>.*?)(?: Quórum: (?P<quorum>.*?))?(?: Pareceres: (?P<pareceres>.*?))?(?: Observação: (?P<obs>.*?))?"
+    r"(?=Clique aqui| \d{1,3} [^:]{3,40}? Proposição:| Câmara Municipal de Juiz de Fora Rua|$)")
+TEMAS = [  # palavras na ementa que marcam o assunto (procuradas sem acento e em minúsculas)
+    ("Educação", r"escol|ensino|educa|pedagog|alun|estudant|creche|professor|cursinho|letiv|merenda"),
+    ("Saúde", r"saude|hospital|\bubs\b|medic|ozonio|\bsus\b|vacina|doenc|oncolog|paciente"),
+    ("Segurança", r"seguranca|policia|bandid|vigilancia|guarda municipal|depreda"),
+    ("Pessoas idosas", r"idos"),
+    ("Impostos e taxas", r"iptu|tribut|imposto|taxa\b"),
+    ("Trabalho", r"trabalhador|terceirizad|servidor"),
+    ("Homenagens", r"titulo de cidadao|cidadao benemerito|medalha|mocao|comenda|denomina(cao)? (de |a |o )?(rua|logradouro|via|praca|avenida|travessa|escola|unidade|ponte|viaduto|ginasio|quadra|centro|bairro)"),
+]
+
+
+def sem_acento(s):
+    import unicodedata
+    return "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn").lower()
+
+
+def ler(url):
+    r = requests.get(url, headers=H, timeout=60)
+    r.raise_for_status()
+    r.encoding = "iso-8859-1" if "charset=utf" not in r.headers.get("content-type", "").lower() else "utf-8"
+    t = r.text
+    if r.encoding == "iso-8859-1":
+        try:
+            t = r.content.decode("utf-8")
+        except UnicodeDecodeError:
+            pass
+    return t
+
+
+def pauta_do_dia(d):
+    """Reuniões do dia d e os itens da Ordem do Dia de cada uma."""
+    lista = ler(f"{SAL}listareuniao.php?diadata={d.day:02d}&mesdata={d.month:02d}&anodata={d.year}&btnprocura=Procurar")
+    reunioes = []
+    for cod, nome in re.findall(r'ordemdodia\.php\?cod=(\d+)[^>]*>(.*?)</a>', lista, flags=re.S):
+        nome = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", nome))).strip()
+        url = f"{SAL}ordemdodia.php?cod={cod}"
+        t = texto(ler(url))
+        itens = []
+        for m in ITEM.finditer(t):
+            ementa = m["ementa"].strip()
+            chave = sem_acento(ementa + " " + m["prop"])
+            temas = [n for n, rx in TEMAS if re.search(rx, chave)]
+            obs = (m["obs"] or "").strip(" .")
+            itens.append({
+                "n": int(m["n"]), "fase": m["fase"].strip(), "proposicao": m["prop"].strip(),
+                "ementa": ementa, "autoria": m["autoria"].strip(" ."), "quorum": (m["quorum"] or "").strip(" ."),
+                "obs": obs, "vista": obs.upper().startswith("VISTA"), "temas": temas,
+            })
+        sexta = d.weekday() == 4
+        reunioes.append({"data": d.isoformat(), "cod": cod, "nome": nome.replace(" reunião", " Reunião"),
+                         "hora": "10:30" if sexta else "17:30", "url": url, "itens": itens})
+    return reunioes
+
+
+def pautas():
+    """Pauta de hoje e dos próximos 6 dias (as que já foram publicadas), com histórico de 30 dias."""
+    hoje = dt.datetime.now(dt.timezone(dt.timedelta(hours=-3))).date()
+    guardadas = {(p["data"], p["cod"]): p for p in json.loads(CACHE_PAUTAS.read_text(encoding="utf-8"))} if CACHE_PAUTAS.exists() else {}
+    novas = 0
+    for i in range(7):
+        d = hoje + dt.timedelta(days=i)
+        if d.weekday() >= 5:
+            continue
+        try:
+            for p in pauta_do_dia(d):
+                if p["itens"] or (p["data"], p["cod"]) not in guardadas:
+                    guardadas[(p["data"], p["cod"])] = p
+                    novas += 1
+        except Exception as e:  # a Câmara às vezes fica fora do ar; mantém o que já tinha
+            print("pauta", d, "falhou:", e)
+    limite = (hoje - dt.timedelta(days=30)).isoformat()
+    lista = sorted((p for p in guardadas.values() if p["data"] >= limite), key=lambda p: (p["data"], p["cod"]))
+    CACHE_PAUTAS.parent.mkdir(parents=True, exist_ok=True)
+    CACHE_PAUTAS.write_text(json.dumps(lista, ensure_ascii=False, indent=0), encoding="utf-8")
+    print(f"Pautas: {novas} reuniões lidas agora, {len(lista)} guardadas")
+    return lista
+
+
 def ics(eventos):
     agora = dt.datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
 
@@ -110,7 +195,12 @@ def ics(eventos):
 
 def main():
     guardados = {e["id"]: e for e in json.loads(CACHE.read_text(encoding="utf-8"))} if CACHE.exists() else {}
-    novos = coletar()
+    try:
+        novos = coletar()
+    except Exception as e:
+        print("audiências falhou:", e)
+        novos = []
+    lista_pautas = pautas()
     for e in novos:
         guardados[e["id"]] = e
     eventos = sorted(guardados.values(), key=lambda e: (e["data"], e["hora"]))
@@ -120,6 +210,7 @@ def main():
     SAIDA.write_text(json.dumps({
         "atualizado": dt.datetime.now().strftime("%Y-%m-%d %H:%M"),
         "eventos": eventos,
+        "pautas": lista_pautas,
         "ordinarias": "Reuniões ordinárias de segunda a quinta às 17h30 e às sextas às 10h30, fora dos recessos (17 a 31 de janeiro e 16 de julho a 15 de agosto).",
         "fontes": [FONTE, "https://www.camarajf.mg.gov.br/www/agenda-de-reunioes"],
     }, ensure_ascii=False), encoding="utf-8")

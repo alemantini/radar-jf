@@ -199,6 +199,23 @@ function painelCobrar(r, ps) {
 }
 
 let _relogio = null;
+// faixa "Hoje no plenário" (Câmara e página inicial)
+async function faixaHoje(alvo) {
+  const A = await fetch("dados/agenda.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  const el = document.getElementById(alvo);
+  if (!A || !el) return;
+  const hoje = new Date().toLocaleDateString("sv-SE", {timeZone: "America/Sao_Paulo"});
+  const ps = (A.pautas || []).filter(p => p.data >= hoje);
+  if (!ps.length) return;
+  const d = ps[0].data, doDia = ps.filter(p => p.data === d), itens = doDia.flatMap(p => p.itens);
+  const [y, m, dd] = d.split("-").map(Number);
+  const quando = d === hoje ? "Hoje" : ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"][new Date(y, m - 1, dd).getDay()] + ", " + dd + "/" + String(m).padStart(2, "0");
+  const conta = {};
+  itens.forEach(i => i.temas.forEach(t => { if (t !== "Homenagens") conta[t] = (conta[t] || 0) + 1; }));
+  const tops = Object.entries(conta).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([t, n]) => `${n} sobre ${t.toLowerCase()}`);
+  el.innerHTML = `<a class="faixa-hoje" href="#/agenda">${ic("agenda")}<span><b>${quando} no plenário, às ${esc(doDia[0].hora.replace(":", "h"))}</b>
+    <small>${itens.length ? `${itens.length} ${itens.length === 1 ? "item" : "itens"} na pauta${tops.length ? ", " + tops.join(", ") : ""}. Ver a pauta` : "Pauta ainda não publicada. Ver a agenda"}</small></span></a>`;
+}
 function pgInicio() {
   const R = RESUMO, t = R.totais;
   const atuais = R.vereadores.filter(v => !v.fora_da_lista);
@@ -218,6 +235,7 @@ function pgInicio() {
       <a href="#/grupo/leis"><b>${fmt(t.leis)}</b>propostas de lei</a>
     </div>
     <p class="sub">Última conferência na Câmara: ${esc(R.atualizado || "")}. O robô volta lá três vezes por dia.</p>
+    <div id="hoje-camara"></div>
 
     <h2>O que pediram para o seu bairro?</h2>
     <form class="busca-rapida" onsubmit="event.preventDefault(); location.hash='#/busca/'+encodeURIComponent(this.q.value.trim())">
@@ -466,6 +484,7 @@ function pgEscolha() {
     </div>
       <h1 class="hero-t">Veja o que os vereadores e a prefeita de Juiz de Fora fazem com o <span>seu dinheiro</span></h1>
       <p class="hero-sub">Raio-X de Juiz de Fora-MG. Cada proposta, cada gasto e cada salário, contados todo dia, só com dados oficiais.</p>
+      <div id="hoje-camara"></div>
       <label class="hero-sel"><span class="sr">Escolha um vereador</span>
         <select id="esc-ver"><option value="">Escolha um vereador</option>${atuais.map(v => `<option value="${v.id}">${esc(v.apelido)} (${esc(v.partido || "")})</option>`).join("")}</select></label>
       <form class="hero-busca" id="hero-busca"><label class="sr" for="hb">Pesquisar meu bairro</label><input id="hb" placeholder="Ou digite o seu bairro ou rua" autocomplete="off"><button type="submit">Buscar</button></form>
@@ -520,6 +539,7 @@ async function rota() {
     else if (pag === "prefeitura" && window.rotaPrefeitura) await rotaPrefeitura(partes.slice(1));
     else pgEscolha();
     botaoZap(pag, partes);
+    if (document.getElementById("hoje-camara")) faixaHoje("hoje-camara");
   } catch (e) {
     app.innerHTML = `<p>Não foi possível carregar os dados agora. Tente de novo em instantes.</p>`;
     console.error(e);
@@ -551,8 +571,30 @@ async function pgAgenda() {
         ${futuro ? `<div class="ag-bt"><a href="${gcal(e)}" target="_blank" rel="noopener">Adicionar à minha agenda</a></div>` : ""}
       </div></div>`;
   };
+  // ----- pauta do plenário (Ordem do Dia) -----
+  const PS = (A && A.pautas) || [];
+  const proxP = PS.filter(p => p.data >= hoje);
+  const diaP = proxP.length ? proxP[0].data : null;
+  const doDia = PS.filter(p => p.data === diaP);
+  const quando = d => { if (d === hoje) return "Hoje"; const [y, m, dd] = d.split("-").map(Number); return `${DIAS[new Date(y, m - 1, dd).getDay()].replace(/^./, c => c.toUpperCase())}, ${dd} de ${MESES[m - 1]}`; };
+  const FASE = {"Veto Total": "A Prefeitura vetou o projeto inteiro. O plenário decide se mantém ou derruba o veto.", "Veto Parcial": "A Prefeitura vetou parte do projeto. O plenário decide se mantém ou derruba o veto."};
+  const temasP = [...new Set(doDia.flatMap(p => p.itens.flatMap(i => i.temas)))];
+  const itemP = i => `<div class="pt-item" data-temas="${esc(i.temas.join("|"))}">
+      <div class="pt-n">${i.n}</div>
+      <div class="ag-tx"><small class="sub">${esc(i.fase)} · ${esc(i.proposicao)}${i.temas.length ? " · " + i.temas.map(esc).join(", ") : ""}</small>
+        <p>${esc(i.ementa)}</p>
+        <small class="sub">Autoria: ${esc(i.autoria)}${i.vista ? " · Já teve pedido de vista, pode ser adiado de novo" : ""}</small>
+        ${FASE[i.fase] ? `<small class="sub pt-exp">${FASE[i.fase]}</small>` : ""}</div></div>`;
+  const blocoPauta = doDia.length ? `<section class="pauta" id="pauta">
+      <h2>${quando(diaP)} no plenário</h2>
+      ${doDia.map(p => `<p class="pt-cab"><b>${esc(p.nome)}</b>, às ${esc(p.hora.replace(":", "h"))} (horário habitual). ${p.itens.length ? `${p.itens.length} ${p.itens.length === 1 ? "item" : "itens"} na Ordem do Dia.` : "A Ordem do Dia ainda não foi publicada."} <a href="${esc(p.url)}" target="_blank" rel="noopener">Ver a pauta oficial</a>.</p>`).join("")}
+      ${temasP.length ? `<div class="chips pt-filtro"><a href="javascript:void 0" data-t="" class="on">Todos</a>${temasP.map(t => `<a href="javascript:void 0" data-t="${esc(t)}">${esc(t)}</a>`).join("")}</div>` : ""}
+      ${doDia.flatMap(p => p.itens).map(itemP).join("")}
+      <p class="sub">A pauta é anunciada pela Câmara e pode mudar no dia, nos termos do Regimento. Os assuntos (Educação, Saúde etc.) são marcados pelo Radar a partir do texto da ementa.</p>
+    </section>` : "";
   app.innerHTML = `${SELO.camara()}
     <h1>Agenda da Câmara</h1>
+    ${blocoPauta}
     <p class="sub">Audiências públicas abertas à população, com data, hora e tema. Você pode ir ao plenário ou mandar perguntas pelo WhatsApp da Câmara, <b>(32) 99183-0706</b>, até 30 minutos depois do início. A transmissão é ao vivo pela JFTV (canal 35.1) e pelo YouTube da Câmara.</p>
     <div class="botoes-ag"><a class="btn-ag" href="webcal://jflandia.com.br/agenda.ics">${ic("agenda")} Assinar a agenda no celular</a><a class="btn-ag sec" href="https://calendar.google.com/calendar/r?cid=${encodeURIComponent("webcal://jflandia.com.br/agenda.ics")}" target="_blank" rel="noopener">Assinar no Google Agenda</a></div>
     <h2>Próximas audiências</h2>
@@ -560,8 +602,12 @@ async function pgAgenda() {
     <h2>Reuniões ordinárias</h2>
     <p>${esc((A && A.ordinarias) || "Reuniões ordinárias de segunda a quinta às 17h30 e às sextas às 10h30.")} Veja o <a href="https://www.camarajf.mg.gov.br/www/agenda-de-reunioes" target="_blank" rel="noopener">calendário oficial</a>.</p>
     ${passados.length ? `<h2>Audiências que já aconteceram</h2>${passados.slice(0, 20).map(e => card(e, false)).join("")}<p class="sub">As atas ficam na <a href="https://www.camarajf.mg.gov.br/sal/buscaratas.php" target="_blank" rel="noopener">busca de atas da Câmara</a>.</p>` : ""}
-    <p class="sub fonte-linha">Fonte: <a href="https://www.camarajf.mg.gov.br/www/audiencias-publicas" target="_blank" rel="noopener">página de audiências públicas da Câmara Municipal</a>${A ? `, conferida em ${esc(A.atualizado.split(" ")[0].split("-").reverse().join("/"))}` : ""}. O Radar guarda o histórico a partir de outubro de 2026.</p>`;
-}
+    <p class="sub fonte-linha">Fontes: <a href="https://www.camarajf.mg.gov.br/sal/buscarreuniao.php" target="_blank" rel="noopener">Ordem do Dia</a> e <a href="https://www.camarajf.mg.gov.br/www/audiencias-publicas" target="_blank" rel="noopener">página de audiências públicas da Câmara Municipal</a>${A ? `, conferida em ${esc(A.atualizado.split(" ")[0].split("-").reverse().join("/"))}` : ""}. O Radar guarda o histórico a partir de outubro de 2026.</p>`;
+
+  app.querySelectorAll(".pt-filtro a").forEach(a => a.onclick = () => {
+    app.querySelectorAll(".pt-filtro a").forEach(b => b.classList.toggle("on", b === a));
+    app.querySelectorAll(".pt-item").forEach(it => it.hidden = !!a.dataset.t && !it.dataset.temas.split("|").includes(a.dataset.t));
+  });}
 
 // botão flutuante para compartilhar a página atual no WhatsApp
 function botaoZap(pag, partes) {
