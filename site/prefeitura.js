@@ -508,6 +508,7 @@ async function pgAlertas(tipo) {
         <small class="sub">CNPJ ${cnpjFmt(a.cnpj)}${a.secretaria ? ` · ${esc(secNome(a.secretaria))}` : ""}</small>
         <p>${esc(a.detalhe)}</p>
         ${a.refs.length ? `<small class="sub">Empenhos: ${a.refs.map(esc).join(", ")}</small>` : ""}
+        ${a.link ? `<small class="sub"><a href="${esc(a.link)}" target="_blank" rel="noopener">Ver no Portal Nacional de Contratações Públicas</a></small>` : ""}
       </div>`).join("") || '<p class="sub">Nenhum sinal deste tipo.</p>'}
     <h2>Como cada sinal é calculado</h2>
     <ul class="metodo">
@@ -523,6 +524,9 @@ async function pgAlertas(tipo) {
       <li><b>Punida por outro órgão:</b> sanções de impedimento ou suspensão aplicadas por outro órgão, vigentes no período. Em regra elas valem só para quem as aplicou, então não impedem o contrato com a Prefeitura; o sinal mostra histórico de problemas.</li>
       <li><b>Comissionado com nome de sócio:</b> o nome completo (três palavras ou mais) de um cargo comissionado da Prefeitura é igual ao de um sócio ou dirigente de empresa ou entidade que recebe da Prefeitura, segundo a Receita Federal. A lista de comissionados não traz CPF, então pode ser outra pessoa com o mesmo nome. Servidor pode ser sócio de empresa, mas não pode contratar com o próprio órgão nem participar da escolha dela.</li>
       <li><b>Atividade não combina com o pagamento:</b> R$ 100 mil ou mais em empenhos de um tipo de serviço (mão de obra, obras, medicamentos, combustível, alimentos, transporte, informática ou cuidado de animais) para empresa ou entidade cuja atividade principal e secundárias na Receita não são desse ramo.</li>
+      <li><b>Contrato cresceu muito:</b> contrato publicado pela Prefeitura no Portal Nacional de Contratações Públicas cujo valor global passou 25% do valor inicial (e pelo menos R$ 100 mil a mais). A lei limita acréscimos a 25% (50% em reforma), mas prorrogar serviço contínuo é permitido: confira os termos aditivos.</li>
+      <li><b>Licitação acima do orçado:</b> pregão ou concorrência de R$ 500 mil ou mais homologado por valor maior que o estimado pela própria Prefeitura.</li>
+      <li><b>Licitação sem desconto:</b> pregão ou concorrência de R$ 1 milhão ou mais homologado com desconto menor que 1% sobre o orçado, o que costuma indicar pouca disputa. Aparece a empresa que mais ganhou itens da licitação.</li>
     </ul>
     <p class="sub fonte-linha">Atualizado em ${esc(A.coletado_em)}. Fontes: ${A.fontes.map(esc).join("; ")}. Os gastos da Prefeitura estão na última versão que o Radar conseguiu baixar. Achou um sinal errado? <a href="mailto:radarjflandia@gmail.com?subject=Sinal%20de%20alerta%20errado">Avise pelo e-mail radarjflandia@gmail.com</a> que a gente corrige.</p>`;
 }

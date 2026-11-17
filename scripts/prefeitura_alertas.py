@@ -394,6 +394,13 @@ def main():
                 f"Recebeu {brl(v)} em empenhos de {nome_cat} (exemplo: \"{ex[0].title()}\"), mas a atividade principal registrada na Receita é \"{x.get('cnae') or 'não informada'}\" e nenhuma atividade secundária é desse ramo. Pode haver explicação, mas vale perguntar como a empresa foi escolhida.",
                 v)
 
+    # 11. sinais do PNCP (contratos que cresceram, licitação acima do orçado ou sem desconto)
+    fp = DADOS / "pncp_sinais.json"
+    if fp.exists():
+        for a in json.loads(fp.read_text(encoding="utf-8")).get("sinais", []):
+            a["nome"] = nomes.get(a["cnpj"]) or a.get("nome") or ""
+            alertas.append(a)
+
     # fracionamento só faz sentido para empresas (associações e órgãos recebem repasses parcelados)
     def empresa(c):
         return bool(re.search(r"empres[áa]ri|limitada|an[ôo]nima|eireli|individual", (cad.get(c) or {}).get("natureza") or "", re.I))
@@ -412,6 +419,9 @@ def main():
         "punida_outro": "Punida por outro órgão",
         "comissionado": "Comissionado com nome de sócio",
         "atividade": "Atividade não combina com o pagamento",
+        "aditivo": "Contrato cresceu muito",
+        "acima": "Licitação acima do orçado",
+        "desconto": "Licitação sem desconto",
     }
     alertas.sort(key=lambda a: -a["valor"])
     res = {"coletado_em": dt.datetime.now().strftime("%Y-%m-%d %H:%M"), "anos": list(ANOS),
@@ -419,7 +429,8 @@ def main():
            "fontes": ["Portal da Transparência da Prefeitura de Juiz de Fora (empenhos)",
                       "Receita Federal (cadastro de CNPJ, via minhareceita.org)",
                       "Tribunal Superior Eleitoral (doações de 2024)",
-                      "Controladoria-Geral da União (CEIS e CNEP)"],
+                      "Controladoria-Geral da União (CEIS e CNEP)",
+                      "Portal Nacional de Contratações Públicas (PNCP)"],
            "alertas": alertas}
     SAIDA.write_text(json.dumps(res, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print("Alertas:", res["contagem"])
