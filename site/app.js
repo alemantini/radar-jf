@@ -586,13 +586,15 @@ async function pgAgenda() {
         <small class="sub">Autoria: ${esc(i.autoria)}${i.vista ? " · Já teve pedido de vista, pode ser adiado de novo" : ""}</small>
         ${FASE[i.fase] ? `<small class="sub pt-exp">${FASE[i.fase]}</small>` : ""}</div></div>`;
   const blocoPauta = doDia.length ? `<section class="pauta" id="pauta">
-      <h2>${quando(diaP)} no plenário</h2>
-      ${doDia.map(p => `<p class="pt-cab"><b>${esc(p.nome)}</b>, às ${esc(p.hora.replace(":", "h"))} (horário habitual). ${p.itens.length ? `${p.itens.length} ${p.itens.length === 1 ? "item" : "itens"} na Ordem do Dia.` : "A Ordem do Dia ainda não foi publicada."} <a href="${esc(p.url)}" target="_blank" rel="noopener">Ver a pauta oficial</a>.</p>`).join("")}
+      ${doDia.map(p => { const [y, m, dd] = p.data.split("-").map(Number); return `<div class="pt-topo">
+        <div class="ag-data"><b>${dd}</b><span>${MESES[m - 1]}</span><small>${p.data === hoje ? "hoje" : DIAS[new Date(y, m - 1, dd).getDay()]}</small></div>
+        <div><h2>${quando(p.data)} no plenário, às ${esc(p.hora.replace(":", "h"))}</h2>
+          <p class="sub">${esc(p.nome)}. ${p.itens.length ? `${p.itens.length} ${p.itens.length === 1 ? "item" : "itens"} na Ordem do Dia.` : "A Ordem do Dia ainda não foi publicada."} <a href="${esc(p.url)}" target="_blank" rel="noopener">Ver a pauta oficial</a></p></div></div>`; }).join("")}
       ${temasP.length ? `<div class="chips pt-filtro"><a href="javascript:void 0" data-t="" class="on">Todos</a>${temasP.map(t => `<a href="javascript:void 0" data-t="${esc(t)}">${esc(t)}</a>`).join("")}</div>` : ""}
       ${doDia.flatMap(p => p.itens).map(itemP).join("")}
       <p class="sub">A pauta é anunciada pela Câmara e pode mudar no dia, nos termos do Regimento. Os assuntos (Educação, Saúde etc.) são marcados pelo Radar a partir do texto da ementa.</p>
     </section>` : "";
-  app.innerHTML = `${SELO.camara()}
+  app.innerHTML = `
     <h1>Agenda da Câmara</h1>
     ${blocoPauta}
     <p class="sub">Audiências públicas abertas à população, com data, hora e tema. Você pode ir ao plenário ou mandar perguntas pelo WhatsApp da Câmara, <b>(32) 99183-0706</b>, até 30 minutos depois do início. A transmissão é ao vivo pela JFTV (canal 35.1) e pelo YouTube da Câmara.</p>
