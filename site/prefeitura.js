@@ -692,19 +692,20 @@ async function pgSupersalarios() {
         <div class="ac-topo"><span class="ac-tipo">Acima do teto em ${r2(exc)}</span><span class="ac-valor">${r2(suj)}</span></div>
         <b class="ac-nome">${esc(nomeBonito(nome))}</b>
         <small class="sub">${esc(posto(cargo, func))} · ${esc(vinc.toLowerCase())} · ${esc(nomeSec(lot))}</small>
-        <p>Parcelas que contam para o teto: cargo ${r2(ce)}${perm ? `, verbas permanentes ${r2(perm)}` : ""}${fg ? `, função gratificada ${r2(fg)}` : ""}${hon ? `, honorários ${r2(hon)}` : ""}${ret ? `, menos ${r2(ret)} já cortados pelo abate-teto` : ""}. Total de ${r2(suj)}, contra um teto de ${r2(lim)}. O bruto do mês, com férias, 13º e outras verbas, foi ${r2(bruto)}.</p>
+        <p>Pela conta mais conservadora, recebeu pelo menos ${r2(suj)} em parcelas que contam para o teto, contra um limite de ${r2(lim)}. Na planilha aparecem: cargo ${r2(ce)}${perm ? `, verbas permanentes ${r2(perm)}` : ""}${fg ? `, função gratificada ${r2(fg)}` : ""}${hon ? `, honorários ${r2(hon)}` : ""}${ret ? `, e ${r2(ret)} já cortados pelo abate-teto` : ""}. Bruto do mês: ${r2(bruto)}.</p>
       </div>`; }).join("") || '<p class="sub">Ninguém passou do teto pela conta do Radar neste mês.</p>'}
     <p class="sub">Pode haver explicação que a planilha não mostra, como decisão judicial, pagamento atrasado lançado no mês ou regra específica da carreira. É uma pergunta a fazer à Prefeitura, não uma acusação.</p>
     <h2>Os 50 maiores salários brutos do mês</h2>
     <p class="sub">O bruto inclui férias, 13º, abono e pagamentos atrasados, que não contam para o teto. Por isso alguém pode aparecer aqui com bruto alto e estar dentro da lei.</p>
     <table class="tab-equipe"><thead><tr><th>Nome e cargo</th><th>Bruto no mês</th></tr></thead><tbody>
-    ${S.maiores.map(([nome, cargo, func, vinc, lot, bruto, suj, liq]) => `<tr><td>${esc(nomeBonito(nome))}<small class="sub" style="display:block">${esc(posto(cargo, func))} · ${esc(lot)}. Conta para o teto: ${r2(suj)}. Líquido: ${r2(liq)}</small></td><td>${r2(bruto)}</td></tr>`).join("")}
+    ${S.maiores.map(([nome, cargo, func, vinc, lot, bruto, suj, liq]) => `<tr><td>${esc(nomeBonito(nome))}<small class="sub" style="display:block">${esc(posto(cargo, func))} · ${esc(lot)}. Líquido: ${r2(liq)}</small></td><td>${r2(bruto)}</td></tr>`).join("")}
     </tbody></table>
     <h2>Como a conta é feita</h2>
     <ul class="metodo">
       <li><b>Teto:</b> o salário da prefeita, ${r2(S.teto)}, que vem da mesma planilha. Para procuradores municipais, o STF fixou o limite em 90,25% do salário de ministro do Supremo (${r2(S.stf)}), ou seja, ${r2(S.teto_procurador)}.</li>
       <li><b>Contam para o teto:</b> salário do cargo, verbas permanentes, função gratificada e honorários (o STF reafirmou em 2026 que honorários dos procuradores entram no teto). O valor que a Prefeitura já cortou pelo abate-teto é descontado.</li>
       <li><b>Não contam:</b> 13º, férias, abono de permanência, verbas temporárias e indenizações.</li>
+      <li><b>Conta conservadora:</b> na planilha da Prefeitura as parcelas nem sempre somam o bruto. Por isso o Radar usa o menor valor entre a soma das parcelas que contam para o teto e o bruto sem 13º, férias, abono e verbas temporárias. Assim só aparece quem passou do teto pelas duas contas.</li>
       <li>Cada linha da planilha é uma matrícula. Quem tem dois cargos que a lei permite acumular aparece duas vezes, e o teto vale para cada cargo separadamente.</li>
       <li>Ficam de fora as autarquias e empresas (Cesama, Demlurb, AMAC, Funalfa, Emcasa, JFPrev), que têm folha própria. Prefeita e vice não entram na lista.</li>
       <li>Salário de servidor é informação pública por lei (Lei de Acesso à Informação e decisão do STF). O Radar mostra exatamente o que a Prefeitura publica.</li>

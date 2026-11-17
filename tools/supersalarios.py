@@ -9,7 +9,9 @@ Regras (art. 37, XI, da Constituição):
   - entram no teto: cargo/emprego, outras verbas permanentes, função gratificada e honorários
     (o STF reafirmou em 2026 que honorários da advocacia pública se sujeitam ao teto);
   - ficam fora: 13º, férias, abono de permanência, verbas temporárias e indenizações;
-  - a "retenção por teto" que a Prefeitura já descontou é abatida.
+  - a "retenção por teto" que a Prefeitura já descontou é abatida;
+  - como as parcelas da planilha nem sempre somam o bruto, usa-se o menor valor entre a soma
+    das parcelas permanentes e o bruto sem 13º, férias, abono e verbas temporárias.
 Cada linha da planilha é uma matrícula; em acumulação lícita o teto vale para cada vínculo.
 """
 import csv
@@ -43,6 +45,10 @@ def main(arq):
         perm = sum(partes.values())
         ret = valor(r["Retenção por Teto Constitucional(R$)"])
         bruto = valor(r["Total Bruto(R$)"])
+        fora = sum(valor(r[k + "(R$)"]) for k in ("Décimo Terceiro", "Férias", "Abono Permanência", "Outras Verbas de Natureza Temporária"))
+        # As parcelas da planilha nem sempre somam o bruto (em boa parte das linhas não batem).
+        # Conta conservadora: o menor entre a soma das parcelas permanentes e o bruto sem 13º, férias, abono e temporárias.
+        perm = min(perm, max(bruto - fora, 0))
         if ret > 0:
             com_ret += 1
         lim = TETO_PROCURADOR if cargo.startswith("PROCURADOR MUNICIPAL") else teto
@@ -52,7 +58,7 @@ def main(arq):
             acima.append(base + [round(partes["Cargo/Emprego"], 2), round(partes["Outras Verbas de Natureza Permanente"], 2),
                                  round(partes["Função Gratificada"], 2), round(partes["Honorários"], 2), round(ret, 2),
                                  round(perm - ret, 2), lim, round(perm - ret - lim, 2), round(bruto, 2)])
-        maiores.append(base + [round(bruto, 2), round(perm - ret, 2), round(valor(r["Remuneração Líquida(R$)"]), 2)])
+        maiores.append(base + [round(bruto, 2), round(max(perm - ret, 0), 2), round(valor(r["Remuneração Líquida(R$)"]), 2)])
     acima.sort(key=lambda x: -x[-2])
     maiores.sort(key=lambda x: -x[5])
     out = {
