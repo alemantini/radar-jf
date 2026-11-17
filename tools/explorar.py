@@ -11,7 +11,7 @@ def get(u, **p):
             print("status", r.status_code, u); time.sleep(3)
         except Exception as e:
             print("erro", e); time.sleep(3)
-d = get("https://pncp.gov.br/api/consulta/v1/contratos", dataInicial="20250101", dataFinal="20261116", cnpjOrgao=CNPJ, pagina=1, tamanhoPagina=50)
+d = get("https://pncp.gov.br/api/consulta/v1/contratos", dataInicial="20250101", dataFinal="20251231", cnpjOrgao=CNPJ, pagina=1, tamanhoPagina=50)
 print("total contratos 2025-26:", d["totalRegistros"])
 print("CHAVES contrato:", sorted(d["data"][0].keys()))
 k = d["data"][0]; print({x: k.get(x) for x in k if "valor" in x.lower() or "data" in x.lower() or "tipo" in x.lower()})
