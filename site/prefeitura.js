@@ -495,7 +495,7 @@ async function pgAlertas(tipo) {
   const anoEmp = Math.max(...A.anos);
   app.innerHTML = `
     <h1>Sinais de alerta nos gastos</h1>
-    <p class="sub">O Radar cruza dados públicos (empenhos da Prefeitura, cadastro de empresas da Receita, doações de campanha do TSE e cadastros de punidos da CGU) e aponta situações que merecem uma pergunta.</p>
+    <p class="sub">O Radar cruza dados públicos (empenhos da Prefeitura, cadastro de empresas da Receita, doações de campanha do TSE, cadastros de punidos da CGU, lista de comissionados e contratos publicados no Portal Nacional de Contratações Públicas) e aponta situações que merecem uma pergunta.</p>
     <div class="aviso-forte"><b>Sinal não é prova.</b> Cada item abaixo pode ter explicação legal: emergência real, fornecedor único, contrato antigo, hospital conveniado. Ninguém aqui está sendo acusado de nada. Use os sinais para perguntar à Prefeitura, à Câmara ou ao Tribunal de Contas, sempre conferindo nos documentos oficiais.</div>
     <div class="chips-filtro">
       <a href="#/prefeitura/alertas" class="${!tipo ? "on" : ""}">Todos <b>${fmt(A.alertas.length)}</b></a>
