@@ -212,9 +212,9 @@ async function faixaHoje(alvo) {
   const quando = d === hoje ? "Hoje" : ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"][new Date(y, m - 1, dd).getDay()] + ", " + dd + "/" + String(m).padStart(2, "0");
   const conta = {};
   itens.forEach(i => i.temas.forEach(t => { if (t !== "Homenagens") conta[t] = (conta[t] || 0) + 1; }));
-  const tops = Object.entries(conta).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([t, n]) => `${n} sobre ${t.toLowerCase()}`);
+  const tops = Object.entries(conta).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([t, n]) => `${n} sobre ${t.toLowerCase()}`);
   el.innerHTML = `<a class="faixa-hoje" href="#/agenda">${ic("agenda")}<span><b>${quando} no plenário, às ${esc(doDia[0].hora.replace(":", "h"))}</b>
-    <small>${itens.length ? `${itens.length} ${itens.length === 1 ? "item" : "itens"} na pauta${tops.length ? ", " + tops.join(", ") : ""}. Ver a pauta` : "Pauta ainda não publicada. Ver a agenda"}</small></span></a>`;
+    <small>${itens.length ? `${itens.length} ${itens.length === 1 ? "item" : "itens"}${tops.length ? ", " + tops.join(" e ") : ""}` : "Pauta ainda não publicada"}</small></span><span class="fh-seta" aria-hidden="true">›</span></a>`;
 }
 function pgInicio() {
   const R = RESUMO, t = R.totais;
