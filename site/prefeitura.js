@@ -721,7 +721,7 @@ async function pgSupersalarios() {
       <li><b>Como conferir:</b> no Portal da Transparência da Prefeitura, em Servidores, escolha o órgão PJF e a competência, pesquise sem preencher nada e baixe o CSV. A coluna "Retenção por Teto Constitucional" mostra o abate-teto de cada servidor. Qualquer pessoa chega aos mesmos números.</li>
       <li><b>Bruto, líquido e corte:</b> bruto é tudo o que foi pago no mês antes dos descontos; líquido é o que caiu na conta depois de previdência, imposto de renda e abate-teto.</li>
       <li>Os valores são de um mês só. Um mês com férias, 13º ou atrasados pode ficar bem acima dos outros.</li>
-      <li>Salário de servidor é informação pública por lei (Lei de Acesso à Informação e decisão do STF). O Radar mostra exatamente o que a Prefeitura publica.</li>
+      <li><b>Salário de servidor é informação pública por lei (Lei de Acesso à Informação e decisão do STF). O Radar mostra exatamente o que a Prefeitura publica.</b></li>
     </ul>
     <p class="sub fonte-linha">Competência ${esc(S.competencia)}, baixado em ${esc(S.baixado_em.split("-").reverse().join("/"))}. Fonte: ${esc(S.fonte)}. Confira na <a href="${FONTE_SERV}" target="_blank" rel="noopener">pesquisa oficial de servidores</a>.</p>`;
 }
