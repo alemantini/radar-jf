@@ -16,6 +16,7 @@ Saída: site/dados/prefeitura/pncp_sinais.json (lido por prefeitura_alertas.py).
 import datetime as dt
 import json
 import time
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import requests
@@ -23,7 +24,7 @@ import requests
 RAIZ = Path(__file__).resolve().parent.parent
 SAIDA = RAIZ / "site" / "dados" / "prefeitura" / "pncp_sinais.json"
 CACHE = RAIZ / "data" / "cache" / "pncp_vencedores.json"
-TEMPO = 900  # segundos no máximo por execução buscando vencedores novos
+TEMPO = 420  # segundos no máximo por execução buscando vencedores novos
 CNPJ = "18338178000102"
 H = {"User-Agent": "RadarJF/1.0 (robo de transparencia)"}
 API = "https://pncp.gov.br/api"
@@ -38,7 +39,7 @@ def get(url, **p):
         except requests.RequestException:
             time.sleep(5)
             continue
-        if r.status_code == 204:
+        if r.status_code in (204, 404):
             return None
         if r.status_code == 200:
             return r.json()
@@ -83,13 +84,17 @@ def vencedor(c):
     if time.time() - INICIO > TEMPO:
         return "", "", 0
     tot = {}
-    for it in (get(f"{API}/pncp/v1/orgaos/{CNPJ}/compras/{c['anoCompra']}/{c['sequencialCompra']}/itens", pagina=1, tamanhoPagina=30) or [])[:30]:
-        for r in get(f"{API}/pncp/v1/orgaos/{CNPJ}/compras/{c['anoCompra']}/{c['sequencialCompra']}/itens/{it['numeroItem']}/resultados") or []:
+    itens = sorted(get(f"{API}/pncp/v1/orgaos/{CNPJ}/compras/{c['anoCompra']}/{c['sequencialCompra']}/itens", pagina=1, tamanhoPagina=50) or [],
+                   key=lambda it: -(it.get("valorTotal") or 0))[:12]  # os 12 itens de maior valor bastam para achar o principal vencedor
+    base = f"{API}/pncp/v1/orgaos/{CNPJ}/compras/{c['anoCompra']}/{c['sequencialCompra']}/itens/"
+    with ThreadPoolExecutor(6) as ex:
+        resultados = list(ex.map(lambda it: get(base + f"{it['numeroItem']}/resultados") or [], itens))
+    for rs in resultados:
+        for r in rs:
             if r.get("dataCancelamento"):
                 continue
-            k = (r.get("niFornecedor") or "", r.get("nomeRazaoSocialFornecedor") or "")
-            tot[k] = tot.get(k, 0) + (r.get("valorTotalHomologado") or 0)
-        time.sleep(0.2)
+            kf = (r.get("niFornecedor") or "", r.get("nomeRazaoSocialFornecedor") or "")
+            tot[kf] = tot.get(kf, 0) + (r.get("valorTotalHomologado") or 0)
     if not tot:
         return "", "", 0
     (cnpj, nome), v = max(tot.items(), key=lambda kv: kv[1])
@@ -123,7 +128,7 @@ def main():
         print(f"{ano}: {n_contratos} contratos lidos até agora, {len(sinais)} sinais", flush=True)
         # licitações acima do orçado ou sem desconto
         for mod in MODALIDADES:
-            print(f"{ano}: modalidade {mod}", flush=True)
+            print(f"{ano}: modalidade {mod} ({round(time.time() - INICIO)} s)", flush=True)
             for c in paginas(f"{API}/consulta/v1/contratacoes/publicacao", dataInicial=ini, dataFinal=fim, codigoModalidadeContratacao=mod, cnpj=CNPJ):
                 n_compras += 1
                 est, hom = c.get("valorTotalEstimado") or 0, c.get("valorTotalHomologado") or 0
