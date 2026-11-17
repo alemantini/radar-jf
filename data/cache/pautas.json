@@ -125,7 +125,7 @@
 "n": 10,
 "fase": "2ª Discussão",
 "proposicao": "Projeto de Lei 81/2025",
-"ementa": "Dispõe sobre a fixação de placas informativas nas unidades públicas e privadas de saúde do Município de Juiz de Fora, versando sobre a Entrega Legal, instituída pela Lei Federal n°13.509, de 22/11/2017.",
+"ementa": "Dispõe sobre a fixação de placas informativas nas unidades públicas e privadas de saúde do Município de Juiz de Fora, versando sobre a Entrega Legal, instituída pela Lei Federal n°13.509, de 22/11/2017. Retirado Temporariamente por Requerimento",
 "autoria": "Vereadora Roberta Lopes",
 "quorum": "Maioria simples",
 "obs": "VISTA Vereadoras Cida Oliveira, Kátia Franco e Laiz Perrut. SOBRESTADO Vereadora Cida Oliveira",
@@ -149,7 +149,7 @@
 "n": 12,
 "fase": "2ª Discussão",
 "proposicao": "Projeto de Lei 195/2025",
-"ementa": "Institui o Programa Municipal de Vigilância e Monitoramento da Rede Municipal de Ensino.",
+"ementa": "Institui o Programa Municipal de Vigilância e Monitoramento da Rede Municipal de Ensino. Retirado Temporariamente por Requerimento",
 "autoria": "Vereadora Roberta Lopes",
 "quorum": "Maioria simples",
 "obs": "VISTA Vereadora Cida Oliveira",
@@ -176,7 +176,7 @@
 "n": 14,
 "fase": "2ª Discussão",
 "proposicao": "Projeto de Lei 79/2025",
-"ementa": "Dispõe sobre a reposição de conteúdo pedagógico na educação básica do Município de Juiz de Fora em caso de suspensão de aulas e dá outras providências.",
+"ementa": "Dispõe sobre a reposição de conteúdo pedagógico na educação básica do Município de Juiz de Fora em caso de suspensão de aulas e dá outras providências. Retirado Temporariamente por Requerimento",
 "autoria": "Vereadora Roberta Lopes",
 "quorum": "Maioria simples",
 "obs": "VISTA Vereadora Cida Oliveira",
@@ -265,6 +265,50 @@
 "ementa": "Representação ao Senhor Deputado Estadual Noraldino Júnior, para conhecimento e adoção das providências junto à Companhia Energética de Minas Gerais - CEMIG.",
 "autoria": "Vereador Luiz Otávio Fernandes Coelho - Pardal",
 "quorum": "Maioria simples",
+"obs": "LEITURA DOS PARECERES",
+"vista": false,
+"temas": []
+}
+]
+},
+{
+"data": "2026-11-18",
+"cod": "5183",
+"nome": "3ª Reunião Ordinária - 11º Período",
+"hora": "17:30",
+"url": "https://www.camarajf.mg.gov.br/sal/ordemdodia.php?cod=5183",
+"itens": [
+{
+"n": 1,
+"fase": "1ª Discussão",
+"proposicao": "Projeto de Lei 253/2026",
+"ementa": "Patrimônio Cultural de Natureza Imaterial a entidade que menciona (Supermercado Carioca).",
+"autoria": "Vereador Dr. Marcelo Condé",
+"quorum": "Maioria simples",
+"obs": "LEITURA DOS PARECERES",
+"vista": false,
+"temas": []
+},
+{
+"n": 2,
+"fase": "Veto Parcial",
+"proposicao": "Projeto de Lei 50/2025",
+"ementa": "Institui diretrizes de responsabilidade social nas contratações públicas municipais, com previsão de cláusula social para adoção da escala 5x2 nos contratos de prestação de serviços terceirizados com dedicação de mão de obra, e dá outras providências.",
+"autoria": "Vereadora Cida Oliveira",
+"quorum": "Maioria absoluta",
+"obs": "LEITURA DOS PARECERES",
+"vista": false,
+"temas": [
+"Trabalho"
+]
+},
+{
+"n": 3,
+"fase": "Veto Total",
+"proposicao": "Projeto de Lei 233/2026",
+"ementa": "Autoriza o Poder Executivo, no âmbito da sua competência e discricionariedade, a isentar de aplicação e inserção de cobrança do Estacionamento Rotativo Pago e da Área Azul a via pública que menciona.",
+"autoria": "Vereador Juraci Scheffer",
+"quorum": "Maioria absoluta",
 "obs": "LEITURA DOS PARECERES",
 "vista": false,
 "temas": []
