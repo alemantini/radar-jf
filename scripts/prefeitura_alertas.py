@@ -355,14 +355,14 @@ def main():
     # 10. pagamento por algo que não combina com a atividade registrada na Receita
     CATEGORIAS = [
         ("mão de obra, limpeza, vigilância ou apoio operacional",
-         r"M[AÃ]O[ -]?DE[ -]?OBRA|APOIO OPERACIONAL|TERCEIRIZ|POSTOS? DE TRABALHO|SERVI[CÇ]OS? DE LIMPEZA|LIMPEZA E CONSERVA|PORTARIA|VIGIL[AÂ]NCIA",
+         r"M[AÃ]O[ -]?DE[ -]?OBRA|APOIO OPERACIONAL|TERCEIRIZ|POSTOS? DE TRABALHO|SERVI[CÇ]OS? DE LIMPEZA|LIMPEZA E CONSERVA|SERVI[CÇ]OS? DE PORTARIA|VIGIL[AÂ]NCIA (PATRIMONIAL|ARMADA|DESARMADA)",
          r"limpeza|vigil|seguranca|mao de obra|recursos humanos|apoio administrativo|servicos combinados|portaria|conservacao|zeladoria|terceiriz|agenciamento|facilities|manutencao|locacao de mao"),
         ("obras e engenharia",
          r"PAVIMENTA|RECAPE|ASFALT|CONSTRU[CÇ][AÃ]O D|DRENAGEM|TERRAPLEN|\bOBRAS?\b",
          r"constru|obra|engenharia|paviment|terraplen|edific|instalac|demolic|urbaniza|asfalt|infraestrutura|drenag|saneamento|arquitetura|reforma"),
         ("medicamentos", r"MEDICAMENT|F[AÁ]RMACO",
          r"farmac|medicament|produtos para saude|hospitalar|droga|quimic|odontolog|medic"),
-        ("combustível", r"COMBUST[IÍ]VE|GASOLINA|[OÓ]LEO DIESEL|ETANOL",
+        ("combustível", r"(FORNECIMENTO|AQUISI[CÇ][AÃ]O|COMPRA) DE COMBUST|ABASTECIMENTO DE (VE[IÍ]CULOS|FROTA)|GASOLINA|[OÓ]LEO DIESEL|ETANOL",
          r"combust|petroleo|posto|derivados|lubrific|gas"),
         ("alimentos e merenda", r"G[EÊ]NEROS ALIMENT|MERENDA|HORTIFRUTI|ALIMENTA[CÇ][AÃ]O ESCOLAR|REFEI[CÇ][OÕ]ES|MARMITEX",
          r"aliment|refeic|restaurante|supermerc|mercad|hortifrut|laticin|carne|padari|cereal|bebida|frigor|atacad|cozinha|lanchon|buffet|cooperativa|agricult|cultivo|criacao|pecuaria|ovos|frutas|legumes|varejista"),
@@ -370,7 +370,7 @@ def main():
          r"transporte|locacao de automoveis|locacao de veiculos|fretamento|onibus|passageiros|taxi|veiculo"),
         ("software e informática", r"SOFTWARE|LICEN[CÇ]A DE USO|SISTEMA INFORMATIZADO|LOCA[CÇ][AÃ]O DE SISTEMA|DATA ?CENTER",
          r"software|informatica|programas de computador|tecnologia|processamento de dados|sistemas|dados|internet|telecom|computador"),
-        ("ração e cuidado de animais", r"RA[CÇ][AÃ]O|\bANIMA(L|IS)\b|VETERIN|CANIL|CASTRA[CÇ]",
+        ("ração e cuidado de animais", r"\bRA[CÇ][AÃ]O\b|\bANIMA(L|IS)\b|VETERIN|\bCANIL|CASTRA[CÇ]",
          r"animal|animais|veterin|racao|pet|agropecu|zootec|alimentos para"),
     ]
     sem_acento = lambda t: unicodedata.normalize("NFKD", t or "").encode("ascii", "ignore").decode().lower()
