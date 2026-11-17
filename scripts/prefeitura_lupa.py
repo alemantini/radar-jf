@@ -27,11 +27,11 @@ SAIDA = DADOS / "lupa.json"
 def conserta(t):
     t = str(t or "")
     if "Ã" in t or "Â" in t:
-        for cod in ("cp1252", "latin-1"):
-            try:
-                return t.encode(cod).decode("utf-8")
-            except (UnicodeEncodeError, UnicodeDecodeError):
-                pass
+        try:
+            b = b"".join(ch.encode("cp1252") if ch not in "\x81\x8d\x8f\x90\x9d" else ch.encode("latin-1") for ch in t)
+            return b.decode("utf-8")
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            pass
     return t
 
 
@@ -59,7 +59,7 @@ TEMAS = [
     ("eventos", "Shows, festas e eventos",
      "Shows, cachês, festas, palco, som, luz e estrutura de eventos, e premiações.",
      r"festividad|premiac",
-     r"\bshows?\b|apresentacao artistic|festival|carnaval|reveillon|\bpalco|sonorizacao|iluminacao (cenica|de palco)|cache|festividade|estrutura (para|de) eventos?|infraestrutura (para|de) eventos?|producao de eventos?|\bnatal\b|aniversario da cidade|banda (de musica|musical)",
+     r"\bshows?\b|apresentacao artistic|festival|carnaval|reveillon|\bpalco|sonorizacao|iluminacao (cenica|de palco)|cache|festividade|estrutura (para|de) eventos?|infraestrutura (para|de) eventos?|producao de eventos?|decoracao natalina|natal iluminado|festividades de fim de ano|aniversario da cidade|banda (de musica|musical)",
      r"eventos|producoes artist|entretenimento|sonorizacao|shows?\b|palcos?"),
 ]
 NAO_FOLHA = re.compile(r"vencim|patronal|aposent|pens|provent|rpps|rgps|previd|aliq|gratif|auxilio|divida|juros|amortiza|"

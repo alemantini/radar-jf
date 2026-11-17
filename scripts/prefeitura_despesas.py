@@ -47,11 +47,11 @@ def conserta(t):
     """Textos do arquivo da Prefeitura às vezes vêm com acentos quebrados (Ã§ no lugar de ç)."""
     t = str(t or "")
     if "Ã" in t or "Â" in t:
-        for cod in ("cp1252", "latin-1"):
-            try:
-                return t.encode(cod).decode("utf-8")
-            except (UnicodeEncodeError, UnicodeDecodeError):
-                pass
+        try:
+            b = b"".join(ch.encode("cp1252") if ch not in "\x81\x8d\x8f\x90\x9d" else ch.encode("latin-1") for ch in t)
+            return b.decode("utf-8")
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            pass
     return t
 
 
