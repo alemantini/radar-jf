@@ -1,0 +1,24 @@
+name: PNCP (contratos e licitações, semanal)
+on:
+  schedule:
+    - cron: "37 7 * * 1"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: pncp
+jobs:
+  pncp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install requests
+      - run: python scripts/prefeitura_pncp.py
+      - name: Guardar resultado
+        run: |
+          git config user.name "radar-robo"
+          git config user.email "radar-robo@users.noreply.github.com"
+          git add data/prefeitura/pncp_sinais.json data/cache/pncp_vencedores.json
+          if git diff --cached --quiet; then echo "nada novo"; else git commit -m "PNCP $(date -u +%Y-%m-%d)"; git pull --rebase origin main; git push origin HEAD:main; fi

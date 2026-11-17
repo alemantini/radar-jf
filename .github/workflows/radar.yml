@@ -131,14 +131,8 @@ jobs:
           mkdir -p site/dados/prefeitura
           if [ -f data/prefeitura/comissionados.json ]; then cp data/prefeitura/comissionados.json site/dados/prefeitura/; fi
 
-      - name: Prefeitura, contratos e licitações no PNCP
-        id: pncp
-        continue-on-error: true
-        run: python scripts/prefeitura_pncp.py
-
-      - name: Reaproveitar sinais do PNCP publicados, se a coleta falhar
-        if: steps.pncp.outcome != 'success'
-        run: cp /tmp/anterior/dados/prefeitura/pncp_sinais.json site/dados/prefeitura/ || echo "sem versão anterior"
+      - name: Prefeitura, sinais do PNCP (gerados toda semana pelo workflow PNCP)
+        run: if [ -f data/prefeitura/pncp_sinais.json ]; then cp data/prefeitura/pncp_sinais.json site/dados/prefeitura/; fi
 
       - name: Prefeitura, sinais de alerta (cruzamento de dados públicos)
         id: alertas

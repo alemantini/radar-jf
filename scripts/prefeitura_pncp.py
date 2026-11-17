@@ -22,7 +22,7 @@ from pathlib import Path
 import requests
 
 RAIZ = Path(__file__).resolve().parent.parent
-SAIDA = RAIZ / "site" / "dados" / "prefeitura" / "pncp_sinais.json"
+SAIDA = RAIZ / "data" / "prefeitura" / "pncp_sinais.json"  # copiado para o site pela atualização diária
 CACHE = RAIZ / "data" / "cache" / "pncp_vencedores.json"
 TEMPO = 420  # segundos no máximo por execução buscando vencedores novos
 CNPJ = "18338178000102"
@@ -107,7 +107,7 @@ def main():
         VENC.update(json.loads(CACHE.read_text(encoding="utf-8")))
     sinais = []
     vistos = set()
-    n_contratos = n_compras = 0
+    n_contratos = n_compras = n_hom = 0
     for ano in ANOS:
         ini, fim = janela(ano)
         # contratos que cresceram
@@ -118,7 +118,9 @@ def main():
                 continue
             vistos.add(chave)
             vi, vg = k.get("valorInicial") or 0, k.get("valorGlobal") or 0
-            if vi > 0 and vg > vi * 1.25 and vg - vi >= 100_000 and len(k.get("niFornecedor") or "") == 14:
+            npar = k.get("numeroParcelas") or 0
+            parcela = npar > 1 and abs(vg - vi * npar) <= 0.02 * vg  # "valor inicial" lançado como valor da parcela
+            if vi > 0 and vi * 1.25 < vg < vi * 10 and not parcela and vg - vi >= 100_000 and len(k.get("niFornecedor") or "") == 14:
                 pct = round(100 * (vg / vi - 1))
                 sinais.append({"tipo": "aditivo", "cnpj": k["niFornecedor"], "nome": k.get("nomeRazaoSocialFornecedor", ""),
                                "titulo": "Contrato cresceu muito além do valor inicial",
@@ -132,6 +134,8 @@ def main():
             for c in paginas(f"{API}/consulta/v1/contratacoes/publicacao", dataInicial=ini, dataFinal=fim, codigoModalidadeContratacao=mod, cnpj=CNPJ):
                 n_compras += 1
                 est, hom = c.get("valorTotalEstimado") or 0, c.get("valorTotalHomologado") or 0
+                if hom:
+                    n_hom += 1
                 if est < 500_000 or hom <= 0 or c.get("numeroControlePNCP") in vistos:
                     continue
                 vistos.add(c.get("numeroControlePNCP"))
@@ -155,11 +159,11 @@ def main():
     CACHE.write_text(json.dumps(VENC, ensure_ascii=False, sort_keys=True), encoding="utf-8")
     SAIDA.parent.mkdir(parents=True, exist_ok=True)
     SAIDA.write_text(json.dumps({"coletado_em": dt.datetime.now().strftime("%Y-%m-%d %H:%M"), "sinais": sinais,
-                                 "contratos_lidos": n_contratos, "compras_lidas": n_compras}, ensure_ascii=False), encoding="utf-8")
+                                 "contratos_lidos": n_contratos, "compras_lidas": n_compras, "compras_com_valor_homologado": n_hom}, ensure_ascii=False), encoding="utf-8")
     cont = {}
     for s in sinais:
         cont[s["tipo"]] = cont.get(s["tipo"], 0) + 1
-    print(f"PNCP: {n_contratos} contratos e {n_compras} licitações lidos; sinais {cont}")
+    print(f"PNCP: {n_contratos} contratos e {n_compras} licitações lidos ({n_hom} com valor homologado); sinais {cont}")
     if n_contratos == 0 and n_compras == 0:
         raise SystemExit("PNCP sem resposta")
 
