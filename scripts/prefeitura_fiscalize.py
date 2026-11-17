@@ -33,6 +33,8 @@ def conserta(s):
     s = str(s or "")
     if "Ã" not in s and "Â" not in s:
         return s
+    for b, c in (("\x81", "Á"), ("\x8d", "Í"), ("\x8f", "Ï"), ("\x90", "Ð"), ("\x9d", "Ý")):
+        s = s.replace("Ã" + b, c)
     try:
         return s.encode("cp1252").decode("utf-8")
     except (UnicodeEncodeError, UnicodeDecodeError):
@@ -44,6 +46,9 @@ def conserta(s):
         except (UnicodeEncodeError, UnicodeDecodeError):
             return m.group(0)
     s = re.sub(r"[ÃÂ][\u0080-¿‘-›Œ-ƒˆ-˜€™]", um, s)
+    for errado, certo in (("ÃUDIO", "ÁUDIO"), ("VÃDEO", "VÍDEO"), ("MUNICÃPIO", "MUNICÍPIO"), ("BÃSIC", "BÁSIC"),
+                          ("ÃREA", "ÁREA"), ("ÃNDICE", "ÍNDICE"), ("SAÃDE", "SAÚDE"), ("ÃGUA", "ÁGUA")):
+        s = s.replace(errado, certo)
     return s.replace("Â", "")
 
 
@@ -56,6 +61,9 @@ def norm(s):
 
 def limpo(s):
     s = re.sub(r"\s+", " ", conserta(s)).strip()
+    letras = [c for c in s if c.isalpha()]
+    if letras and sum(c.isupper() for c in letras) > 0.7 * len(letras):
+        s = s.upper()  # históricos vêm em maiúsculas; corrige acentos que ficaram minúsculos
     return s.replace("Nº", "nº")
 
 
@@ -65,11 +73,12 @@ SHOWS = R(r" SHOWS? |APRESENTACA[OE]S? (ARTISTIC|MUSIC|CULTUR)| CACHES? |CONTRAT
 SHOWS_NAO = R(r"PROGRAMA GENTE EM PRIMEIRO LUGAR|LIMPEZA|BRIGADISTA")
 PROPAG = R(r"PUBLICIDAD|PUBLICITARI|PROPAGANDA| VEICULACAO|CAMPANHAS? (INSTITUCIONA|EDUCATIVA|PUBLICIT|DE DIVULG)")
 OFICIAL = R(r"PUBLICACA?O?E?S? (OFICIA|LEGA|DE ATOS|NO DIARIO|EM JORNA|DE EDITA|DE EXTRATO)|DIARIO OFICIAL|IMPRENSA OFICIAL|IMPRENSA NACIONAL")
-LOCACAO = R(r"LOCACAO D[EO]S? (VEICUL|AUTOMOV|CAMINH|ONIBUS|VANS?|CARROS?|MOTOCICL|MAQUINAS (PESADAS|E EQUIPAMENTOS DIVERSOS)|ESCAVADEIRA|RETROESCAV)"
+LOCACAO = R(r"LOCACAO D[EO]S? (\d+ )?(VEICUL|AUTOMOV|CAMINH|ONIBUS|VANS?|CARROS?|MOTOCICL|MAQUINAS (PESADAS|E EQUIPAMENTOS DIVERSOS)|ESCAVADEIRA|RETROESCAV)"
             r"| LOCACAO DE FROTA|VEICULOS? (LOCAD|COM MOTORISTA)| ALUGUEL DE (CARROS|VEICUL)")
 COMBUST = R(r"COMBUSTIV| GASOLINA| DIESEL| ETANOL| ABASTECIMENTO D[AE] (FROTA|VEICUL)|GERENCIAMENTO E CONTROLE DE FROTA")
 MANUT = R(r"MANUTENCAO (PREVENTIVA (E|E/OU) CORRETIVA |CORRETIVA |PREVENTIVA )?D[AEO]S? (FROTA|VEICUL)|PECAS AUTOMOTIV|PECAS (PARA|DE) VEICUL| PNEUS ")
-ESCOLAR_NAO = R(r"TRANSPORTE ESCOLAR")
+ESCOLAR_NAO = R(r"TRANSPORTE ESCOLAR|TRANSPORTE D[EO]S? PACIENT")
+PACIENTE = R(r"PACIENT| TFD |TRATAMENTO FORA")
 DIARIA_EL = R(r"DIARIA|PASSAGE|LOCOMOC")
 OBRA_EL = R(r" OBRAS ")
 CAIXA = R(r"CAIXA ESCOLAR|CX ESCOLAR|CAIXA ESC ")
@@ -177,7 +186,8 @@ def main():
                     soma(T["veiculos"], ano, sec, cnpj, nome, e, p, item[:9] + [sub], sub)
             # diárias e viagens
             if DIARIA_EL.search(ne):
-                sub = "Diárias" if "DIARIA" in ne else "Passagens e locomoção"
+                sub = ("Diárias" if "DIARIA" in ne else "Transporte de pacientes" if PACIENTE.search(h)
+                       else "Passagens, viagens e locomoção")
                 soma(T["diarias"], ano, sec, cnpj, nome, e, p, item[:9] + [sub], sub)
             # caixas escolares
             if cnpj and CAIXA.search(norm(nome)):
