@@ -436,3 +436,4 @@ body{padding-bottom:84px}
 .pauta .chips { margin: 6px 0 4px; }
 .pt-item { background: #fff; border: 1px solid var(--linha); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
 .pauta > .sub:last-child { margin-top: 10px; }
+.pauta .chips a:not(.on) { background: #fff; border: 1px solid var(--linha); }
