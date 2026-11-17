@@ -43,6 +43,18 @@ def sem_acento(s):
     return "".join(c for c in unicodedata.normalize("NFD", s) if unicodedata.category(c) != "Mn")
 
 
+def conserta(t):
+    """Textos do arquivo da Prefeitura às vezes vêm com acentos quebrados (Ã§ no lugar de ç)."""
+    t = str(t or "")
+    if "Ã" in t or "Â" in t:
+        for cod in ("cp1252", "latin-1"):
+            try:
+                return t.encode(cod).decode("utf-8")
+            except (UnicodeEncodeError, UnicodeDecodeError):
+                pass
+    return t
+
+
 def titulo(s):
     s = re.sub(r"\s+", " ", str(s or "")).strip()
     out = []
@@ -187,7 +199,7 @@ def processar_ano(ano, registros):
         if el:
             U["elem"][el] += p
         if tipo == "pj":
-            nome = titulo(x.get("nome do credor") or "")
+            nome = titulo(conserta(x.get("nome do credor")))
             credores.setdefault(cnpj, nome)
             ct = cred_total[cnpj]
             ct["e"] += e
@@ -199,7 +211,7 @@ def processar_ano(ano, registros):
             uc[1] += e
             uc[2] += 1
             ic = idx(lista_c, idx_c, cnpj)
-            hist = re.sub(r"\s+", " ", str(x.get("historico") or "")).strip()[:160]
+            hist = re.sub(r"\s+", " ", conserta(x.get("historico"))).strip()[:160]
         else:
             pf["e"] += e
             pf["p"] += p

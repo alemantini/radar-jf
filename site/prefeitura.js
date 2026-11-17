@@ -136,6 +136,7 @@ async function pgPrefInicio(ano) {
   const max = Math.max(...A.secretarias.map(s => s.p), 1);
   const REC = await prefReceitas();
   app.innerHTML = `
+    <a class="btn-grande prefeitura" href="#/prefeitura/lupa">${ic("lupa")}<span class="tx">Gastos na lupa<small>Carros e combustível, viagens, publicidade, shows e a corrida de dezembro</small></span>›</a>
     <a class="btn-alerta" href="#/prefeitura/alertas">${ic("alerta")}<span class="tx"><b>Sinais de alerta nos gastos</b><small>Compras fatiadas, empresas punidas, sócios que doaram para campanhas e mais.</small></span><span class="seta">›</span></a>
     ${REC ? blocoImpostometro(REC) + `<a class="btn-grande prefeitura" href="#/prefeitura/impostometro">${ic("dinheiro")}<span class="tx">Ver o impostômetro completo<small>IPTU, ISS, ITBI, por morador e mês a mês</small></span>›</a>` : ""}
     <h1>Para onde vai o dinheiro da Prefeitura</h1>
@@ -389,6 +390,7 @@ async function rotaPrefeitura(p) {
   if (sub === "placar") return pgPlacarFiscal(a);
   if (sub === "alertas") return pgAlertas(a);
   if (sub === "comissionados") return pgComissionados(a);
+  if (sub === "lupa") return pgLupa(a, b);
   if (sub === "emendas") return pgEmendas(a);
   if (sub === "diario") return pgDiario(a, b);
   if (sub === "s") return pgPrefSecretaria(a, +b);
@@ -527,6 +529,8 @@ async function pgAlertas(tipo) {
       <li><b>Contrato cresceu muito:</b> contrato publicado pela Prefeitura no Portal Nacional de Contratações Públicas cujo valor global passou 25% do valor inicial (e pelo menos R$ 100 mil a mais). A lei limita acréscimos a 25% (50% em reforma), mas prorrogar serviço contínuo é permitido: confira os termos aditivos.</li>
       <li><b>Licitação acima do orçado:</b> pregão ou concorrência de R$ 500 mil ou mais homologado por valor maior que o estimado pela própria Prefeitura.</li>
       <li><b>Licitação sem desconto:</b> pregão ou concorrência de R$ 1 milhão ou mais homologado com desconto menor que 1% sobre o orçado, o que costuma indicar pouca disputa. Aparece a empresa que mais ganhou itens da licitação.</li>
+      <li><b>Sócio em comum com outro fornecedor:</b> duas empresas diferentes (não filiais) com pelo menos um sócio igual no cadastro da Receita (mesmo nome e mesmos dígitos do CPF), as duas pagas pela mesma secretaria, com R$ 50 mil ou mais cada. Não é ilegal, mas se as duas disputaram a mesma licitação a concorrência pode ter sido de fachada.</li>
+      <li><b>Mesmo endereço de outro fornecedor:</b> empresas diferentes, sem sócio em comum, registradas na Receita no mesmo CEP, número e complemento, pagas pela mesma secretaria. Pode ser um prédio comercial ou um escritório de contabilidade; vale conferir se disputaram a mesma compra.</li>
     </ul>
     <p class="sub fonte-linha">Atualizado em ${esc(A.coletado_em)}. Fontes: ${A.fontes.map(esc).join("; ")}. Os gastos da Prefeitura estão na última versão que o Radar conseguiu baixar. Achou um sinal errado? <a href="mailto:radarjflandia@gmail.com?subject=Sinal%20de%20alerta%20errado">Avise pelo e-mail radarjflandia@gmail.com</a> que a gente corrige.</p>`;
 }
@@ -599,4 +603,56 @@ async function pgComissionados(sigla) {
   let tm; $("cq").oninput = () => { clearTimeout(tm); tm = setTimeout(desenha, 200); };
   $("cs").onchange = () => { history.replaceState(null, "", "#/prefeitura/comissionados" + ($("cs").value ? "/" + $("cs").value : "")); desenha(); };
   desenha();
+}
+
+
+// ---------- Na lupa: veículos, viagens, publicidade, eventos e corrida de dezembro ----------
+let LUPA = null;
+async function pgLupa(tema, ano) {
+  if (!LUPA) LUPA = await fetch("dados/prefeitura/lupa.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  const L = LUPA;
+  if (!L) { app.innerHTML = "<h1>Gastos na lupa</h1><p>Os dados ainda não foram publicados. Volte mais tarde.</p>"; return; }
+  const temas = L.temas.filter(t => Object.keys(t.anos).length);
+  const ids = temas.map(t => t.id).concat(Object.keys(L.dezembro || {}).length ? ["dezembro"] : []);
+  tema = ids.includes(tema) ? tema : ids[0];
+  const nomeT = id => id === "dezembro" ? "Corrida de dezembro" : (temas.find(t => t.id === id) || {}).titulo;
+  const abas = `<div class="chips lupa-abas">${ids.map(id => `<a href="#/prefeitura/lupa/${id}" class="${id === tema ? "on" : ""}">${esc(nomeT(id))}</a>`).join("")}</div>`;
+  const barrasMes = (meses, destaque) => { const mx = Math.max(...meses, 1); return `<div class="mini-barras lupa-meses" role="img" aria-label="Valor mês a mês">${meses.map((v, i) => `<span class="${i === destaque ? "dest" : ""}" title="${NOMES_MES[i]}: ${reais(v, false)}" style="height:${Math.max(2, Math.round(100 * v / mx))}%"></span>`).join("")}</div><div class="lupa-rot">${NOMES_MES.map(m => `<span>${m}</span>`).join("")}</div>`; };
+  const barraL = (lista, fmtNome) => { const mx = Math.max(...lista.map(x => x[1]), 1); return lista.map(x => `<div class="barra-l"><span class="bl-t">${fmtNome(x)}</span><span class="bl-b"><i style="width:${Math.max(1, Math.round(100 * x[1] / mx))}%"></i></span><span class="bl-v">${reais(x[1])}</span></div>`).join(""); };
+  let corpo = "";
+  if (tema === "dezembro") {
+    const anosD = Object.keys(L.dezembro).sort();
+    ano = anosD.includes(ano) ? ano : anosD[anosD.length - 1];
+    const D = L.dezembro[ano];
+    const vezes = D.mediana ? D.dez / D.mediana : 0;
+    corpo = `${anosD.length > 1 ? `<div class="anos">${anosD.map(a => `<button class="${a === ano ? "on" : ""}" onclick="location.hash='#/prefeitura/lupa/dezembro/${a}'">${a}</button>`).join("")}</div>` : ""}
+      <p class="sub">No fim do ano muitos órgãos correm para empenhar (reservar) o dinheiro que sobrou do orçamento. Gasto apressado costuma ter menos planejamento e menos concorrência. Aqui ficam de fora salários, aposentadorias, 13º, encargos e dívida, que sempre sobem em dezembro.</p>
+      <div class="nums"><span><b>${reais(D.dez)}</b>empenhados em dezembro de ${ano}</span><span><b>${reais(D.mediana)}</b>num mês típico (mediana de fevereiro a novembro)</span>${vezes >= 1.2 ? `<span><b>${vezes.toLocaleString("pt-BR", {maximumFractionDigits: 1})} vezes</b>o mês típico</span>` : ""}</div>
+      ${barrasMes(D.meses, 11)}
+      <p class="sub">Janeiro costuma ser alto porque muitos contratos são empenhados para o ano inteiro logo no começo.</p>
+      ${D.secretarias.length ? `<h2>Unidades que mais aceleraram em dezembro</h2><p class="sub">Empenharam em dezembro pelo menos R$ 1 milhão e mais de duas vezes e meia o próprio mês típico.</p>
+        ${D.secretarias.map(([s, dez, base]) => `<div class="linha lupa-dez"><span class="nm">${esc(secNome(s))}<br><small class="sub">Mês típico: ${reais(base)}${base ? `. Dezembro foi ${(dez / base).toLocaleString("pt-BR", {maximumFractionDigits: 0})} vezes maior` : ""}</small></span><span class="vl">${reais(dez)}</span></div>`).join("")}` : `<p class="sub">Nenhuma unidade passou do critério neste ano.</p>`}
+      <p class="sub">Para ver o que foi empenhado, use a <a href="#/prefeitura/busca/${ano}">busca de gastos</a> e procure pelo nome da secretaria.</p>`;
+  } else {
+    const T = temas.find(t => t.id === tema);
+    const anosT = Object.keys(T.anos).sort();
+    ano = anosT.includes(ano) ? ano : anosT[anosT.length - 1];
+    const A = T.anos[ano];
+    const atual = ano === String(new Date().getFullYear());
+    const ant = T.anos[String(+ano - 1)];
+    corpo = `${anosT.length > 1 ? `<div class="anos">${anosT.map(a => `<button class="${a === ano ? "on" : ""}" onclick="location.hash='#/prefeitura/lupa/${tema}/${a}'">${a}</button>`).join("")}</div>` : ""}
+      <p class="sub">${esc(T.texto)}</p>
+      <div class="nums"><span><b>${reais(A.p)}</b>pagos em ${ano}${atual ? " até agora" : ""}</span><span><b>${reais(A.e)}</b>empenhados (reservados)</span><span><b>${fmt(A.n)}</b>lançamentos</span></div>
+      ${ant && atual ? `<p class="sub">Em ${+ano - 1}, o ano inteiro somou ${reais(ant.p)} pagos.</p>` : ""}
+      ${barrasMes(A.meses, -1)}
+      ${A.secretarias.length ? `<h2>Quem gasta</h2>${barraL(A.secretarias, x => esc(secNome(x[0])))}` : ""}
+      ${A.fornecedores.length ? `<h2>Quem recebe</h2>${A.fornecedores.map(([c, n, v, k]) => `<a class="linha" href="#/prefeitura/empresa/${ano}/${c}"><span class="nm">${esc(n)}<br><small class="sub">CNPJ ${cnpjFmt(c)} · ${fmt(k)} lançamentos</small></span><span class="vl">${reais(v)} ›</span></a>`).join("")}` : ""}
+      ${A.pf ? `<p class="sub">Inclui ${reais(A.pf)} pagos a pessoas físicas (por exemplo diárias de servidores), mostrados só no total, sem nomes.</p>` : ""}
+      ${A.maiores.length ? `<h2>Maiores lançamentos</h2>${A.maiores.map(([d, s, c, n, v, h, num]) => `<div class="lanc"><div class="lanc-top"><a href="#/prefeitura/empresa/${ano}/${c}">${esc(n)}</a><b>${reais(v, false)}</b></div><small class="sub">${d ? d.split("-").reverse().join("/") : ""} · ${esc(secNome(s))}${numEmp(num) ? " · empenho " + esc(numEmp(num)) : ""}</small>${h ? `<p>${esc(h)}</p>` : ""}</div>`).join("")}` : ""}
+      <p class="sub">Separados pelo Radar a partir do tipo de despesa, do texto do empenho e do ramo da empresa. Um lançamento pode ter ficado de fora ou entrado por engano; confira sempre o texto. <a href="#/prefeitura/busca/${ano}">Buscar outros gastos</a>.</p>`;
+  }
+  app.innerHTML = `<h1>Gastos na lupa</h1>
+    <p class="sub">Os gastos da Prefeitura que mais chamam atenção, separados por assunto, com quem gasta, quem recebe e os maiores valores.</p>
+    ${abas}<h2 class="lupa-tit">${esc(nomeT(tema))}</h2>${corpo}
+    <p class="sub fonte-linha">Fonte: empenhos do ${fonteLink("Portal da Transparência da Prefeitura")}. Atualizado em ${esc(L.atualizado)}.</p>`;
 }

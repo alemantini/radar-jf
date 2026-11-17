@@ -143,6 +143,10 @@ jobs:
         if: steps.alertas.outcome != 'success'
         run: cp /tmp/anterior/dados/prefeitura/alertas.json site/dados/prefeitura/ || echo "sem versão anterior"
 
+      - name: Prefeitura, gastos na lupa (veículos, viagens, publicidade, eventos, dezembro)
+        continue-on-error: true
+        run: python scripts/prefeitura_lupa.py || cp /tmp/anterior/dados/prefeitura/lupa.json site/dados/prefeitura/ || true
+
       - name: Agenda de audiências públicas da Câmara
         continue-on-error: true
         run: python scripts/camara_agenda.py || (cp /tmp/anterior/dados/agenda.json site/dados/ && cp /tmp/anterior/agenda.ics site/) || true

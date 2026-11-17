@@ -440,3 +440,15 @@ body{padding-bottom:84px}
 .pt-item { background: #fff; border: 1px solid var(--linha); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
 .pauta > .sub:last-child { margin-top: 10px; }
 .pauta .chips a:not(.on) { background: #fff; border: 1px solid var(--linha); }
+
+/* Na lupa */
+.lupa-abas{margin:10px 0 4px}
+.lupa-abas a.on{background:var(--azul);color:#fff}
+.lupa-tit{margin-top:14px}
+.lupa-meses span.dest{background:#e8272c}
+.lupa-rot{display:flex;gap:3px;font-size:11px;color:var(--apoio);margin-bottom:10px}
+.lupa-rot span{flex:1;text-align:center}
+.lanc{border:1px solid var(--linha);border-radius:10px;padding:10px 12px;margin:8px 0}
+.lanc-top{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.lanc-top b{white-space:nowrap}
+.lanc p{margin:4px 0 0;font-size:14px}

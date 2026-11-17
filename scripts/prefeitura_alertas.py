@@ -69,10 +69,12 @@ def codigo_pessoa(nome, meio_cpf):
 def conserta(t):
     """Textos do arquivo da Prefeitura às vezes vêm com acentos quebrados (Ã§ no lugar de ç)."""
     if t and ("Ã" in t or "Â" in t):
-        try:
-            return t.encode("latin-1").decode("utf-8")
-        except (UnicodeEncodeError, UnicodeDecodeError):
-            return t
+        for cod in ("cp1252", "latin-1"):
+            try:
+                return t.encode(cod).decode("utf-8")
+            except (UnicodeEncodeError, UnicodeDecodeError):
+                pass
+        return t
     return t or ""
 
 
@@ -109,7 +111,7 @@ def consultar_cnpj(cnpjs):
         if len(c) != 14:
             continue
         x = cache.get(c)
-        if x and (hoje - dt.date.fromisoformat(x["_em"])).days < VALIDADE_CNPJ and ("cnaes2" in x or x.get("nao_encontrado")):
+        if x and (hoje - dt.date.fromisoformat(x["_em"])).days < VALIDADE_CNPJ and (("cnaes2" in x and "cep" in x) or x.get("nao_encontrado")):
             continue
         if time.time() - inicio > TEMPO_CNPJ:
             break
@@ -139,7 +141,11 @@ def consultar_cnpj(cnpjs):
                     "capital": d.get("capital_social"), "porte": d.get("porte"), "cnae": d.get("cnae_fiscal_descricao"),
                     "municipio": d.get("municipio"), "uf": d.get("uf"), "natureza": d.get("natureza_juridica"),
                     "socios": socios, "socios_n": socios_n,
-                    "cnaes2": [c.get("descricao") or "" for c in (d.get("cnaes_secundarios") or []) if c.get("descricao")]}
+                    "cnaes2": [c.get("descricao") or "" for c in (d.get("cnaes_secundarios") or []) if c.get("descricao")],
+                    "cep": re.sub(r"\D", "", str(d.get("cep") or "")), "numero": str(d.get("numero") or "").strip().upper(),
+                    "complemento": re.sub(r"\s+", " ", str(d.get("complemento") or "")).strip().upper(),
+                    "logradouro": " ".join(x for x in [d.get("descricao_tipo_de_logradouro"), d.get("logradouro")] if x).strip().title(),
+                    "bairro": str(d.get("bairro") or "").strip().title()}
         novos += 1
         time.sleep(0.6)
     CACHE.parent.mkdir(parents=True, exist_ok=True)
@@ -394,6 +400,60 @@ def main():
                 f"Recebeu {brl(v)} em empenhos de {nome_cat} (exemplo: \"{ex[0].title()}\"), mas a atividade principal registrada na Receita é \"{x.get('cnae') or 'não informada'}\" e nenhuma atividade secundária é desse ramo. Pode haver explicação, mas vale perguntar como a empresa foi escolhida.",
                 v)
 
+    # 12. empresas diferentes com o mesmo sócio, pagas pela mesma secretaria
+    sec_de = defaultdict(lambda: defaultdict(float))
+    for l in linhas:
+        sec_de[l["cnpj"]][l["sec"]] += max(l["p"], l["e"], 0)
+    def eh_emp(c):
+        nat = (cad.get(c) or {}).get("natureza") or ""
+        return bool(re.search(r"empres[áa]ri|limitada|an[ôo]nima|eireli|individual", nat, re.I)) and not PUBLICA.search(nat)
+    def recebido(c):
+        v = por_cred.get(c) or {}
+        return max(v.get("p", 0), v.get("e", 0))
+    por_socio = defaultdict(set)
+    for c, x in cad.items():
+        if recebido(c) >= 50_000 and eh_emp(c):
+            for sc in set(x.get("socios") or []):
+                por_socio[sc].add(c)
+    pares = defaultdict(set)
+    for sc, cs in por_socio.items():
+        if 2 <= len(cs) <= 6:
+            for a in cs:
+                for b in cs:
+                    if a[:8] != b[:8]:  # filiais da mesma empresa não contam
+                        pares[a].add(b)
+    for c, outras in pares.items():
+        comuns = [(o, set(sec_de[c]) & set(sec_de[o])) for o in outras]
+        comuns = [(o, ss) for o, ss in comuns if ss]
+        if not comuns:
+            continue
+        lista = "; ".join(f"{nomes.get(o) or o} (CNPJ {o[:2]}.{o[2:5]}.{o[5:8]}/{o[8:12]}-{o[12:]}, {brl(recebido(o))})" for o, _ in comuns[:4])
+        secs = sorted({s for _, ss in comuns for s in ss})[:3]
+        add("socio_comum", c, "Tem sócio em comum com outro fornecedor da mesma secretaria",
+            f"Pelo menos um sócio desta empresa também é sócio de: {lista}. As duas receberam da mesma unidade ({', '.join(secs)}). Ter sócio em comum não é ilegal; o ponto de atenção é se elas disputaram a mesma compra como se fossem concorrentes.",
+            recebido(c), sec=secs[0])
+
+    # 13. empresas diferentes no mesmo endereço (mesmo CEP, número e complemento), pagas pela mesma secretaria
+    por_end = defaultdict(set)
+    for c, x in cad.items():
+        if x.get("cep") and x.get("numero") and x["numero"] not in ("S/N", "SN", "0") and recebido(c) >= 50_000 and eh_emp(c):
+            por_end[(x["cep"], x["numero"], x.get("complemento", ""))].add(c)
+    for (cep, num, comp), cs in por_end.items():
+        raizes = {c[:8] for c in cs}
+        if len(raizes) < 2 or len(raizes) > 5:
+            continue
+        for c in cs:
+            outras = [o for o in cs if o[:8] != c[:8] and o not in pares.get(c, set()) and set(sec_de[c]) & set(sec_de[o])]
+            if not outras:
+                continue
+            x = cad[c]
+            ender = f"{x.get('logradouro') or 'endereço'}, {num}{(' ' + comp.title()) if comp else ''}, {x.get('bairro') or ''} (CEP {cep[:5]}-{cep[5:]})".replace(", (", " (")
+            lista = "; ".join(f"{nomes.get(o) or o} ({brl(recebido(o))})" for o in outras[:4])
+            secs = sorted({s for o in outras for s in set(sec_de[c]) & set(sec_de[o])})[:3]
+            add("endereco", c, "Mesmo endereço de outro fornecedor da mesma secretaria",
+                f"No cadastro da Receita esta empresa fica em {ender}, o mesmo endereço de: {lista}. As duas receberam da mesma unidade ({', '.join(secs)}). Pode ser um prédio comercial ou um contador em comum; o ponto de atenção é se disputaram a mesma compra.",
+                recebido(c), sec=secs[0])
+
     # 11. sinais do PNCP (contratos que cresceram, licitação acima do orçado ou sem desconto)
     fp = DADOS / "pncp_sinais.json"
     if fp.exists():
@@ -422,6 +482,8 @@ def main():
         "aditivo": "Contrato cresceu muito",
         "acima": "Licitação acima do orçado",
         "desconto": "Licitação sem desconto",
+        "socio_comum": "Sócio em comum com outro fornecedor",
+        "endereco": "Mesmo endereço de outro fornecedor",
     }
     alertas.sort(key=lambda a: -a["valor"])
     res = {"coletado_em": dt.datetime.now().strftime("%Y-%m-%d %H:%M"), "anos": list(ANOS),
