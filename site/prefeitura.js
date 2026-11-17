@@ -391,6 +391,7 @@ async function rotaPrefeitura(p) {
   if (sub === "alertas") return pgAlertas(a);
   if (sub === "comissionados") return pgComissionados(a);
   if (sub === "lupa") return pgLupa(a, b);
+  if (sub === "supersalarios") return pgSupersalarios();
   if (sub === "emendas") return pgEmendas(a);
   if (sub === "diario") return pgDiario(a, b);
   if (sub === "s") return pgPrefSecretaria(a, +b);
@@ -664,4 +665,49 @@ async function pgLupa(tema, ano) {
     <p class="sub">Os gastos da Prefeitura que mais chamam atenção, separados por assunto, com quem gasta, quem recebe e os maiores valores.</p>
     ${abas}<h2 class="lupa-tit">${esc(nomeT(tema))}</h2>${corpo}
     <p class="sub fonte-linha">Fonte: empenhos do ${fonteLink("Portal da Transparência da Prefeitura")}. Atualizado em ${esc(L.atualizado)}.</p>`;
+}
+
+
+// ---------- Supersalários: quem passou do teto constitucional ----------
+let SUPER = null;
+async function pgSupersalarios() {
+  if (!SUPER) SUPER = await fetch("dados/prefeitura/supersalarios.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  const S = SUPER;
+  if (!S) { app.innerHTML = "<h1>Supersalários</h1><p>Os dados ainda não foram publicados. Volte mais tarde.</p>"; return; }
+  const r2 = v => reais(v, false);
+  const nomeSec = s => (COMISS && COMISS.siglas && COMISS.siglas[s]) ? `${COMISS.siglas[s]} (${s})` : s;
+  if (!COMISS) COMISS = await fetch("dados/prefeitura/comissionados.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  const posto = (c, f) => f ? `${cargoTx(f)} (cargo de origem: ${c})` : cargoTx(c);
+  app.innerHTML = `
+    <h1>Supersalários na Prefeitura</h1>
+    <p class="sub">A Constituição proíbe que um servidor da Prefeitura ganhe mais do que a prefeita (art. 37, XI). O Radar conferiu a folha de ${esc(S.competencia)} inteira e mostra quem passou do limite e quem mais recebeu no mês.</p>
+    <div class="faixa-nums">
+      <div><b>${r2(S.teto)}</b><span>teto: salário da prefeita</span></div>
+      <div><b>${r2(S.teto_procurador)}</b><span>teto dos procuradores municipais</span></div>
+      <div><b>${fmt(S.servidores)}</b><span>servidores conferidos</span></div>
+    </div>
+    <p>Neste mês a própria Prefeitura aplicou o <b>abate-teto</b> (o corte do que passa do limite) em <b>${fmt(S.com_retencao)} servidores</b>. Mesmo assim, pela conta do Radar, <b>${fmt(S.acima.length)} ${S.acima.length === 1 ? "servidor ficou" : "servidores ficaram"} acima do teto</b>:</p>
+    ${S.acima.map(a => { const [nome, cargo, func, vinc, lot, ce, perm, fg, hon, ret, suj, lim, exc, bruto] = a; return `
+      <div class="alerta-card">
+        <div class="ac-topo"><span class="ac-tipo">Acima do teto em ${r2(exc)}</span><span class="ac-valor">${r2(suj)}</span></div>
+        <b class="ac-nome">${esc(nomeBonito(nome))}</b>
+        <small class="sub">${esc(posto(cargo, func))} · ${esc(vinc.toLowerCase())} · ${esc(nomeSec(lot))}</small>
+        <p>Parcelas que contam para o teto: cargo ${r2(ce)}${perm ? `, verbas permanentes ${r2(perm)}` : ""}${fg ? `, função gratificada ${r2(fg)}` : ""}${hon ? `, honorários ${r2(hon)}` : ""}${ret ? `, menos ${r2(ret)} já cortados pelo abate-teto` : ""}. Total de ${r2(suj)}, contra um teto de ${r2(lim)}. O bruto do mês, com férias, 13º e outras verbas, foi ${r2(bruto)}.</p>
+      </div>`; }).join("") || '<p class="sub">Ninguém passou do teto pela conta do Radar neste mês.</p>'}
+    <p class="sub">Pode haver explicação que a planilha não mostra, como decisão judicial, pagamento atrasado lançado no mês ou regra específica da carreira. É uma pergunta a fazer à Prefeitura, não uma acusação.</p>
+    <h2>Os 50 maiores salários brutos do mês</h2>
+    <p class="sub">O bruto inclui férias, 13º, abono e pagamentos atrasados, que não contam para o teto. Por isso alguém pode aparecer aqui com bruto alto e estar dentro da lei.</p>
+    <table class="tab-equipe"><thead><tr><th>Nome e cargo</th><th>Bruto no mês</th></tr></thead><tbody>
+    ${S.maiores.map(([nome, cargo, func, vinc, lot, bruto, suj, liq]) => `<tr><td>${esc(nomeBonito(nome))}<small class="sub" style="display:block">${esc(posto(cargo, func))} · ${esc(lot)}. Conta para o teto: ${r2(suj)}. Líquido: ${r2(liq)}</small></td><td>${r2(bruto)}</td></tr>`).join("")}
+    </tbody></table>
+    <h2>Como a conta é feita</h2>
+    <ul class="metodo">
+      <li><b>Teto:</b> o salário da prefeita, ${r2(S.teto)}, que vem da mesma planilha. Para procuradores municipais, o STF fixou o limite em 90,25% do salário de ministro do Supremo (${r2(S.stf)}), ou seja, ${r2(S.teto_procurador)}.</li>
+      <li><b>Contam para o teto:</b> salário do cargo, verbas permanentes, função gratificada e honorários (o STF reafirmou em 2026 que honorários dos procuradores entram no teto). O valor que a Prefeitura já cortou pelo abate-teto é descontado.</li>
+      <li><b>Não contam:</b> 13º, férias, abono de permanência, verbas temporárias e indenizações.</li>
+      <li>Cada linha da planilha é uma matrícula. Quem tem dois cargos que a lei permite acumular aparece duas vezes, e o teto vale para cada cargo separadamente.</li>
+      <li>Ficam de fora as autarquias e empresas (Cesama, Demlurb, AMAC, Funalfa, Emcasa, JFPrev), que têm folha própria. Prefeita e vice não entram na lista.</li>
+      <li>Salário de servidor é informação pública por lei (Lei de Acesso à Informação e decisão do STF). O Radar mostra exatamente o que a Prefeitura publica.</li>
+    </ul>
+    <p class="sub fonte-linha">Competência ${esc(S.competencia)}, baixado em ${esc(S.baixado_em.split("-").reverse().join("/"))}. Fonte: ${esc(S.fonte)}. Confira na <a href="${FONTE_SERV}" target="_blank" rel="noopener">pesquisa oficial de servidores</a>.</p>`;
 }
