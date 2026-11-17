@@ -495,6 +495,18 @@ def main():
         "endereco": "Mesmo endereço de outro fornecedor",
     }
     alertas.sort(key=lambda a: -a["valor"])
+    # data em que cada alerta apareceu pela primeira vez (para o resumo do dia e o canal no WhatsApp)
+    hoje = dt.datetime.now(dt.timezone(dt.timedelta(hours=-3))).date().isoformat()
+    chave_a = lambda a: f"{a['tipo']}|{a['cnpj']}|{a['titulo']}"
+    antes = {}
+    for f in (SAIDA, Path("/tmp/anterior/dados/prefeitura/alertas.json")):
+        try:
+            for a in json.loads(f.read_text(encoding="utf-8")).get("alertas", []):
+                antes.setdefault(chave_a(a), a.get("desde") or "antes")
+        except (OSError, ValueError):
+            pass
+    for a in alertas:
+        a["desde"] = antes.get(chave_a(a)) or (hoje if antes else "antes")
     res = {"coletado_em": dt.datetime.now().strftime("%Y-%m-%d %H:%M"), "anos": list(ANOS),
            "tipos": TIPOS, "contagem": {t: sum(1 for a in alertas if a["tipo"] == t) for t in TIPOS},
            "fontes": ["Portal da Transparência da Prefeitura de Juiz de Fora (empenhos)",

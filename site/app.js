@@ -533,6 +533,7 @@ async function rota() {
     else if (pag === "grupo") await pgGrupo(arg);
     else if (pag === "placar") pgPlacar(arg);
     else if (pag === "agenda") await pgAgenda();
+    else if (pag === "resumo") await pgResumo();
     else if (pag === "apoie") pgApoie();
     else if (pag === "sobre") { pgSobre(); if (window.sobrePrefeitura) await sobrePrefeitura(); }
     else if (pag === "camara") pgInicio();
@@ -610,6 +611,63 @@ async function pgAgenda() {
     app.querySelectorAll(".pt-filtro a").forEach(b => b.classList.toggle("on", b === a));
     app.querySelectorAll(".pt-item").forEach(it => it.hidden = !!a.dataset.t && !it.dataset.temas.split("|").includes(a.dataset.t));
   });}
+
+// ---------- Resumo do dia (para o canal do Radar no WhatsApp) ----------
+const CANAL_ZAP = "";  // link do canal do Radar no WhatsApp (whatsapp.com/channel/...), quando existir
+async function pgResumo() {
+  const j = u => fetch(u).then(r => r.ok ? r.json() : null).catch(() => null);
+  const [AG, AL, LU] = await Promise.all([j("dados/agenda.json"), j("dados/prefeitura/alertas.json"), j("dados/prefeitura/lupa.json")]);
+  const hoje = new Date().toLocaleDateString("sv-SE", {timeZone: "America/Sao_Paulo"});
+  const [y, m, d] = hoje.split("-").map(Number);
+  const DS = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"][new Date(y, m - 1, d).getDay()];
+  const curto = (t, n) => t.length > n ? t.slice(0, n).replace(/\s+\S*$/, "") + "..." : t;
+  const linhas = [`📡 *Radar JFlândia: resumo de ${DS}, ${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}*`, ""];
+  // plenário
+  const ps = ((AG && AG.pautas) || []).filter(p => p.data >= hoje);
+  if (ps.length) {
+    const dia = ps[0].data, doDia = ps.filter(p => p.data === dia), itens = doDia.flatMap(p => p.itens);
+    const quando = dia === hoje ? "Hoje" : "Próxima reunião, " + dia.split("-").reverse().slice(0, 2).join("/");
+    linhas.push(`🏛️ *${quando} no plenário, às ${doDia[0].hora.replace(":", "h")}:* ${itens.length ? itens.length + " itens na pauta." : "pauta ainda não publicada."}`);
+    const dest = itens.filter(i => i.temas.length && !i.temas.includes("Homenagens")).slice(0, 4);
+    dest.forEach(i => linhas.push(`• ${i.temas[0]}: ${curto(i.ementa, 95)}${/veto/i.test(i.fase) ? " (veto da Prefeitura)" : ""}`));
+    linhas.push("Pauta completa: jflandia.com.br/#/agenda", "");
+  }
+  const futuras = ((AG && AG.eventos) || []).filter(e => e.data >= hoje).slice(0, 2);
+  futuras.forEach(e => linhas.push(`🎤 *Audiência pública ${e.data.split("-").reverse().slice(0, 2).join("/")}${e.hora ? " às " + e.hora.replace(":00", "h").replace(":", "h") : ""}:* ${curto(e.tema, 110)}`));
+  if (futuras.length) linhas.push("");
+  // alertas novos da última semana
+  if (AL) {
+    const lim = new Date(Date.now() - 7 * 864e5).toISOString().slice(0, 10);
+    const novos = AL.alertas.filter(a => a.desde && a.desde !== "antes" && a.desde >= lim);
+    if (novos.length) {
+      linhas.push(`⚠️ *${novos.length} ${novos.length === 1 ? "sinal de alerta novo" : "sinais de alerta novos"} nos gastos da Prefeitura:*`);
+      novos.slice(0, 3).forEach(a => linhas.push(`• ${a.nome}: ${(AL.tipos[a.tipo] || a.tipo).toLowerCase()}`));
+      linhas.push("Veja: jflandia.com.br/#/prefeitura/alertas", "");
+    } else {
+      linhas.push(`⚠️ *${AL.alertas.length} sinais de alerta* nos gastos da Prefeitura: jflandia.com.br/#/prefeitura/alertas`, "");
+    }
+  }
+  // um tema da lupa por dia, em rodízio
+  if (LU) {
+    const ts = LU.temas.filter(t => t.anos[String(y)]);
+    if (ts.length) {
+      const t = ts[Math.floor(Date.UTC(y, m - 1, d) / 864e5) % ts.length], A = t.anos[String(y)];
+      const f = A.fornecedores[0];
+      linhas.push(`🔎 *Na lupa, ${t.titulo.toLowerCase()}:* ${reaisCurto(A.p)} pagos pela Prefeitura em ${y} até agora${f ? `. Quem mais recebeu: ${f[1]} (${reaisCurto(f[2])})` : ""}.`, `jflandia.com.br/#/prefeitura/lupa/${t.id}`, "");
+    }
+  }
+  linhas.push("Dados oficiais, atualizados todo dia. 👉 jflandia.com.br");
+  const texto = linhas.join("\n");
+  app.innerHTML = `<h1>Resumo do dia</h1>
+    <p class="sub">O que está acontecendo hoje na Câmara e nos gastos da Prefeitura, num texto pronto para o WhatsApp. Muda sozinho todo dia.</p>
+    ${CANAL_ZAP ? `<a class="btn-alerta" href="${CANAL_ZAP}" target="_blank" rel="noopener">${ic("agenda")}<span class="tx"><b>Seguir o canal do Radar no WhatsApp</b><small>Receba o resumo no celular. Ninguém vê o seu número e o Radar não guarda nenhum dado seu.</small></span><span class="seta">›</span></a>` : ""}
+    <pre class="resumo-zap">${esc(texto)}</pre>
+    <div class="botoes-ag"><button class="btn-ag" id="copiar">Copiar o texto</button><a class="btn-ag sec" href="https://wa.me/?text=${encodeURIComponent(texto)}" target="_blank" rel="noopener">Enviar no WhatsApp</a></div>
+    <p class="sub">Os asteriscos viram negrito no WhatsApp.</p>`;
+  document.getElementById("copiar").onclick = async e => {
+    try { await navigator.clipboard.writeText(texto); e.target.textContent = "Copiado!"; } catch (_) { e.target.textContent = "Selecione o texto e copie"; }
+  };
+}
 
 // botão flutuante para compartilhar a página atual no WhatsApp
 function botaoZap(pag, partes) {

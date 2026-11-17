@@ -505,7 +505,7 @@ async function pgAlertas(tipo) {
     </div>
     ${lista.map(a => `
       <div class="alerta-card">
-        <div class="ac-topo"><span class="ac-tipo">${esc(A.tipos[a.tipo] || a.tipo)}</span><span class="ac-valor">${reais(a.valor)}</span></div>
+        <div class="ac-topo"><span class="ac-tipo">${esc(A.tipos[a.tipo] || a.tipo)}${a.desde && a.desde !== "antes" && (Date.now() - new Date(a.desde + "T12:00:00")) < 8 * 864e5 ? ' <b class="ac-novo">novo</b>' : ""}</span><span class="ac-valor">${reais(a.valor)}</span></div>
         <a class="ac-nome" href="#/prefeitura/empresa/${anoEmp}/${a.cnpj}">${esc(a.nome || "Empresa")}</a>
         <small class="sub">CNPJ ${cnpjFmt(a.cnpj)}${a.secretaria ? ` · ${esc(secNome(a.secretaria))}` : ""}</small>
         <p>${esc(a.detalhe)}</p>
