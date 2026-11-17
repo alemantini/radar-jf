@@ -57,6 +57,11 @@ def chave(s):
     return re.sub(r"[^a-z0-9]", "", s)
 
 
+def codigo_nome(nome):
+    """Código só do nome completo (para cruzar com listas públicas sem CPF, como os comissionados)."""
+    return hashlib.sha256(f"n|{chave(nome)}".encode()).hexdigest()[:20]
+
+
 def codigo_pessoa(nome, meio_cpf):
     return hashlib.sha256(f"{chave(nome)}|{meio_cpf}".encode()).hexdigest()[:20]
 
@@ -104,7 +109,7 @@ def consultar_cnpj(cnpjs):
         if len(c) != 14:
             continue
         x = cache.get(c)
-        if x and (hoje - dt.date.fromisoformat(x["_em"])).days < VALIDADE_CNPJ:
+        if x and (hoje - dt.date.fromisoformat(x["_em"])).days < VALIDADE_CNPJ and ("cnaes2" in x or x.get("nao_encontrado")):
             continue
         if time.time() - inicio > TEMPO_CNPJ:
             break
@@ -122,16 +127,19 @@ def consultar_cnpj(cnpjs):
             time.sleep(1)
             continue
         d = r.json()
-        socios = []
+        socios, socios_n = [], []
         for s in d.get("qsa") or []:
             doc = re.sub(r"\D", "", s.get("cnpj_cpf_do_socio") or "")
             if len(doc) == 6:  # CPF mascarado: ***123456**
                 socios.append(codigo_pessoa(s.get("nome_socio", ""), doc))
+            if len(doc) != 14 and len((s.get("nome_socio") or "").split()) >= 3:
+                socios_n.append([codigo_nome(s.get("nome_socio", "")), s.get("qualificacao_socio") or ""])
         cache[c] = {"_em": hoje.isoformat(), "abertura": d.get("data_inicio_atividade"),
                     "situacao": d.get("descricao_situacao_cadastral"), "data_situacao": d.get("data_situacao_cadastral"),
                     "capital": d.get("capital_social"), "porte": d.get("porte"), "cnae": d.get("cnae_fiscal_descricao"),
                     "municipio": d.get("municipio"), "uf": d.get("uf"), "natureza": d.get("natureza_juridica"),
-                    "socios": socios}
+                    "socios": socios, "socios_n": socios_n,
+                    "cnaes2": [c.get("descricao") or "" for c in (d.get("cnaes_secundarios") or []) if c.get("descricao")]}
         novos += 1
         time.sleep(0.6)
     CACHE.parent.mkdir(parents=True, exist_ok=True)
@@ -322,6 +330,70 @@ def main():
                     f"{p['cadastro']}: {p['sancao']} aplicada por {p['orgao']} (de {p['inicio']} a {p['fim'] or 'sem data final'}). Em regra essa punição vale só para o órgão que a aplicou, mas mostra problema anterior na execução de contratos. Valor recebido da Prefeitura no período: {brl(rec)}.",
                     rec)
 
+
+    # 9. comissionado da Prefeitura com o mesmo nome completo de sócio ou dirigente de fornecedor
+    fc = RAIZ / "data" / "prefeitura" / "comissionados.json"
+    comiss = {}
+    if fc.exists():
+        C = json.loads(fc.read_text(encoding="utf-8"))
+        for nome, cargo, lot, *_ in C.get("pessoas", []):
+            if len(nome.split()) >= 3:
+                comiss.setdefault(codigo_nome(nome), []).append((nome, cargo, C.get("siglas", {}).get(lot, lot)))
+    for c in alvo:
+        x = cad.get(c) or {}
+        if PUBLICA.search(x.get("natureza") or ""):
+            continue
+        for h, qual in x.get("socios_n") or []:
+            for nome, cargo, sec in comiss.get(h, []):
+                rec = max(por_cred[c]["p"], por_cred[c]["e"])
+                mesma = any(sec.lower() in l["sec"].lower() or l["sec"].lower() in sec.lower() for l in linhas if l["cnpj"] == c)
+                add("comissionado", c, "Comissionado da Prefeitura com nome igual ao de sócio ou dirigente",
+                    f"{nome.title()}, comissionado(a) como {cargo.title()} em {sec}, tem o mesmo nome completo de quem aparece como {qual.lower() or 'sócio'} desta empresa ou entidade no cadastro da Receita. "
+                    f"Ela recebeu {brl(rec)} da Prefeitura no período{', inclusive da mesma secretaria' if mesma else ''}. Pode ser outra pessoa com o mesmo nome: confira antes de concluir.",
+                    rec)
+
+    # 10. pagamento por algo que não combina com a atividade registrada na Receita
+    CATEGORIAS = [
+        ("mão de obra, limpeza, vigilância ou apoio operacional",
+         r"M[AÃ]O[ -]?DE[ -]?OBRA|APOIO OPERACIONAL|TERCEIRIZ|POSTOS? DE TRABALHO|SERVI[CÇ]OS? DE LIMPEZA|LIMPEZA E CONSERVA|PORTARIA|VIGIL[AÂ]NCIA",
+         r"limpeza|vigil|seguranca|mao de obra|recursos humanos|apoio administrativo|servicos combinados|portaria|conservacao|zeladoria|terceiriz|agenciamento|facilities|manutencao|locacao de mao"),
+        ("obras e engenharia",
+         r"PAVIMENTA|RECAPE|ASFALT|CONSTRU[CÇ][AÃ]O D|DRENAGEM|TERRAPLEN|\bOBRAS?\b",
+         r"constru|obra|engenharia|paviment|terraplen|edific|instalac|demolic|urbaniza|asfalt|infraestrutura|drenag|saneamento|arquitetura|reforma"),
+        ("medicamentos", r"MEDICAMENT|F[AÁ]RMACO",
+         r"farmac|medicament|produtos para saude|hospitalar|droga|quimic|odontolog|medic"),
+        ("combustível", r"COMBUST[IÍ]VE|GASOLINA|[OÓ]LEO DIESEL|ETANOL",
+         r"combust|petroleo|posto|derivados|lubrific|gas"),
+        ("alimentos e merenda", r"G[EÊ]NEROS ALIMENT|MERENDA|HORTIFRUTI|ALIMENTA[CÇ][AÃ]O ESCOLAR|REFEI[CÇ][OÕ]ES|MARMITEX",
+         r"aliment|refeic|restaurante|supermerc|mercad|hortifrut|laticin|carne|padari|cereal|bebida|frigor|atacad|cozinha|lanchon|buffet|cooperativa|agricult|cultivo|criacao|pecuaria|ovos|frutas|legumes|varejista"),
+        ("transporte e locação de veículos", r"TRANSPORTE ESCOLAR|LOCA[CÇ][AÃ]O DE VE[IÍ]CULO|FRETAMENTO",
+         r"transporte|locacao de automoveis|locacao de veiculos|fretamento|onibus|passageiros|taxi|veiculo"),
+        ("software e informática", r"SOFTWARE|LICEN[CÇ]A DE USO|SISTEMA INFORMATIZADO|LOCA[CÇ][AÃ]O DE SISTEMA|DATA ?CENTER",
+         r"software|informatica|programas de computador|tecnologia|processamento de dados|sistemas|dados|internet|telecom|computador"),
+        ("ração e cuidado de animais", r"RA[CÇ][AÃ]O|\bANIMA(L|IS)\b|VETERIN|CANIL|CASTRA[CÇ]",
+         r"animal|animais|veterin|racao|pet|agropecu|zootec|alimentos para"),
+    ]
+    sem_acento = lambda t: unicodedata.normalize("NFKD", t or "").encode("ascii", "ignore").decode().lower()
+    soma_cat = defaultdict(lambda: [0.0, []])
+    for l in linhas:
+        for nome_cat, rh, _ in CATEGORIAS:
+            if re.search(rh, l["hist"]):
+                g = soma_cat[(l["cnpj"], nome_cat)]
+                g[0] += max(l["e"], l["p"], 0)
+                if len(g[1]) < 3:
+                    g[1].append(l["hist"][:120].strip())
+                break
+    for (c, nome_cat), (v, ex) in soma_cat.items():
+        x = cad.get(c) or {}
+        if v < 100_000 or "cnaes2" not in x or PUBLICA.search(x.get("natureza") or ""):
+            continue
+        rc = next(r for n, _, r in CATEGORIAS if n == nome_cat)
+        ativ = sem_acento(" | ".join([x.get("cnae") or ""] + x.get("cnaes2", [])))
+        if not re.search(rc, ativ):
+            add("atividade", c, "Pago por algo que não combina com a atividade da empresa",
+                f"Recebeu {brl(v)} em empenhos de {nome_cat} (exemplo: \"{ex[0].title()}\"), mas a atividade principal registrada na Receita é \"{x.get('cnae') or 'não informada'}\" e nenhuma atividade secundária é desse ramo. Pode haver explicação, mas vale perguntar como a empresa foi escolhida.",
+                v)
+
     # fracionamento só faz sentido para empresas (associações e órgãos recebem repasses parcelados)
     def empresa(c):
         return bool(re.search(r"empres[áa]ri|limitada|an[ôo]nima|eireli|individual", (cad.get(c) or {}).get("natureza") or "", re.I))
@@ -338,6 +410,8 @@ def main():
         "doador": "Sócio doador de campanha",
         "punida": "Empresa inidônea ou proibida",
         "punida_outro": "Punida por outro órgão",
+        "comissionado": "Comissionado com nome de sócio",
+        "atividade": "Atividade não combina com o pagamento",
     }
     alertas.sort(key=lambda a: -a["valor"])
     res = {"coletado_em": dt.datetime.now().strftime("%Y-%m-%d %H:%M"), "anos": list(ANOS),
