@@ -1,30 +1,37 @@
-"""Exploração: ACAV (Associação Cultural Arte e Vida) nas emendas e nos empenhos."""
-import csv, io, sys, re, collections, requests
-sys.path.insert(0, "scripts")
-from prefeitura_emendas import url_planilha
-r = requests.get(url_planilha(), timeout=180)
-linhas = list(csv.DictReader(io.StringIO(r.content.decode("utf-8", "replace"))))
-pat = re.compile(r"arte e vida|acav|13\.?304\.?478", re.I)
-print("== EMENDAS ==")
-for x in linhas:
-    if pat.search(" ".join(str(v) for v in x.values())):
-        print(x.get("Ano"), x.get("Identificação da Emenda"), "|", x.get("Proponente"), "|", x.get("Origem dos recursos"), "|",
-              x.get("Valor alocado/previsto"), "| pago", x.get("Valor Pago"), "|", x.get("Situação administrativa"), "|", (x.get("Objeto da Despesa") or "")[:120], "|", x.get("Unidade Gestora"))
-print("== EMPENHOS ==")
-for ano in (2025, 2026):
-    d = requests.get(f"https://jflandia.com.br/dados/prefeitura/empenhos_{ano}.json", timeout=120).json()
-    ic = [i for i, c in enumerate(d["credores"]) if "13304478000157" in str(c)]
-    tot = collections.defaultdict(lambda: [0.0, 0.0])
-    for e in d["empenhos"]:
-        if e[2] in ic:
-            k = (d["secretarias"][e[1]], d["elementos"][e[3]])
-            tot[k][0] += e[4]; tot[k][1] += e[5]
-    print(ano, "credor idx", ic, "empenhado", round(sum(v[0] for v in tot.values()), 2), "pago", round(sum(v[1] for v in tot.values()), 2))
-    for k, v in sorted(tot.items(), key=lambda kv: -kv[1][1]):
-        print("  ", k, [round(v[0], 2), round(v[1], 2)])
-    # posição da ACAV entre recebedores da SEL
-    sel = collections.defaultdict(float)
-    for e in d["empenhos"]:
-        if "Esporte" in d["secretarias"][e[1]] and e[2] >= 0:
-            sel[d["credores"][e[2]][1] if isinstance(d["credores"][e[2]], list) else e[2]] += e[5]
-    print("   top SEL:", [(k, round(v)) for k, v in sorted(sel.items(), key=lambda kv: -kv[1])[:6]])
+"""Exploração: API do PNCP para a Prefeitura de Juiz de Fora (CNPJ 18338178000102)."""
+import json, requests
+CNPJ = "18338178000102"
+H = {"User-Agent": "RadarJF/1.0 (transparencia)"}
+def get(u, **p):
+    r = requests.get(u, params=p, headers=H, timeout=90)
+    print("GET", r.url, r.status_code, len(r.content))
+    try:
+        return r.json()
+    except Exception:
+        print(r.text[:300]); return None
+d = get("https://pncp.gov.br/api/consulta/v1/contratos", dataInicial="20260101", dataFinal="20261116", cnpjOrgao=CNPJ, pagina=1, tamanhoPagina=10)
+if d:
+    print("chaves", list(d.keys()) if isinstance(d, dict) else type(d))
+    itens = d.get("data", []) if isinstance(d, dict) else d
+    print("total", d.get("totalRegistros"), d.get("totalPaginas"))
+    if itens: print(json.dumps(itens[0], ensure_ascii=False)[:2500])
+c = get("https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao", dataInicial="20260101", dataFinal="20261116", codigoModalidadeContratacao=6, cnpj=CNPJ, pagina=1, tamanhoPagina=10)
+if c:
+    print("total compras pregão", c.get("totalRegistros"))
+    it = c.get("data", [])
+    if it:
+        x = it[0]; print(json.dumps(x, ensure_ascii=False)[:2000])
+        ano, seq = x.get("anoCompra"), x.get("sequencialCompra")
+        its = get(f"https://pncp.gov.br/api/pncp/v1/orgaos/{CNPJ}/compras/{ano}/{seq}/itens", pagina=1, tamanhoPagina=5)
+        print(json.dumps(its, ensure_ascii=False)[:1500])
+        if its:
+            n = its[0].get("numeroItem")
+            res = get(f"https://pncp.gov.br/api/pncp/v1/orgaos/{CNPJ}/compras/{ano}/{seq}/itens/{n}/resultados")
+            print(json.dumps(res, ensure_ascii=False)[:1500])
+if d and d.get("data"):
+    k = d["data"][0]
+    t = get(f"https://pncp.gov.br/api/pncp/v1/orgaos/{CNPJ}/contratos/{k.get('anoContrato')}/{k.get('sequencialContrato')}/termos")
+    print(json.dumps(t, ensure_ascii=False)[:1500])
+for mod in (8, 9):
+    x = get("https://pncp.gov.br/api/consulta/v1/contratacoes/publicacao", dataInicial="20260101", dataFinal="20261116", codigoModalidadeContratacao=mod, cnpj=CNPJ, pagina=1, tamanhoPagina=10)
+    if x: print("modalidade", mod, "total", x.get("totalRegistros"))
