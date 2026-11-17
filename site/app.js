@@ -560,7 +560,7 @@ async function pgAgenda() {
     <h2>Reuniões ordinárias</h2>
     <p>${esc((A && A.ordinarias) || "Reuniões ordinárias de segunda a quinta às 17h30 e às sextas às 10h30.")} Veja o <a href="https://www.camarajf.mg.gov.br/www/agenda-de-reunioes" target="_blank" rel="noopener">calendário oficial</a>.</p>
     ${passados.length ? `<h2>Audiências que já aconteceram</h2>${passados.slice(0, 20).map(e => card(e, false)).join("")}<p class="sub">As atas ficam na <a href="https://www.camarajf.mg.gov.br/sal/buscaratas.php" target="_blank" rel="noopener">busca de atas da Câmara</a>.</p>` : ""}
-    <p class="sub fonte-linha">Fonte: <a href="https://www.camarajf.mg.gov.br/www/audiencias-publicas" target="_blank" rel="noopener">página de audiências públicas da Câmara Municipal</a>${A ? `, conferida em ${esc(A.atualizado.split(" ")[0].split("-").reverse().join("/"))}` : ""}. O Radar guarda o histórico a partir de novembro de 2026.</p>`;
+    <p class="sub fonte-linha">Fonte: <a href="https://www.camarajf.mg.gov.br/www/audiencias-publicas" target="_blank" rel="noopener">página de audiências públicas da Câmara Municipal</a>${A ? `, conferida em ${esc(A.atualizado.split(" ")[0].split("-").reverse().join("/"))}` : ""}. O Radar guarda o histórico a partir de outubro de 2026.</p>`;
 }
 
 // botão flutuante para compartilhar a página atual no WhatsApp
