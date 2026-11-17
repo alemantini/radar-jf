@@ -143,6 +143,10 @@ jobs:
         if: steps.alertas.outcome != 'success'
         run: cp /tmp/anterior/dados/prefeitura/alertas.json site/dados/prefeitura/ || echo "sem versão anterior"
 
+      - name: Agenda de audiências públicas da Câmara
+        continue-on-error: true
+        run: python scripts/camara_agenda.py || (cp /tmp/anterior/dados/agenda.json site/dados/ && cp /tmp/anterior/agenda.ics site/) || true
+
       - name: Páginas fixas para o Google e imagens de compartilhamento
         continue-on-error: true
         run: python scripts/paginas_estaticas.py

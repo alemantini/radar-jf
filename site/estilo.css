@@ -405,3 +405,14 @@ details.equipe summary .tx{flex:1;min-width:0}
 @media (max-width:520px){#zap span{display:none}#zap{padding:14px}}
 body{padding-bottom:84px}
 @media print{#zap{display:none}}
+
+/* agenda */
+.ag-item{display:flex;gap:14px;background:#fff;border-radius:14px;padding:14px;margin:10px 0;box-shadow:0 1px 2px rgba(11,37,69,.08)}
+.ag-item.passado{opacity:.75}
+.ag-data{flex:none;width:64px;text-align:center;background:#0b2545;color:#fff;border-radius:12px;padding:8px 4px;line-height:1.1}
+.ag-data b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:30px}.ag-data span{display:block;text-transform:uppercase;font-weight:700;color:#f2b705}
+.ag-data small{display:block;font-size:12px;opacity:.85;margin-top:2px}
+.ag-tx p{margin:4px 0 6px;font-weight:600}.ag-bt a{display:inline-block;margin-top:8px;font-weight:700}
+.botoes-ag{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0}
+.btn-ag{display:inline-flex;align-items:center;gap:8px;background:#0b2545;color:#fff;text-decoration:none;font-weight:700;padding:11px 16px;border-radius:12px}
+.btn-ag svg{width:20px;height:20px}.btn-ag.sec{background:#fff;color:#0b2545;border:2px solid #0b2545}

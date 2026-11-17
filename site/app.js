@@ -13,6 +13,7 @@ const ICONE = {
   balanca: '<path d="M12 3v18M5 21h14M3 7h18M6 7l-3 7a3 3 0 0 0 6 0zM18 7l-3 7a3 3 0 0 0 6 0z"/>',
   camara: '<path d="M3 21h18M5 21V10M9.5 21V10M14.5 21V10M19 21V10M2 10l10-6 10 6z"/>',
   dinheiro: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 12h.01M18 12h.01"/>',
+  agenda: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
   pin: '<path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/>',
   repete: '<path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/>',
   lupa: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
@@ -445,7 +446,7 @@ function pgSobre() {
 
 // ---------- rotas ----------
 const SUBNAV = {
-  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Placar", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/repetidos", "Pedidos que voltam", "repete"]],
+  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Placar", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"]],
   prefeitura: [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura/comissionados", "Comissionados", "pessoas"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
 };
 const SELO = {
@@ -496,7 +497,7 @@ async function rota() {
   const h = location.hash.replace(/^#\/?/, "");
   const partes = h.split("/").map(decodeURIComponent);
   const pag = partes[0], arg = partes.slice(1).join("/");
-  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
+  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
   document.querySelectorAll("nav.areas a").forEach(a => a.classList.toggle("ativo", a.dataset.area === area));
   const sub = document.getElementById("subnav");
   const atual = "#/" + h;
@@ -512,6 +513,7 @@ async function rota() {
     else if (pag === "repetidos") await pgRepetidos(arg);
     else if (pag === "grupo") await pgGrupo(arg);
     else if (pag === "placar") pgPlacar(arg);
+    else if (pag === "agenda") await pgAgenda();
     else if (pag === "apoie") pgApoie();
     else if (pag === "sobre") { pgSobre(); if (window.sobrePrefeitura) await sobrePrefeitura(); }
     else if (pag === "camara") pgInicio();
@@ -523,6 +525,44 @@ async function rota() {
     console.error(e);
   }
 }
+// ---------- Agenda: audiências públicas da Câmara ----------
+async function pgAgenda() {
+  const A = await fetch("dados/agenda.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  const DIAS = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta", "sábado"];
+  const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  const hoje = new Date().toLocaleDateString("sv-SE", {timeZone: "America/Sao_Paulo"});
+  const ev = (A && A.eventos) || [];
+  const futuros = ev.filter(e => e.data >= hoje), passados = ev.filter(e => e.data < hoje).reverse();
+  const gcal = e => {
+    const d = e.data.replace(/-/g, ""), h = (e.hora || "09:00").replace(":", "");
+    const fim = String(Math.min(23, +h.slice(0, 2) + 3)).padStart(2, "0") + h.slice(2);
+    return "https://calendar.google.com/calendar/render?action=TEMPLATE&ctz=America/Sao_Paulo"
+      + "&text=" + encodeURIComponent("Audiência pública: " + e.tema.slice(0, 100))
+      + "&dates=" + d + "T" + h + "00/" + d + "T" + fim + "00"
+      + "&location=" + encodeURIComponent(e.local) + "&details=" + encodeURIComponent(e.tema + "\n\nFonte: " + e.fonte);
+  };
+  const card = (e, futuro) => {
+    const [y, m, d] = e.data.split("-").map(Number), dia = DIAS[new Date(y, m - 1, d).getDay()];
+    return `<div class="ag-item${futuro ? "" : " passado"}">
+      <div class="ag-data"><b>${d}</b><span>${MESES[m - 1]}</span><small>${dia}</small></div>
+      <div class="ag-tx"><small class="sub">${esc(e.tipo)}${e.hora ? " · " + esc(e.hora.replace(":00", "h").replace(":", "h")) : ""} · ${esc(e.local)}</small>
+        <p>${esc(e.tema)}</p>
+        ${e.autoria ? `<small class="sub">Autoria: ${esc(e.autoria)}${e.requerimento ? ` · Requerimento ${esc(e.requerimento)}` : ""}</small>` : ""}
+        ${futuro ? `<div class="ag-bt"><a href="${gcal(e)}" target="_blank" rel="noopener">Adicionar à minha agenda</a></div>` : ""}
+      </div></div>`;
+  };
+  app.innerHTML = `${SELO.camara()}
+    <h1>Agenda da Câmara</h1>
+    <p class="sub">Audiências públicas abertas à população, com data, hora e tema. Você pode ir ao plenário ou mandar perguntas pelo WhatsApp da Câmara, <b>(32) 99183-0706</b>, até 30 minutos depois do início. A transmissão é ao vivo pela JFTV (canal 35.1) e pelo YouTube da Câmara.</p>
+    <div class="botoes-ag"><a class="btn-ag" href="webcal://jflandia.com.br/agenda.ics">${ic("agenda")} Assinar a agenda no celular</a><a class="btn-ag sec" href="https://calendar.google.com/calendar/r?cid=${encodeURIComponent("webcal://jflandia.com.br/agenda.ics")}" target="_blank" rel="noopener">Assinar no Google Agenda</a></div>
+    <h2>Próximas audiências</h2>
+    ${futuros.length ? futuros.map(e => card(e, true)).join("") : `<p class="sub">Nenhuma audiência marcada na página oficial da Câmara por enquanto. A Câmara costuma publicar as do mês no início de cada mês; o Radar confere todo dia.</p>`}
+    <h2>Reuniões ordinárias</h2>
+    <p>${esc((A && A.ordinarias) || "Reuniões ordinárias de segunda a quinta às 17h30 e às sextas às 10h30.")} Veja o <a href="https://www.camarajf.mg.gov.br/www/agenda-de-reunioes" target="_blank" rel="noopener">calendário oficial</a>.</p>
+    ${passados.length ? `<h2>Audiências que já aconteceram</h2>${passados.slice(0, 20).map(e => card(e, false)).join("")}<p class="sub">As atas ficam na <a href="https://www.camarajf.mg.gov.br/sal/buscaratas.php" target="_blank" rel="noopener">busca de atas da Câmara</a>.</p>` : ""}
+    <p class="sub fonte-linha">Fonte: <a href="https://www.camarajf.mg.gov.br/www/audiencias-publicas" target="_blank" rel="noopener">página de audiências públicas da Câmara Municipal</a>${A ? `, conferida em ${esc(A.atualizado.split(" ")[0].split("-").reverse().join("/"))}` : ""}. O Radar guarda o histórico a partir de novembro de 2026.</p>`;
+}
+
 // botão flutuante para compartilhar a página atual no WhatsApp
 function botaoZap(pag, partes) {
   let b = document.getElementById("zap");
