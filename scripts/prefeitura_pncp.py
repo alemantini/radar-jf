@@ -22,6 +22,8 @@ import requests
 
 RAIZ = Path(__file__).resolve().parent.parent
 SAIDA = RAIZ / "site" / "dados" / "prefeitura" / "pncp_sinais.json"
+CACHE = RAIZ / "data" / "cache" / "pncp_vencedores.json"
+TEMPO = 900  # segundos no máximo por execução buscando vencedores novos
 CNPJ = "18338178000102"
 H = {"User-Agent": "RadarJF/1.0 (robo de transparencia)"}
 API = "https://pncp.gov.br/api"
@@ -30,9 +32,9 @@ MODALIDADES = {4: "Concorrência eletrônica", 5: "Concorrência presencial", 6:
 
 
 def get(url, **p):
-    for t in range(4):
+    for t in range(3):
         try:
-            r = requests.get(url, params=p, headers=H, timeout=120)
+            r = requests.get(url, params=p, headers=H, timeout=60)
         except requests.RequestException:
             time.sleep(5)
             continue
@@ -70,10 +72,18 @@ def link_compra(c):
     return f"https://pncp.gov.br/app/editais/{CNPJ}/{c['anoCompra']}/{c['sequencialCompra']}"
 
 
+VENC, INICIO = {}, time.time()
+
+
 def vencedor(c):
-    """Fornecedor que mais ganhou na compra (pelos resultados dos itens)."""
+    """Fornecedor que mais ganhou na compra (pelos resultados dos itens), com cache."""
+    k = c.get("numeroControlePNCP")
+    if k in VENC:
+        return tuple(VENC[k])
+    if time.time() - INICIO > TEMPO:
+        return "", "", 0
     tot = {}
-    for it in (get(f"{API}/pncp/v1/orgaos/{CNPJ}/compras/{c['anoCompra']}/{c['sequencialCompra']}/itens", pagina=1, tamanhoPagina=50) or [])[:50]:
+    for it in (get(f"{API}/pncp/v1/orgaos/{CNPJ}/compras/{c['anoCompra']}/{c['sequencialCompra']}/itens", pagina=1, tamanhoPagina=30) or [])[:30]:
         for r in get(f"{API}/pncp/v1/orgaos/{CNPJ}/compras/{c['anoCompra']}/{c['sequencialCompra']}/itens/{it['numeroItem']}/resultados") or []:
             if r.get("dataCancelamento"):
                 continue
@@ -83,10 +93,13 @@ def vencedor(c):
     if not tot:
         return "", "", 0
     (cnpj, nome), v = max(tot.items(), key=lambda kv: kv[1])
+    VENC[k] = [cnpj, nome, len(tot)]
     return cnpj, nome, len(tot)
 
 
 def main():
+    if CACHE.exists():
+        VENC.update(json.loads(CACHE.read_text(encoding="utf-8")))
     sinais = []
     vistos = set()
     n_contratos = n_compras = 0
@@ -107,8 +120,10 @@ def main():
                                "detalhe": f"Contrato {k.get('numeroContratoEmpenho') or ''} ({(k.get('objetoContrato') or '')[:160].strip()}) começou em {brl(vi)} e o valor global está em {brl(vg)}, {pct}% a mais. A lei limita acréscimos a 25% (50% em reforma); prorrogar serviço contínuo é permitido, então vale ver os termos aditivos.",
                                "valor": round(vg, 2), "secretaria": (k.get("unidadeOrgao") or {}).get("nomeUnidade"),
                                "refs": [], "link": f"https://pncp.gov.br/app/contratos/{CNPJ}/{k['anoContrato']}/{k['sequencialContrato']}"})
+        print(f"{ano}: {n_contratos} contratos lidos até agora, {len(sinais)} sinais", flush=True)
         # licitações acima do orçado ou sem desconto
         for mod in MODALIDADES:
+            print(f"{ano}: modalidade {mod}", flush=True)
             for c in paginas(f"{API}/consulta/v1/contratacoes/publicacao", dataInicial=ini, dataFinal=fim, codigoModalidadeContratacao=mod, cnpj=CNPJ):
                 n_compras += 1
                 est, hom = c.get("valorTotalEstimado") or 0, c.get("valorTotalHomologado") or 0
@@ -131,6 +146,8 @@ def main():
                                "detalhe": det + (f" Itens divididos entre {nforn} fornecedores; aqui aparece o que mais ganhou." if nforn > 1 else ""),
                                "valor": round(hom, 2), "secretaria": (c.get("unidadeOrgao") or {}).get("nomeUnidade"),
                                "refs": [], "link": link_compra(c)})
+    CACHE.parent.mkdir(parents=True, exist_ok=True)
+    CACHE.write_text(json.dumps(VENC, ensure_ascii=False, sort_keys=True), encoding="utf-8")
     SAIDA.parent.mkdir(parents=True, exist_ok=True)
     SAIDA.write_text(json.dumps({"coletado_em": dt.datetime.now().strftime("%Y-%m-%d %H:%M"), "sinais": sinais,
                                  "contratos_lidos": n_contratos, "compras_lidas": n_compras}, ensure_ascii=False), encoding="utf-8")
