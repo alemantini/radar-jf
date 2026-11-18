@@ -1,38 +1,30 @@
-"""Exploração 6: diárias da Câmara (xlsx) e atas (PDF) para presença e votações."""
+"""Sonda: anexos da planta de valores do IPTU (Lei 15.039/2024 e a lei de 2025 para 2026)."""
 import io, re, requests
-from openpyxl import load_workbook
 from pypdf import PdfReader
-H = {"User-Agent": "Mozilla/5.0 RadarJF"}
-B = "https://www.camarajf.mg.gov.br/"
-s = requests.get(B + "transparencia/viagens.php", headers=H, timeout=60)
-print("viagens.php", s.status_code, sorted(set(re.findall(r"cod_relatorio=(\d+)[^'\"]*", s.text)))[:20])
-print([l for l in re.findall(r"geraIntervalo\([^)]*\)", s.text)][:6])
-for js in re.findall(r'<script[^>]*src="([^"]+)"', s.text):
-    if "jquery" in js or "bootstrap" in js: continue
-    try:
-        j = requests.get(requests.compat.urljoin(B + "transparencia/", js), headers=H, timeout=30).text
-        for m in re.findall(r"function geraIntervalo[\s\S]{0,1800}", j): print("JS", js, m)
-    except Exception as e: print("js erro", e)
-for m in re.findall(r"function geraIntervalo[\s\S]{0,1800}", s.text): print("INLINE", m)
-for cod in (23703, 23704):
-    r = requests.get(B + f"transparencia/relatorio.php?cod_relatorio={cod}&tp=xls", headers=H, timeout=60)
-    print("\nXLS", cod, r.status_code, r.headers.get("content-type"), len(r.content))
-    try:
-        wb = load_workbook(io.BytesIO(r.content), read_only=True)
-        for ws in wb.worksheets:
-            print(" aba", ws.title)
-            for i, row in enumerate(ws.iter_rows(values_only=True)):
-                if i < 14 or i % 40 == 0: print("  ", row)
-            print("  linhas", i)
-    except Exception as e: print(" erro", e)
-for cod in (5571, 5566, 5567):
-    r = requests.get(B + f"sal/ata.php?cod={cod}", headers=H, timeout=90)
-    print("\nATA", cod, r.status_code, len(r.content))
-    try:
-        t = "\n".join(p.extract_text() or "" for p in PdfReader(io.BytesIO(r.content)).pages)
-        t1 = re.sub(r"\s+", " ", t)
-        print(" inicio:", t1[:1500])
-        for k in ("presen", "ausen", "votação nominal", "votaram", "SIM", "aprovad", "rejeitad", "manteve o veto", "veto"):
-            for m in list(re.finditer(k, t1))[:3]:
-                print(f" [{k}]", t1[max(0, m.start() - 250):m.start() + 350])
-    except Exception as e: print(" erro", e)
+H = {"User-Agent": "Mozilla/5.0 (RadarJF)"}
+def norma(n):
+    t = requests.get(f"https://www.camarajf.mg.gov.br/sal/norma.php?njn={n}&njc=&njt=LEI", headers=H, timeout=60).text
+    return t
+for n in ("15039", "15068"):
+    t = norma(n)
+    em = re.search(r"Ementa:.*?\n(.*?)\n", re.sub(r"<[^>]+>", "\n", t), re.S)
+    anexos = re.findall(r'href="([^"]*anexo\.php[^"]*)"[^>]*>([^<]*)', t)
+    print("LEI", n, anexos, re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", t))[200:700])
+    for href, nome in anexos[:2]:
+        url = requests.compat.urljoin("https://www.camarajf.mg.gov.br/sal/", href)
+        b = requests.get(url, headers=H, timeout=120).content
+        r = PdfReader(io.BytesIO(b))
+        print("PDF", nome, len(b), "paginas", len(r.pages))
+        txt = "\n".join((p.extract_text() or "") for p in r.pages)
+        cods = re.findall(r"\b([A-Z]{2}\d{3})\b", txt)
+        print("codigos", len(cods), len(set(cods)))
+        print(txt[:3000])
+        print("..... MEIO .....")
+        i = len(txt) // 2
+        print(txt[i:i + 2500])
+        for kw in ("ANEXO", "Anexo"):
+            for m in re.finditer(kw + r"[^\n]{0,120}", txt):
+                print("  >>", m.group(0)[:130])
+# lei de 2025 para 2026 (Mensagem 4718/2025)
+t = requests.get("https://www.camarajf.mg.gov.br/sal/buscanormas.php?palavra=%C1REAS+IS%D3TIMAS", headers=H, timeout=60).text
+print("BUSCA", re.findall(r"norma\.php\?njn=(\d+)[^\"]*njt=(\w+)", t)[:20])
