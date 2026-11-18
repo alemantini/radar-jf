@@ -16,6 +16,7 @@ const ICONE = {
   agenda: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
   pin: '<path d="M12 21s-7-6.2-7-12a7 7 0 0 1 14 0c0 5.8-7 12-7 12z"/><circle cx="12" cy="9" r="2.5"/>',
   repete: '<path d="M17 2l4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3"/>',
+  fala: '<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
   lupa: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
   pessoas: '<circle cx="9" cy="7" r="4"/><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2M16 3.1a4 4 0 0 1 0 7.8M22 21v-2a4 4 0 0 0-3-3.9"/>',
   predios: '<path d="M3 21h18M5 21V4h9v17M14 9h5v12M8 8h3M8 12h3M8 16h3"/>',
@@ -26,7 +27,7 @@ const ICONE = {
 const ic = (n, cls = "") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONE[n] || ""}</svg>`;
 const iniciais = n => String(n || "").replace(/^(Dr|Dra|Sargento|Prof|Profa)\.?\s+/i, "").split(/\s+/).filter(p => p.length > 2 || /^[A-ZÀ-Ý]/.test(p)).slice(0, 2).map(p => p[0]).join("").toUpperCase();
 
-let FOTOS = new Set(), CREDITO_FOTO = "", EMENDAS_R = null, GAB_R = null, TSE_R = null, FALAS = null;
+let FOTOS = new Set(), CREDITO_FOTO = "", EMENDAS_R = null, GAB_R = null, TSE_R = null, FALAS = null, FALAS_T = null;
 // emendas do vereador: a planilha da Prefeitura usa o nome completo
 function emendasDe(v) {
   if (!EMENDAS_R || !v) return null;
@@ -315,20 +316,89 @@ async function pgGrupo(g) {
   mostra();
 }
 
+async function carregarFalasTrechos() {
+  if (!FALAS_T) FALAS_T = await fetch("dados/atas_falas_trechos.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  return FALAS_T;
+}
+const fonteAta = c => ((FALAS && FALAS.fonte) || "https://www.camarajf.mg.gov.br/sal/ata.php?cod={}").replace("{}", c);
+const temasFortes = f => (f && f.temas || []).filter(([, n]) => n >= 2).slice(0, 6);
+const falaHTML = (t, rotulo) => `<div class="ag-item fala"><div class="ag-tx"><small class="sub">${dataBR(t.d)}${rotulo ? " · " + esc(rotulo) : ""}</small>
+  <p>${esc(t.x)}</p><div class="ag-bt"><a href="${fonteAta(t.c)}" target="_blank" rel="noopener">Ler a ata completa</a></div></div></div>`;
+const NOTA_TEMAS = `Os assuntos são encontrados por computador no trecho da ata em que o próprio vereador fala, e só contam quando o tema aparece mais de uma vez nesse trecho. Mostram do que ele falou, não a posição dele: para saber o que defendeu, leia as falas, que levam à ata oficial. As atas são um resumo escrito pela Câmara, não uma transcrição palavra por palavra.`;
+
 function blocoFalas(v) {
   const f = falasDe(v);
   if (!f || !f.reunioes) return "";
-  const pres = ehPresidente(v), pct = Math.round(100 * f.falou / f.reunioes);
-  const fonte = c => (FALAS.fonte || "").replace("{}", c);
+  const pres = ehPresidente(v), pct = Math.round(100 * f.falou / f.reunioes), tm = temasFortes(f);
+  setTimeout(async () => {
+    const T = await carregarFalasTrechos(), d = T && T.vereadores[v.id];
+    const alvo = document.getElementById("falas-det");
+    if (!alvo || !d) return;
+    alvo.innerHTML = `
+      ${tm.length ? `<h3>Assuntos que mais levou às reuniões</h3>
+        <div class="chips-filtro" id="tm-abas">${tm.map(([t, n], k) => `<a href="javascript:void 0" data-t="${esc(t)}"${k ? "" : ' class="on"'}>${esc(t)} <b>${fmt(n)}</b></a>`).join("")}</div>
+        <p class="sub" id="tm-expl"></p><div id="tm-ex"></div>` : `<p class="sub">Ainda há poucas falas registradas para mostrar os assuntos principais.</p>`}
+      ${f.homenagens ? `<p class="sub">Também fez homenagens, cumprimentos ou votos de pesar em ${fmt(f.homenagens)} reuniões.</p>` : ""}
+      ${d.trechos.length ? `<h3>Falas mais recentes</h3>${d.trechos.slice(0, 5).map(t => falaHTML(t, t.t)).join("")}` : ""}`;
+    const mostra = t => {
+      const n = (tm.find(x => x[0] === t) || [])[1] || 0;
+      document.getElementById("tm-expl").textContent = `Falou sobre ${t.toLowerCase()} em ${fmt(n)} ${n === 1 ? "reunião" : "reuniões"}. Exemplos mais recentes:`;
+      document.getElementById("tm-ex").innerHTML = (d.temas[t] || []).map(x => falaHTML(x, t)).join("");
+    };
+    if (tm.length) {
+      alvo.querySelectorAll("#tm-abas a").forEach(a => a.onclick = () => { alvo.querySelectorAll("#tm-abas a").forEach(b => b.classList.toggle("on", b === a)); mostra(a.dataset.t); });
+      mostra(tm[0][0]);
+    }
+  }, 0);
   return `<h2>Nas reuniões da Câmara</h2>
     <div class="nums"><span><b>${fmt(f.falou)}</b>reuniões em que falou</span><span><b>${fmt(f.reunioes)}</b>reuniões no período</span>${pres ? "" : `<span><b>${pct}%</b>das reuniões</span>`}</div>
     ${pres ? `<p class="sub">Como presidente da Câmara, conduz as reuniões. As falas dele como presidente aparecem nas atas como "o Presidente" e não entram nesta conta.</p>` : ""}
     ${f.reunioes < 60 ? `<p class="sub">Esteve no mandato de ${dataBR(f.de)} a ${dataBR(f.ate)}.</p>` : ""}
-    ${f.trechos.length ? `<p class="sub">O que as atas registram das falas mais recentes (resumo escrito pela Câmara, não é transcrição palavra por palavra):</p>
-    ${f.trechos.slice(0, 5).map(t => `<div class="ag-item fala"><div class="ag-tx"><small class="sub">${dataBR(t.d)} · ${esc(t.t)}</small>
-      <p>${esc(t.x)}</p><div class="ag-bt"><a href="${fonte(t.c)}" target="_blank" rel="noopener">Ler a ata completa</a></div></div></div>`).join("")}` : ""}
-    <p><a href="#/atas/v=${v.id}">Ver todas as atas em que ${esc(v.apelido)} falou</a> · <a href="#/placar/tribuna">Comparar com os outros vereadores</a></p>
-    <p class="sub">${NOTA_FALAS()}</p>`;
+    <div id="falas-det"><p class="carregando">Carregando as falas…</p></div>
+    <p><a href="#/atas/v=${v.id}">Ver todas as atas em que ${esc(v.apelido)} falou</a> · <a href="#/defende">Comparar os assuntos dos vereadores</a> · <a href="#/placar/tribuna">Quem mais fala</a></p>
+    <p class="sub">${NOTA_FALAS()} ${NOTA_TEMAS}</p>`;
+}
+
+// ---------- Quem defende o quê ----------
+async function pgDefende(arg) {
+  await carregarResumo();
+  if (!FALAS) { app.innerHTML = `<h1>Quem defende o quê</h1><div class="info">Os dados das atas ainda estão sendo preparados.</div>`; return; }
+  const atuais = RESUMO.vereadores.filter(v => !v.fora_da_lista && falasDe(v));
+  const todos = {};
+  atuais.forEach(v => (falasDe(v).temas || []).forEach(([t, n]) => todos[t] = (todos[t] || 0) + n));
+  const ordem = Object.keys(todos).sort((a, b) => todos[b] - todos[a]);
+  let tema = ordem.includes(arg) ? arg : "";
+  app.innerHTML = `
+    <h1>Quem defende o quê</h1>
+    <p class="sub">Os assuntos que cada vereador mais levou às reuniões da Câmara desde ${dataBR(FALAS.desde)}, contados nas atas oficiais. Escolha um assunto para ver quem mais falou dele.</p>
+    <div class="chips-filtro" id="df-abas"><a href="javascript:void 0" data-t=""${tema ? "" : ' class="on"'}>Todos os vereadores</a>${ordem.map(t => `<a href="javascript:void 0" data-t="${esc(t)}"${t === tema ? ' class="on"' : ""}>${esc(t)}</a>`).join("")}</div>
+    <div id="df-lista"></div>
+    <p class="sub fonte-linha">${NOTA_TEMAS} Pedidos de rotina e homenagens não entram nos assuntos. O presidente da Câmara conduz as reuniões e quase não aparece falando com o próprio nome. Fonte: <a href="#/atas">atas da Câmara Municipal de Juiz de Fora</a>.</p>`;
+  const desenha = () => {
+    document.querySelectorAll("#df-abas a").forEach(a => a.classList.toggle("on", a.dataset.t === tema));
+    history.replaceState(null, "", "#/defende" + (tema ? "/" + encodeURIComponent(tema) : ""));
+    const out = document.getElementById("df-lista");
+    if (tema) {
+      const L = atuais.filter(v => !ehPresidente(v)).map(v => ({v, n: ((falasDe(v).temas || []).find(x => x[0] === tema) || [])[1] || 0})).filter(l => l.n >= 2).sort((a, b) => b.n - a.n);
+      const mx = Math.max(...L.map(l => l.n), 1);
+      out.innerHTML = `<p class="sub">Em quantas reuniões cada vereador falou sobre ${esc(tema.toLowerCase())}. Aparecem os vereadores que falaram do assunto em pelo menos 2 reuniões.</p>` + (L.map((l, i) => `
+        <a class="rk" href="#/v/${l.v.id}"><span class="rk-pos">${i + 1}º</span>${avatar(l.v)}
+          <span class="rk-cx"><span class="rk-nm">${esc(l.v.apelido)}<small>${esc(l.v.partido || "")}</small></span>
+          <span class="rk-barra"><i style="width:${100 * l.n / mx}%"></i></span>
+          <span class="rk-partes"><span>Ver as falas na página do vereador</span></span></span>
+          <span class="rk-nota">${fmt(l.n)}<small>reuniões</small></span></a>`).join("") || `<p class="sub">Nenhum vereador com esse assunto entre os principais.</p>`);
+    } else {
+      out.innerHTML = atuais.slice().sort((a, b) => a.apelido.localeCompare(b.apelido, "pt-BR")).map(v => {
+        const f = falasDe(v), tm = temasFortes(f).slice(0, 3);
+        return `<a class="rk df" href="#/v/${v.id}"><span class="rk-pos"></span>${avatar(v)}
+          <span class="rk-cx"><span class="rk-nm">${esc(v.apelido)}<small>${esc(v.partido || "")}</small></span>
+          <span class="rk-partes">${tm.length ? tm.map(([t, n]) => `<span>${esc(t)}: ${fmt(n)} ${n === 1 ? "reunião" : "reuniões"}</span>`).join("") : `<span>${ehPresidente(v) ? "Presidente: conduz as reuniões" : "Poucas falas registradas"}</span>`}</span></span>
+          <span class="rk-nota">${fmt(f.falou)}<small>reuniões com fala</small></span></a>`;
+      }).join("");
+    }
+  };
+  document.querySelectorAll("#df-abas a").forEach(a => a.onclick = () => { tema = a.dataset.t; desenha(); });
+  desenha();
 }
 
 async function pgVereador(id) {
@@ -482,7 +552,7 @@ function pgSobre() {
 
 // ---------- rotas ----------
 const SUBNAV = {
-  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/atas", "Atas", "lupa"]],
+  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/defende", "Quem defende o quê", "fala"], ["#/atas", "Atas", "lupa"]],
   prefeitura: [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/lupa", "Na lupa", "lupa"], ["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/iptu", "Calculadora do IPTU", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura/comissionados", "Cargos de confiança", "pessoas"], ["#/prefeitura/supersalarios", "Supersalários", "dinheiro"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
 };
 const SELO = {
@@ -534,7 +604,7 @@ async function rota() {
   const h = location.hash.replace(/^#\/?/, "");
   const partes = h.split("/").map(decodeURIComponent);
   const pag = partes[0], arg = partes.slice(1).join("/");
-  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
+  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
   document.querySelectorAll("nav.areas a").forEach(a => a.classList.toggle("ativo", a.dataset.area === area));
   const sub = document.getElementById("subnav");
   const atual = "#/" + h;
@@ -552,6 +622,7 @@ async function rota() {
     else if (pag === "placar") pgPlacar(arg);
     else if (pag === "agenda") await pgAgenda();
     else if (pag === "atas") await pgAtas(arg);
+    else if (pag === "defende") await pgDefende(arg);
     else if (pag === "resumo") await pgResumo();
     else if (pag === "apoie") pgApoie();
     else if (pag === "sobre") { pgSobre(); if (window.sobrePrefeitura) await sobrePrefeitura(); }

@@ -62,9 +62,12 @@ LIXO = [
 RODAPE = re.compile(r"\s*,? conforme MP nº 2\.200-2/2001, que institui a Infraestrutura de Chaves Públicas Brasileira - ICP-BRASIL \d+/\d+\s*")
 
 
+CABECALHO = re.compile(r"\s*\d+ª [A-ZÀ-Ú ]{5,80} do dia \d{2}/\d{2}/\d{4}(?: ATA (?:NÃO )?APROVADA)?\s*")
+
+
 def sem_rodape(texto):
-    """Tira o aviso de assinatura digital que o PDF repete no pé de cada página."""
-    return RODAPE.sub(" ", texto)
+    """Tira o aviso de assinatura digital e o título que o PDF repete em cada página."""
+    return CABECALHO.sub(" ", RODAPE.sub(" ", texto))
 
 
 # ---------- cache (um arquivo por ano, para o repositório não crescer a cada dia) ----------
@@ -215,34 +218,105 @@ def trecho_da_fala(texto, ini):
     return t[:corte + 1] if corte > 120 else t[:330].rsplit(" ", 1)[0] + "…"
 
 
+# Assuntos das falas. Procurados sem acento e em minúsculas, só no trecho em que o próprio
+# vereador fala (até a vez do próximo orador). Para contar, o assunto precisa aparecer
+# pelo menos duas vezes no trecho: uma palavra solta não basta para dizer que ele defendeu o tema.
+TEMAS_FALA = [
+    ("Saúde", r"saude|hospita|\bubs\b|\bupa\b|medic[oa]s?\b|medicament|\bsus\b|vacina|paciente|consulta|cirurgi|enferm"),
+    ("Educação", r"escola|ensino|educac|alun[oa]|estudante|creche|professor|merenda|\bcmei|pedagog"),
+    ("Segurança pública", r"seguranca publica|policia|guarda municipal|violencia urbana|criminal|assalto|trafico|homicid"),
+    ("Obras e bairros", r"asfalt|buraco|paviment|calcament|drenagem|enchente|alagament|encosta|iluminacao publica|capina|recapea|meio-fio|corrego|bueiro|obras? (?:no|na|do|da|de)\b"),
+    ("Transporte e trânsito", r"onibus|transporte (?:publico|coletivo)|transito|tarifa|mobilidade|ciclovia|estacionament|semaforo"),
+    ("Contas e fiscalização da Prefeitura", r"orcament|divida|deficit|contas publicas|licitac|contratos?\b|\bcpi\b|fiscaliz|tribunal de contas|\bldo\b|\bloa\b|credito suplementar|emprestimo|financiamento|prestacao de contas|controlador"),
+    ("Servidores públicos", r"servidor|funcionalismo|reajuste|terceirizad|concurso publico|piso salarial"),
+    ("Assistência social", r"\bcras\b|\bcreas\b|assistencia social|cesta basica|bolsa familia|vulnerab|situacao de rua|moradores? de rua|\bfome\b|cadunico|cadastro unico"),
+    ("Causa animal", r"\banimai?s\b|\banimal\b|cachorr|\bcaes\b|\bgatos?\b|castrac|maus-tratos|causa animal"),
+    ("Meio ambiente e limpeza urbana", r"meio ambiente|ambiental|arvore|reciclag|coleta de lixo|\blixo\b|demlurb|poluic|desmatament|paraibuna"),
+    ("Pessoas idosas", r"\bidos[oa]s?\b|terceira idade"),
+    ("Pessoas com deficiência", r"deficien|autis|\btea\b|acessibilidade|\bpcd\b"),
+    ("Mulheres", r"\bmulher(?:es)?\b|feminic|violencia domestica|maria da penha"),
+    ("Cultura, esporte e lazer", r"cultura|esporte|futebol|\bskate|festival|carnaval|\blazer\b|teatro|museu|atleta"),
+    ("Moradia", r"moradia|habitac|minha casa|regularizacao fundiaria|loteamento"),
+    ("Impostos e taxas", r"\biptu\b|imposto|tribut|taxa de"),
+    ("Emprego e economia", r"emprego|desemprego|comercio|empresari|empreend|industria|geracao de renda"),
+]
+TEMAS_FALA_RX = [(n, re.compile(r)) for n, r in TEMAS_FALA]
+HOMENAGEM = re.compile(r"homenag|parabeniz|titulo de cidadao|medalha|aniversario|boas-vindas|condolenc|votos de pesar|falecimento")
+PROXIMO_ORADOR = re.compile(r"(?:o |a )?vereadora? [a-z]|o presidente |a presidente |em discussao|em votacao|ordem do dia")
+TEMAS_POR_VEREADOR = 6
+EXEMPLOS_POR_TEMA = 2
+
+
+def falas_na_ata(norm, rx_fala):
+    """Trechos (início, fim) em que o vereador fala, sem os pedidos de rotina."""
+    for m in rx_fala.finditer(norm):
+        if ROTINA.search(norm[m.end():m.end() + 140]):
+            continue
+        f = PROXIMO_ORADOR.search(norm, m.start() + 25, m.start() + 1500)
+        yield m.start(), (f.start() if f else min(len(norm), m.start() + 1200))
+
+
+def exemplo_do_tema(texto, pos, i, j, k):
+    """Trecho da fala que mostra o assunto: o começo da fala, ou a frase onde o assunto aparece."""
+    orig = texto[pos[i]:pos[j - 1] + 1]
+    if k < 220:
+        return trecho_da_fala(orig, 0)
+    ini = pos[i + k] - pos[i]
+    frase = orig.rfind(". ", 0, ini)
+    nome = re.match(r"\S+ (?:\S+ ){0,4}?\S+?(?=,? (?:\(|[a-zà-ú]))", orig)
+    return (nome.group(0) + ": " if nome else "") + "… " + trecho_da_fala(orig, frase + 2 if frase >= 0 else ini)
+
+
 def gerar_falas(atas, vereadores):
     reunioes = sorted((a for a in atas.values() if (a["data"] or "") >= INICIO_MANDATO and a["tipo"] != "Outra"),
                       key=lambda a: (a["data"], a["cod"]))
-    citado, falou, trechos = {}, {}, {}
+    citado, falou, trechos, homen = {}, {}, {}, {}
+    temas, exemplos = {}, {}
     for a in reunioes:
-        norm, pos = mapa_sem_acento(a["texto"])
+        texto = sem_rodape(a["texto"])
+        norm, pos = mapa_sem_acento(texto)
         for vid, rx_fala, rx_nome in vereadores:
             if rx_nome.search(norm):
                 citado.setdefault(vid, []).append(a["data"])
-            m = next((m for m in rx_fala.finditer(norm) if not ROTINA.search(norm[m.end():m.end() + 140])), None)
-            if m:
-                falou.setdefault(vid, []).append(a["cod"])
-                trechos.setdefault(vid, []).append({"c": a["cod"], "d": a["data"], "t": a["tipo"],
-                                                    "x": trecho_da_fala(a["texto"], pos[m.start()])})
-    saida = {}
+            segs = list(falas_na_ata(norm, rx_fala))
+            if not segs:
+                continue
+            falou.setdefault(vid, []).append(a["cod"])
+            trechos.setdefault(vid, []).append({"c": a["cod"], "d": a["data"], "t": a["tipo"],
+                                                "x": trecho_da_fala(texto, pos[segs[0][0]])})
+            vistos = set()
+            for i, j in segs:
+                seg = norm[i:j]
+                if HOMENAGEM.search(seg):
+                    vistos.add("_h")
+                for nome, rx in TEMAS_FALA_RX:
+                    if len(rx.findall(seg)) >= 2 and nome not in vistos:
+                        vistos.add(nome)
+                        exemplos.setdefault((vid, nome), []).append(
+                            {"c": a["cod"], "d": a["data"], "x": exemplo_do_tema(texto, pos, i, j, rx.search(seg).start())})
+            for t in vistos:
+                if t == "_h":
+                    homen[vid] = homen.get(vid, 0) + 1
+                else:
+                    temas.setdefault(vid, {}).setdefault(t, 0)
+                    temas[vid][t] += 1
+    resumo, detalhe = {}, {}
     for vid, datas in citado.items():
         de, ate = min(datas), max(datas)  # período em que aparece nas atas = período no mandato
         no_periodo = [a for a in reunioes if de <= a["data"] <= ate]
-        saida[vid] = {"de": de, "ate": ate, "reunioes": len(no_periodo), "falou": len(falou.get(vid, [])),
-                      "trechos": list(reversed(trechos.get(vid, [])))[:TRECHOS_POR_VEREADOR]}
-    destino = SAIDA.parent / "atas_falas.json"
-    destino.write_text(json.dumps({
-        "atualizado": dt.datetime.now().strftime("%Y-%m-%d %H:%M"),
-        "desde": INICIO_MANDATO, "total_reunioes": len(reunioes),
-        "ultima": reunioes[-1]["data"] if reunioes else None,
-        "fonte": URL, "vereadores": saida,
-    }, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-    print(f"Falas: {len(saida)} vereadores, {len(reunioes)} reuniões desde {INICIO_MANDATO}")
+        todos = sorted(temas.get(vid, {}).items(), key=lambda x: (-x[1], x[0]))
+        top = todos[:TEMAS_POR_VEREADOR]
+        resumo[vid] = {"de": de, "ate": ate, "reunioes": len(no_periodo), "falou": len(falou.get(vid, [])),
+                       "homenagens": homen.get(vid, 0), "temas": [[t, n] for t, n in todos]}
+        detalhe[vid] = {"trechos": list(reversed(trechos.get(vid, [])))[:TRECHOS_POR_VEREADOR],
+                        "temas": {t: list(reversed(exemplos[(vid, t)]))[:EXEMPLOS_POR_TEMA] for t, _ in top}}
+    base = {"atualizado": dt.datetime.now().strftime("%Y-%m-%d %H:%M"), "desde": INICIO_MANDATO,
+            "total_reunioes": len(reunioes), "ultima": reunioes[-1]["data"] if reunioes else None, "fonte": URL}
+    (SAIDA.parent / "atas_falas.json").write_text(json.dumps({**base, "vereadores": resumo},
+                                                  ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    (SAIDA.parent / "atas_falas_trechos.json").write_text(json.dumps({**base, "vereadores": detalhe},
+                                                          ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    print(f"Falas: {len(resumo)} vereadores, {len(reunioes)} reuniões desde {INICIO_MANDATO}")
 
 
 # ---------- coleta ----------
