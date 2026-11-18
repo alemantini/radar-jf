@@ -2,6 +2,9 @@ name: Explorar dados (temporário)
 on:
   push:
     branches: [explorar-dados]
+permissions:
+  actions: read
+  contents: read
 jobs:
   explorar:
     runs-on: ubuntu-latest
@@ -11,4 +14,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
       - run: pip install requests
+      - run: bash tools/versao_anterior.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
       - run: python -u tools/explorar.py
