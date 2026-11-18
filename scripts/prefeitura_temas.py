@@ -108,7 +108,7 @@ def gerar_chuvas(empenhos, atos):
     forn = defaultdict(lambda: {"e": 0.0, "p": 0.0, "n": 0, "cats": set(), "nome": ""})
     forma = defaultdict(lambda: {"e": 0.0, "n": 0})
     pf = {"e": 0.0, "p": 0.0, "n": 0}
-    itens = []
+    itens = {}
     for x in empenhos:
         if x["d"] < INICIO_CHUVAS:
             continue
@@ -130,8 +130,13 @@ def gerar_chuvas(empenhos, atos):
         f["e"] += x["e"]; f["p"] += x["p"]; f["n"] += 1; f["cats"].add(cat); f["nome"] = x["cred"]
         fm = forma[forma_contratacao(x["h"])]
         fm["e"] += x["e"]; fm["n"] += 1
-        itens.append({"d": x["d"], "cred": x["cred"], "cnpj": x["cnpj"], "sec": x["sec"], "cat": cat,
-                      "e": r2(x["e"]), "p": r2(x["p"]), "h": x["h"], "num": x["n"]})
+        # anulações aparecem como linhas negativas do mesmo empenho: soma por empenho
+        chave = (x["cnpj"], x["n"] or (x["d"], x["h"]))
+        it = itens.setdefault(chave, {"d": x["d"], "cred": x["cred"], "cnpj": x["cnpj"], "sec": x["sec"], "cat": cat,
+                                      "e": 0.0, "p": 0.0, "h": x["h"], "num": x["n"]})
+        it["e"] += x["e"]; it["p"] += x["p"]
+        if x["e"] > 0 and (x["d"] < it["d"] or not it["h"]):
+            it["d"], it["h"] = x["d"], x["h"] or it["h"]
     # atos: decretos de emergência e calamidade, comitê, isenções e créditos extraordinários
     marcos, creditos = [], []
     for a in atos:
@@ -152,7 +157,8 @@ def gerar_chuvas(empenhos, atos):
         "n_fornecedores": len(forn),
         "forma": sorted(({"nome": k, "e": r2(v["e"]), "n": v["n"]} for k, v in forma.items()), key=lambda f: -f["e"]),
         "pessoas_fisicas": {k: r2(v) if k != "n" else v for k, v in pf.items()},
-        "itens": sorted(itens, key=lambda i: -i["e"])[:80],
+        "itens": sorted(({**i, "e": r2(i["e"]), "p": r2(i["p"])} for i in itens.values() if i["e"] > 0.5),
+                        key=lambda i: -i["e"])[:80],
         "marcos": sorted(marcos, key=lambda a: a["d"]),
         "creditos_extraordinarios": {"total": r2(tot_cred), "n": len(creditos), "atos": sorted(creditos, key=lambda a: a["d"])},
     }
