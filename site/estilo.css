@@ -523,3 +523,49 @@ mark{background:#ffe27a;color:inherit;border-radius:3px;padding:0 1px}
 .qt-term thead a{color:inherit;text-decoration:none}
 .qt-term td{width:38px;height:30px;text-align:center;border-radius:5px;background:#f2f4f7;color:#3a2a25}
 .qt-term td.forte{color:#fff;font-weight:700}
+
+/* ---------- página inicial: disposição ---------- */
+.hero-grid{position:relative;display:grid;grid-template-columns:minmax(0,1fr);gap:22px}
+.hero-txt,.hero-card,.hc-linha>*{min-width:0}
+.hero-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:18px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);backdrop-filter:blur(4px)}
+.hc-t{margin:0 0 10px;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:20px;letter-spacing:.02em;color:#f5c518}
+.hero-card .hero-sel,.hero-card .hero-busca{max-width:none}
+.hero-card #hoje-camara:empty{display:none}
+.hero-card .faixa-hoje{margin:0 0 10px;width:100%}
+.hc-atalhos{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.hc-atalhos a{color:#dbe4f0;text-decoration:none;font-size:14px;font-weight:600;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:4px 12px;transition:background .15s}
+.hc-atalhos a:hover{background:rgba(255,255,255,.12);color:#fff}
+.hero-card .hero-busca{margin-top:10px}
+@media (min-width:700px){
+  .hero-t{font-size:46px;max-width:19ch}
+  .hero-card{padding:18px 20px}
+  .hc-linha{display:grid;grid-template-columns:1fr 1.25fr;gap:10px;align-items:stretch}
+  .hc-linha .hero-sel select{height:100%}
+  .hero-card .hero-busca{margin-top:0}
+}
+.sec-t{margin:26px 0 10px;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--apoio);display:flex;align-items:center;gap:10px}
+.sec-t::after{content:"";flex:1;height:1px;background:var(--linha)}
+.novos{display:grid;gap:12px}
+.novos a{position:relative;display:flex;flex-direction:column;gap:4px;padding:14px 16px;border-radius:16px;background:#fff;color:var(--tinta);text-decoration:none;box-shadow:0 1px 3px rgba(16,24,40,.08),inset 0 0 0 1px var(--linha);transition:transform .15s,box-shadow .15s}
+.novos a:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(18,64,122,.14),inset 0 0 0 1px #b9cbe4}
+.novos .nv-ic{display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#1b5aa8,var(--azul));color:#fff;margin-bottom:6px}
+.novos .nv-ic svg{width:22px;height:22px}
+.novos b{font-family:"Barlow Condensed",sans-serif;font-size:21px;line-height:1.1;color:var(--azul)}
+.novos small{font-size:14px;line-height:1.35;color:var(--apoio)}
+.novos .sn-novo{top:12px;right:12px}
+.faixa-nums a{transition:transform .15s,box-shadow .15s;border-top:3px solid #f5c518}
+.faixa-nums a:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(16,24,40,.1)}
+.escolhas .placa{transition:transform .15s,box-shadow .15s}
+.escolhas .placa:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(16,24,40,.2)}
+.ferramentas{display:grid;gap:10px}
+.ferramentas .btn-grande{margin:0;border-width:1px;box-shadow:0 1px 3px rgba(16,24,40,.06);transition:transform .15s,box-shadow .15s}
+.ferramentas .btn-grande:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(16,24,40,.12)}
+@media (min-width:700px){
+  .novos{grid-template-columns:repeat(3,1fr)}
+  .escolhas{grid-template-columns:1fr 1fr}
+  .escolhas .placa{align-items:flex-start;min-height:190px}
+  .escolhas .placa .tt{font-size:30px}
+  .ferramentas{grid-template-columns:repeat(3,1fr)}
+  .ferramentas .btn-grande{flex-direction:column;align-items:flex-start;gap:8px;padding:14px 16px;font-size:18px;line-height:1.15}
+  .ferramentas .btn-grande .tx small{margin-top:4px}
+}
