@@ -84,8 +84,9 @@ def ato_curto(a):
 
 
 # ---------------- chuvas ----------------
-RESPOSTA = re.compile(r"calamidad|chuva|enchente|desabrig|desaloj|deslizament|areas? de risco|ajuda humanitaria|"
-                      r"17\.?693|17\.?59[38]|fumecap|acolhimento temporario|aluguel social|auxilio.moradia|atingid")
+RESPOSTA = re.compile(r"calamidad|chuvas?\b|enchente|desabrig|desaloj|deslizament|ajuda humanitaria|"
+                      r"17\.?693|17\.?59[38]|fumecap|acolhimento temporario|aluguel social|auxilio.moradia|"
+                      r"(?:familias|pessoas|imoveis|moradores) atingid|atingid[oa]s pel")
 ENCOSTAS = re.compile(r"encosta|macrodrenag|drenagem|corrego|contencao|contencoes|estabilizacao")
 FUNDO_CALAMIDADE = re.compile(r"calamidade")
 INICIO_CHUVAS = "2025-12-01"  # situação de emergência (dez/2025) e calamidade (fev/2026)
@@ -107,6 +108,7 @@ def gerar_chuvas(empenhos, atos):
     meses = defaultdict(lambda: {"e": 0.0, "p": 0.0})
     forn = defaultdict(lambda: {"e": 0.0, "p": 0.0, "n": 0, "cats": set(), "nome": ""})
     forma = defaultdict(lambda: {"e": 0.0, "n": 0})
+    por_sec = defaultdict(lambda: {"e": 0.0, "p": 0.0, "n": 0})
     pf = {"e": 0.0, "p": 0.0, "n": 0}
     itens = {}
     for x in empenhos:
@@ -123,6 +125,8 @@ def gerar_chuvas(empenhos, atos):
         c["e"] += x["e"]; c["p"] += x["p"]; c["n"] += 1
         m = meses[x["d"][:7]]
         m["e"] += x["e"]; m["p"] += x["p"]
+        ps = por_sec[x["sec"]]
+        ps["e"] += x["e"]; ps["p"] += x["p"]; ps["n"] += 1
         if not x["pj"]:
             pf["e"] += x["e"]; pf["p"] += x["p"]; pf["n"] += 1
             continue
@@ -155,6 +159,8 @@ def gerar_chuvas(empenhos, atos):
         "fornecedores": sorted(({"cnpj": k, "nome": v["nome"], "e": r2(v["e"]), "p": r2(v["p"]), "n": v["n"],
                                  "cats": sorted(v["cats"])} for k, v in forn.items()), key=lambda f: -f["e"])[:40],
         "n_fornecedores": len(forn),
+        "secretarias": sorted(({"nome": k, "e": r2(v["e"]), "p": r2(v["p"]), "n": v["n"]} for k, v in por_sec.items() if v["e"] > 0.5),
+                              key=lambda f: -f["e"]),
         "forma": sorted(({"nome": k, "e": r2(v["e"]), "n": v["n"]} for k, v in forma.items()), key=lambda f: -f["e"]),
         "pessoas_fisicas": {k: r2(v) if k != "n" else v for k, v in pf.items()},
         "itens": sorted(({**i, "e": r2(i["e"]), "p": r2(i["p"])} for i in itens.values() if i["e"] > 0.5),
