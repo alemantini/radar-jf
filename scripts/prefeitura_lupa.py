@@ -5,6 +5,7 @@ Lê os empenhos já baixados (site/dados/prefeitura/empenhos_AAAA.json) e separa
   - diárias e viagens
   - publicidade e propaganda
   - shows, festas e eventos
+  - aluguel de imóveis
   - corrida de dezembro (gasto empenhado no fim do ano comparado com os outros meses)
 
 A classificação usa o tipo de despesa (elemento), o texto do empenho (histórico) e o nome da
@@ -61,6 +62,11 @@ TEMAS = [
      r"festividad|premiac",
      r"\bshows?\b|apresentacao artistic|festival|carnaval|reveillon|\bpalco|sonorizacao|iluminacao (cenica|de palco)|cache|festividade|estrutura (para|de) eventos?|infraestrutura (para|de) eventos?|producao de eventos?|decoracao natalina|natal iluminado|festividades de fim de ano|aniversario da cidade|banda (de musica|musical)",
      r"eventos|producoes artist|entretenimento|sonorizacao|shows?\b|palcos?"),
+    ("alugueis", "Aluguel de imóveis",
+     "Prédios, salas, galpões e casas alugados pela Prefeitura para escolas, postos de saúde, secretarias e abrigos. Não inclui o aluguel social pago às famílias.",
+     r"locacao de imove|locacoes de imove",
+     r"(locacao|aluguel|alugueis) (de |do |dos |da )?(um |uma )?(imove|predio|sala|galpao|galpoes|casa|espaco fisico|loja|edificac|terreno)",
+     r"imobiliari|administradora de imove|empreendimentos imobil"),
 ]
 NAO_FOLHA = re.compile(r"vencim|patronal|aposent|pens|provent|rpps|rgps|previd|aliq|gratif|auxilio|divida|juros|amortiza|"
                        r"indenizac|contratacao por tempo|obrigac|sentenc|deficit atuarial|descontos efetuados|restitui|salario|"

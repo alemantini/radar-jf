@@ -140,6 +140,10 @@ jobs:
         continue-on-error: true
         run: python scripts/prefeitura_temas.py || cp /tmp/anterior/dados/prefeitura/chuvas.json /tmp/anterior/dados/prefeitura/emprestimos.json /tmp/anterior/dados/prefeitura/hospitais.json site/dados/prefeitura/ || true
 
+      - name: Câmara x Prefeitura, o pedido virou obra?
+        continue-on-error: true
+        run: python scripts/pedido_obra.py || cp /tmp/anterior/dados/pedido_obra.json site/dados/ || true
+
       - name: Prefeitura, orçamento que muda de lugar (decretos de crédito e Siconfi)
         continue-on-error: true
         run: python scripts/prefeitura_creditos.py --minutos 12 || cp /tmp/anterior/dados/prefeitura/creditos.json site/dados/prefeitura/ || true

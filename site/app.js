@@ -599,9 +599,9 @@ function pgSobre() {
 
 // ---------- rotas ----------
 // itens recém-lançados ganham o selo "novo" no menu (tirar daqui depois de algumas semanas)
-const NOVOS = new Set(["#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos"]);
+const NOVOS = new Set(["#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos"]);
 const SUBNAV = {
-  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/atas", "Atas", "lupa"]],
+  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/obra", "O pedido virou obra?", "predios"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/atas", "Atas", "lupa"]],
   prefeitura: [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/chuvas", "Dinheiro das chuvas", "alerta"], ["#/prefeitura/emprestimos", "Empréstimos", "dinheiro"], ["#/prefeitura/hospitais", "Hospitais", "coracao"], ["#/prefeitura/creditos", "Orçamento que muda", "repete"], ["#/prefeitura/lupa", "Na lupa", "lupa"], ["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/iptu", "Calculadora do IPTU", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura/comissionados", "Cargos de confiança", "pessoas"], ["#/prefeitura/supersalarios", "Supersalários", "dinheiro"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
 };
 const SELO = {
@@ -709,7 +709,7 @@ async function rota() {
   const h = location.hash.replace(/^#\/?/, "");
   const partes = h.split("/").map(decodeURIComponent);
   const pag = partes[0], arg = partes.slice(1).join("/");
-  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende", "quente"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
+  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende", "quente", "obra"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
   document.querySelectorAll("nav.areas a").forEach(a => a.classList.toggle("ativo", a.dataset.area === area));
   const sub = document.getElementById("subnav");
   const atual = "#/" + h;
@@ -729,6 +729,7 @@ async function rota() {
     else if (pag === "atas") await pgAtas(arg);
     else if (pag === "defende") await pgDefende(arg);
     else if (pag === "quente") await pgQuente(arg);
+    else if (pag === "obra") await pgPedidoObra(arg);
     else if (pag === "resumo") await pgResumo();
     else if (pag === "apoie") pgApoie();
     else if (pag === "sobre") { pgSobre(); if (window.sobrePrefeitura) await sobrePrefeitura(); }
@@ -1199,4 +1200,54 @@ function botaoInstalar() {
     if (_pedidoInstalar) { _pedidoInstalar.prompt(); await _pedidoInstalar.userChoice.catch(() => {}); _pedidoInstalar = null; botaoInstalar(); }
     else document.getElementById("app-ios").hidden = false;
   };
+}
+
+// ---------- Pedido x obra: o pedido do vereador virou gasto de obra? ----------
+async function pgPedidoObra(arg) {
+  app.innerHTML = `<h1>O pedido virou obra?</h1><p class="carregando">Carregando…</p>`;
+  const P = await fetch("dados/pedido_obra.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  if (!P) { app.innerHTML = `<h1>O pedido virou obra?</h1><div class="info">Os dados ainda estão sendo preparados. Volte mais tarde.</div>`; return; }
+  const nomeV = id => (VER[id] || {}).apelido || "";
+  const semAc = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const reaisP = v => window.reais ? reais(v) : reaisCurto(v);
+  const cartao = (r, aberto) => `<details class="po-card"${aberto ? " open" : ""}><summary>
+      <span class="po-rua"><b>${esc(r.r)}</b>${r.b ? `<small> · ${esc(r.b)}</small>` : ""}</span>
+      <span class="po-nums"><span class="po-ped">${fmt(r.q)} ${r.q === 1 ? "pedido de obra" : "pedidos de obra"}</span>${r.ng ? `<span class="po-gas">${fmt(r.ng)} ${r.ng === 1 ? "gasto" : "gastos"} de obra · ${reaisP(r.ge)}</span>` : ""}${r.na ? `<span class="po-gas">${fmt(r.na)} no Diário Oficial</span>` : ""}${!r.ng && !r.na ? `<span class="po-sem">nada encontrado</span>` : ""}</span></summary>
+      <div class="po-corpo">
+        <p class="sub">Pedidos de ${r.au.map(id => `<a href="#/v/${id}">${esc(nomeV(id))}</a>`).filter(x => !/>\s*<\/a>/.test(x)).join(", ") || "vereadores"}${r.d1 ? `, de ${dataBR(r.d1)} a ${dataBR(r.d2)}` : ""}${r.temas.length ? `. Assuntos: ${r.temas.map(esc).join(", ").toLowerCase()}` : ""}.</p>
+        ${(r.ped || []).slice(0, 4).map(p => `<div class="po-item"><small class="sub">${p.d ? dataBR(p.d) : p.a} · <a href="${FONTE(p.i)}" target="_blank" rel="noopener">${esc(p.t)} ${esc(p.n)}/${esc(p.a)}</a></small><p>${esc(p.e)}</p></div>`).join("")}
+        ${r.g && r.g.length ? `<h3>Gastos de obra da Prefeitura que citam esta rua</h3>
+        ${r.g.slice().reverse().map(g => `<div class="po-item obra"><small class="sub">${dataBR(g.d)} · ${esc(g.cred)} · ${esc(g.sec)}</small><p>${esc(g.h)}</p><small><b>${reaisP(g.e)}</b> reservados · ${reaisP(g.p)} pagos · <a href="#/prefeitura/empresa/${g.d.slice(0, 4)}/${g.cnpj}">ver a empresa</a></small></div>`).join("")}
+        ${r.depois ? "" : '<p class="sub">Os gastos encontrados são de antes do primeiro pedido.</p>'}` : ""}
+        ${r.at && r.at.length ? `<h3>Contratos e licitações de obra no Diário Oficial que citam esta rua</h3>
+        ${r.at.map(a => `<div class="po-item obra"><small class="sub">${dataBR(a.d)} · ${esc(a.tipo)}</small><p>${esc(a.x)}</p><small><a href="${P.link_ato}${a.id}" target="_blank" rel="noopener">ver no Diário Oficial</a></small></div>`).join("")}` : ""}
+      </div></details>`;
+  const desenha = q => {
+    const t = semAc(q).trim();
+    const filtra = L => t ? L.filter(r => semAc(r.r + " " + r.b).includes(t)) : L;
+    const C = filtra(P.com_gasto), S = filtra(P.sem_gasto);
+    document.getElementById("po-res").innerHTML = `
+      <h2>Ruas com pedido e com obra encontrada</h2>
+      <p class="sub">${t ? `${fmt(C.length)} ${C.length === 1 ? "rua" : "ruas"} com “${esc(q)}”.` : `${fmt(P.ruas_com_gasto)} ruas. Começando pelas mais pedidas.`}</p>
+      ${C.slice(0, t ? 60 : 25).map((r, i) => cartao(r, t && i === 0)).join("") || '<p class="sub">Nenhuma.</p>'}
+      <h2>Ruas muito pedidas sem obra encontrada</h2>
+      <p class="sub">Ruas com 3 pedidos ou mais em que o Radar não achou nenhum gasto nem contrato de obra da Prefeitura citando a rua. Isso não prova que nada foi feito: veja o aviso acima.</p>
+      ${S.slice(0, t ? 60 : 20).map(r => cartao(r, false)).join("") || '<p class="sub">Nenhuma.</p>'}`;
+  };
+  app.innerHTML = `
+    <h1>O pedido virou obra?</h1>
+    <p class="sub">Os vereadores pedem à Prefeitura asfalto, drenagem, iluminação, contenção de encosta e outras obras para ruas da cidade. Aqui o Radar junta esses pedidos com os gastos de obra da Prefeitura e os contratos e licitações de obra publicados no Diário Oficial que citam a mesma rua.</p>
+    <div class="faixa-nums">
+      <div><b>${fmt(P.pedidos_com_rua)}</b><span>pedidos de obra dos vereadores que citam uma rua</span></div>
+      <div><b>${fmt(P.ruas_com_pedido)}</b><span>ruas diferentes</span></div>
+      <div><b>${fmt(P.ruas_com_gasto)}</b><span>ruas com gasto ou contrato de obra encontrado</span></div>
+    </div>
+    <form class="busca-rapida" onsubmit="event.preventDefault()"><label class="sr" for="po-q">Buscar uma rua</label>
+      <input type="search" id="po-q" placeholder="Digite a sua rua ou bairro" value="${esc(arg || "")}" autocomplete="off"></form>
+    <div class="info"><b>Leia com cuidado:</b> quando o Radar acha um gasto ou contrato, quer dizer que a Prefeitura reservou dinheiro ou contratou uma obra ou serviço que cita aquela rua, não que o pedido foi atendido do jeito que o vereador pediu. E quando não acha, não quer dizer que nada foi feito: muitos serviços, como tapa-buraco, capina e iluminação, são pagos em contratos grandes que não citam a rua, e os arquivos públicos da Prefeitura só trazem ${(P.anos_gastos || []).join(" e ")}.</div>
+    <div id="po-res"></div>
+    <p class="sub fonte-linha">Fontes: pedidos (indicações e requerimentos) do <a href="${P.fonte_ped}" target="_blank" rel="noopener">sistema da Câmara</a> gastos (empenhos) dos <a href="${P.fonte_gastos}" target="_blank" rel="noopener">arquivos do Portal da Transparência da Prefeitura</a> e contratos e licitações do Diário Oficial do Município. A rua é encontrada por computador no texto de cada pedido e de cada gasto; quando os dois citam bairros diferentes, não são juntados. Atualizado em ${esc(P.atualizado)}.</p>`;
+  let tm;
+  document.getElementById("po-q").oninput = e => { clearTimeout(tm); tm = setTimeout(() => { desenha(e.target.value); history.replaceState(null, "", "#/obra" + (e.target.value.trim() ? "/" + encodeURIComponent(e.target.value.trim()) : "")); }, 250); };
+  desenha(arg || "");
 }
