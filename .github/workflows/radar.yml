@@ -140,6 +140,10 @@ jobs:
         continue-on-error: true
         run: python scripts/prefeitura_temas.py || cp /tmp/anterior/dados/prefeitura/chuvas.json /tmp/anterior/dados/prefeitura/emprestimos.json /tmp/anterior/dados/prefeitura/hospitais.json site/dados/prefeitura/ || true
 
+      - name: Prefeitura, orçamento que muda de lugar (decretos de crédito e Siconfi)
+        continue-on-error: true
+        run: python scripts/prefeitura_creditos.py --minutos 12 || cp /tmp/anterior/dados/prefeitura/creditos.json site/dados/prefeitura/ || true
+
       - name: Prefeitura, sinais de alerta (cruzamento de dados públicos)
         id: alertas
         continue-on-error: true
@@ -160,6 +164,10 @@ jobs:
       - name: Atas da Câmara (índice montado a partir do que o workflow "Atas da Câmara" baixou)
         continue-on-error: true
         run: python scripts/camara_atas.py --so-gerar || cp /tmp/anterior/dados/atas.json site/dados/ || true
+
+      - name: Destaques da página inicial
+        continue-on-error: true
+        run: python scripts/destaques.py || cp /tmp/anterior/dados/destaques.json site/dados/ || true
 
       - name: Páginas fixas para o Google e imagens de compartilhamento
         continue-on-error: true

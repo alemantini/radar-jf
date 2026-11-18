@@ -403,6 +403,7 @@ async function rotaPrefeitura(p) {
   if (sub === "chuvas") return pgChuvas();
   if (sub === "emprestimos") return pgEmprestimos();
   if (sub === "hospitais") return pgHospitais(a);
+  if (sub === "creditos") return pgCreditos(a);
   return pgPrefInicio();
 }
 
@@ -1000,4 +1001,51 @@ async function pgHospitais(ano) {
     ${D.convenios.slice(0, 12).map(a => `<div class="ag-item fala"><div class="ag-tx"><small class="sub">${dataBR(a.d)} · ${esc(a.tipo)}</small><p>${esc(a.x)}</p><div class="ag-bt">${atoLink(D, a)}</div></div></div>`).join("")}` : ""}
     <p>Hospitais e o plano de saúde dos servidores estão entre os assuntos que mais voltam às reuniões da Câmara: ${atasLink("veja o Assunto do mês", "")}.</p>
     <p class="sub fonte-linha">Fontes: arquivos de despesas do ${fonteLink("Portal da Transparência da Prefeitura")} (dados até ${dataBR(D.dados_ate)}), despesas da área da Saúde com hospitais, santas casas, maternidades e institutos de tratamento; e Diário Oficial do Município. Um mesmo hospital pode aparecer duas vezes quando tem mais de um CNPJ.</p>`;
+}
+
+async function pgCreditos(ano) {
+  const D = await temaPref("creditos");
+  if (!D || !Object.keys(D.anos || {}).length) { app.innerHTML = "<h1>Orçamento que muda de lugar</h1><p>Os dados ainda não foram publicados. Volte mais tarde.</p>"; return; }
+  const anos = Object.keys(D.anos).sort();
+  ano = anos.includes(ano) ? ano : anos[anos.length - 1];
+  const A = D.anos[ano], O = (D.orcamento || []).find(o => String(o.ano) === ano);
+  const mx = Math.max(...A.meses.map(m => m[1]), 1);
+  const comDest = A.conferidos > 0 && A.conferidos >= 0.5 * A.n;  // só mostra o "de onde/para onde" com a maioria dos decretos conferida
+  const saldo = (A.orgaos || []).map(o => ({...o, s: o.ganhou - o.perdeu})).filter(o => Math.abs(o.s) > 1);
+  const ganhou = saldo.filter(o => o.s > 0).sort((a, b) => b.s - a.s).slice(0, 10), perdeu = saldo.filter(o => o.s < 0).sort((a, b) => a.s - b.s).slice(0, 10);
+  const mxS = Math.max(...saldo.map(o => Math.abs(o.s)), 1);
+  const linhaS = o => `<div class="tp-linha"><div class="tp-tit"><b>${esc(o.orgao)}</b><span>${o.s > 0 ? "+" : "−"}${reais(Math.abs(o.s))}</span></div><span class="tp-barra${o.s < 0 ? " neg" : ""}"><i style="width:${100 * Math.abs(o.s) / mxS}%"></i></span></div>`;
+  const tipoTx = {suplementar: "créditos suplementares", extraordinario: "créditos extraordinários", especial: "créditos especiais"};
+  app.innerHTML = `
+    <h1>Orçamento que muda de lugar</h1>
+    <p class="sub">O orçamento é aprovado pela Câmara no fim do ano anterior, mas muda durante o ano. Por decreto, a prefeita coloca dinheiro em uma área e, quase sempre, tira de outra. A Lei do Orçamento já autoriza parte dessas mudanças; elas são legais, mas mostram como as prioridades mudam no caminho.</p>
+    <div class="anos">${anos.map(a => `<button class="${a === ano ? "on" : ""}" onclick="location.hash='#/prefeitura/creditos/${a}'">${a}</button>`).join("")}</div>
+    <div class="faixa-nums">
+      <div><b>${reais(A.valor)}</b><span>mexidos por ${fmt(A.n)} decretos em ${ano}</span></div>
+      ${O && O.total && O.total.ini ? `<div><b>${reais(O.total.ini)}</b><span>orçamento aprovado no início do ano</span></div>
+      <div><b>${reais(O.total.atu)}</b><span>orçamento atualizado até ${NOMES_MES[O.ate_mes - 1]} (${O.total.atu >= O.total.ini ? "+" : "−"}${reais(Math.abs(O.total.atu - O.total.ini))})</span></div>` : ""}
+    </div>
+    <p class="sub">Os ${reais(A.valor)} somam tudo o que os decretos colocaram em alguma área. Como quase sempre o mesmo valor sai de outra área, o tamanho do orçamento muda bem menos: a diferença entre o aprovado e o atualizado é o que realmente entrou a mais.</p>
+    <p>${Object.entries(A.por_tipo).map(([t, [n, v]]) => `<b>${fmt(n)}</b> ${tipoTx[t] || t} (${reais(v)})`).join(" · ")}</p>
+    <p class="sub">Crédito suplementar reforça uma despesa que já existe no orçamento; crédito especial cria uma despesa nova (precisa de lei); crédito extraordinário é para urgência, como a calamidade das chuvas (veja ${`<a href="#/prefeitura/chuvas">o dinheiro das chuvas</a>`}).</p>
+    ${O && O.areas && O.areas.length ? `<h2>Quais áreas ganharam e quais perderam</h2>
+    <p class="sub">Orçamento aprovado x atualizado por área, segundo o relatório que a própria Prefeitura envia ao Tesouro Nacional (até ${NOMES_MES[O.ate_mes - 1]} de ${O.ano}).</p>
+    <table class="tab-equipe tp-tab"><thead><tr><th>Área</th><th>Aprovado</th><th>Atualizado</th><th>Mudou</th></tr></thead><tbody>
+      ${O.areas.filter(a => Math.abs(a.atu - a.ini) > 1).slice(0, 18).map(a => { const d = a.atu - a.ini; return `<tr><td>${esc(a.area)}</td><td>${reais(a.ini)}</td><td>${reais(a.atu)}</td><td class="${d >= 0 ? "pos" : "neg"}">${d >= 0 ? "+" : "−"}${reais(Math.abs(d))}${a.ini ? ` <small>(${d >= 0 ? "+" : "−"}${Math.round(Math.abs(100 * d / a.ini))}%)</small>` : ""}</td></tr>`; }).join("")}
+    </tbody></table>` : ""}
+    ${comDest ? `<h2>De onde saiu o dinheiro</h2>
+    ${A.fontes.map(([f, v]) => `<div class="tp-linha"><div class="tp-tit"><b>${esc(f)}</b><span>${reais(v)}</span></div>${barra2(v, A.valor)}</div>`).join("")}
+    <h2>Órgãos que mais receberam</h2><p class="sub">Saldo: o que o órgão recebeu menos o que perdeu nos decretos.</p>${ganhou.map(linhaS).join("") || '<p class="sub">Nenhum.</p>'}
+    <h2>Órgãos que mais perderam</h2>${perdeu.map(linhaS).join("") || '<p class="sub">Nenhum.</p>'}
+    <p class="sub">Baseado em ${fmt(A.conferidos)} de ${fmt(A.n)} decretos de ${ano}, os que o Radar já leu por inteiro e cujas contas batem com o valor do decreto. A fonte do dinheiro vem de ${fmt(A.lidos)} decretos lidos.</p>` :
+    `<div class="info">O Radar está lendo o texto completo de cada decreto (${fmt(A.lidos || 0)} de ${fmt(A.n)} de ${ano} lidos até agora) para mostrar de onde o dinheiro saiu e para qual órgão foi. Essa parte aparece aqui quando a maioria estiver conferida.</div>`}
+    <h2>Mês a mês</h2>
+    <div class="tp-meses">${A.meses.map(([m, v]) => `<div class="tp-mes"><span class="tp-col" title="${reais(v)}"><i class="p" style="height:${100 * v / mx}%;left:15%;right:15%"></i></span><small>${NOMES_MES[+m - 1]}</small></div>`).join("")}</div>
+    <h2>Os maiores decretos</h2>
+    ${D.maiores.filter(x => x.d.startsWith(ano)).slice(0, 15).map(x => `<div class="alerta-card"><div class="ac-topo"><span class="ac-tipo">Decreto ${esc(x.num || "")} · ${dataBR(x.d)} · ${esc({suplementar: "crédito suplementar", extraordinario: "crédito extraordinário", especial: "crédito especial"}[x.tipo] || x.tipo)}</span><span class="ac-valor">${reais(x.v)}</span></div>
+      ${x.para.length ? `<p><b>Para:</b> ${x.para.map(([n, v]) => `${esc(n)} (${reais(v)})`).join("; ")}</p>` : ""}
+      ${x.de.length ? `<p><b>De:</b> ${x.de.map(([n, v]) => `${esc(n)} (${reais(v)})`).join("; ")}</p>` : ""}
+      ${x.fontes && x.fontes.length ? `<small class="sub">Fonte do dinheiro: ${esc(x.fontes.join(", ").toLowerCase())}</small>` : ""}
+      <div class="ag-bt"><a href="${D.link_ato}${x.id}" target="_blank" rel="noopener">ver no Diário Oficial</a></div></div>`).join("")}
+    <p class="sub fonte-linha">Fontes: decretos publicados no Diário Oficial do Município (${fmt(D.decretos_lidos)} de ${fmt(D.decretos_total)} já lidos por inteiro) e Tesouro Nacional (Siconfi), Relatório Resumido da Execução Orçamentária, Anexo 2. Atualizado em ${esc(D.atualizado)}.</p>`;
 }
