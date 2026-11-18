@@ -1,12 +1,14 @@
-name: Explorar fontes (manual)
-on: workflow_dispatch
+name: Explorar dados (temporário)
+on:
+  push:
+    branches: [explorar-dados]
 jobs:
   explorar:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: {python-version: "3.12"}
-      - run: pip install requests openpyxl pypdf
-      - run: python tools/explorar.py
+      - run: pip install requests
+      - run: python -u tools/explorar.py
