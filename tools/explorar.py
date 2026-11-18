@@ -1,21 +1,20 @@
-import requests, json, collections, re, unicodedata
-def sa(s): return "".join(c for c in unicodedata.normalize("NFD", str(s or "")) if unicodedata.category(c) != "Mn").lower()
-API="https://apidatalake.tesouro.gov.br/ords/siconfi/tt/rreo"
-for ano,per in ((2026,5),(2026,4)):
-    it=requests.get(API,params={"an_exercicio":ano,"nr_periodo":per,"co_tipo_demonstrativo":"RREO","no_anexo":"RREO-Anexo 02","id_ente":3136702},timeout=120).json().get("items",[])
-    print(ano,per,len(it))
-    if not it: continue
-    print("COLUNAS", collections.Counter(x["coluna"] for x in it).most_common(20))
-    for x in it:
-        if sa(x["coluna"]).startswith("dotacao") and x.get("cod_conta","")[:0]=="" :
-            print("  ",x.get("cod_conta"),"|",x["conta"],"|",x["coluna"],"|",x["valor"])
-    break
-it=requests.get(API,params={"an_exercicio":2026,"nr_periodo":4,"co_tipo_demonstrativo":"RREO","no_anexo":"RREO-Anexo 01","id_ente":3136702},timeout=120).json().get("items",[])
-for x in it:
-    if re.match(r"despesas (correntes|de capital)|total das despesas|despesas \(exceto", sa(x["conta"])) and "dotacao" in sa(x["coluna"]):
-        print(" A1",x["conta"],"|",x["coluna"],"|",x["valor"])
-# e_atos_vis acessível?
-try:
-    r=requests.get("https://www.pjf.mg.gov.br/e_atos/e_atos_vis.php?id=148005",timeout=60,headers={"User-Agent":"RadarJF/1.0"})
-    print("ATO", r.status_code, len(r.content)); t=re.sub(r"<[^>]+>"," ",r.content.decode("utf-8","replace")); t=re.sub(r"\s+"," ",t); print(t[:3000])
-except Exception as e: print("ATO erro", e)
+import sys, random, time, json, requests
+sys.path.insert(0, "scripts")
+import prefeitura_creditos as pc
+lista = pc.decretos_de_credito()
+print("decretos", len(lista))
+random.seed(7)
+amostra = random.sample(lista, 30) + [a for a in lista if "extraordin" in pc.sa(a["texto"])][:4]
+s = requests.Session(); ok = 0; ruins = []
+for a in amostra:
+    t = pc.texto_do_ato(s, a["id"]); d = pc.interpretar(t)
+    sp = sum(v for _, v, _ in d["para"]); sd = sum(v for _, v, _ in d["de"])
+    bate_p = d["valor"] and abs(sp - d["valor"]) < 1
+    bate_d = (not d["de"]) or abs(sd - d["valor"]) < 1
+    ok += bool(bate_p and bate_d)
+    print(f"\n{a['id']} {a['data']} {d['tipo']} valor={d['valor']} para={sp:.2f} ({len(d['para'])}) de={sd:.2f} ({len(d['de'])}) fontes={d['fontes']} {'OK' if bate_p and bate_d else 'DIFERENTE'}")
+    print("   para:", [(n, v) for n, v, _ in d["para"]][:5]); print("   de:", [(n, v) for n, v, _ in d["de"]][:5])
+    if not (bate_p and bate_d): print("   TEXTO:", t[:2500])
+    time.sleep(1)
+print("\nCONFEREM", ok, "de", len(amostra))
+print(json.dumps(pc.orcamento_por_funcao(2026), ensure_ascii=False)[:2500])
