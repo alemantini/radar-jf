@@ -22,6 +22,10 @@ from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
 DADOS = RAIZ / "site" / "dados"
+ATOS = RAIZ / "data" / "cache" / "atos"
+LINK_ATO = "https://www.pjf.mg.gov.br/e_atos/e_atos_vis.php?id="
+TIPOS_ATO = {"Extrato de Contrato", "Contratação Direta", "Concorrência/ Tomada de Preço/ Leilão",
+             "Pregão Eletrônico/ Pregão Presencial", "Extrato de Ata de Registro de Preço", "Aviso"}
 SAIDA = DADOS / "pedido_obra.json"
 
 OBRA_ELEMENTO = re.compile(r"obras e instalac|servicos de engenharia|manutencao e conservacao de (bens imoveis|vias)")
@@ -32,8 +36,8 @@ RUA_TEXTO = re.compile(
     r"\b(rua|r\.|avenida|av\.|travessa|tv\.|praca|estrada|alameda|rodovia|beco|largo|ladeira|viela)\s+"
     r"((?:[a-z]{1,4}\.|[a-z0-9º°ª'\-]+)(?:\s(?:[a-z]{1,4}\.|[a-z0-9º°ª'\-]+)){0,6}?)"
     r"(?=\s*(?:,|;|\.(?:\s|$)|\(|$|\s-\s|\s+n[º°o]?\.?\s*\d|\s+\d|\s+(?:no|na|nos|nas|bairro|esquina|entre|proxim|em frente|"
-    r"ate|e rua|e avenida|e travessa|altura|trecho|localizad|situad|sentido|regiao|loteamento|vila|conforme|para|com|referente)\b))")
-BAIRRO_TEXTO = re.compile(r"\bbairros?\s+([a-z0-9º°ª'\-]+(?:\s[a-z0-9º°ª'\-]+){0,3}?)(?=\s*(?:,|;|\.|\(|$|\s-\s|\s+(?:em|na|no|e|regiao|zona|juiz|conforme|para|com)\b))")
+    r"ate|e rua|e avenida|e travessa|altura|trecho|localizad|situad|sentido|regiao|loteamento|vila|conforme|para|com|referente|em|juiz)\b))")
+BAIRRO_TEXTO = re.compile(r"\bbairros?\s*([a-z0-9º°ª'\-]+(?:\s[a-z0-9º°ª'\-]+){0,3}?)(?=\s*(?:,|;|\.|\(|$|\s-\s|\s+(?:em|na|no|e|regiao|zona|juiz|conforme|para|com)\b))")
 TIPOS = {"r.": "rua", "av.": "avenida", "tv.": "travessa"}
 ABREV = {"dr": "doutor", "dra": "doutora", "prof": "professor", "profa": "professora", "cel": "coronel", "gal": "general",
          "sta": "santa", "sto": "santo", "pe": "padre", "eng": "engenheiro", "des": "desembargador", "mal": "marechal",
@@ -107,6 +111,17 @@ def main():
                     gastos[k].append({"d": x[0], "sec": S[x[1]], "cnpj": C[x[2]][0], "cred": C[x[2]][1],
                                       "e": x[4], "p": x[5], "h": x[6], "num": x[7] if len(x) > 7 else "", "_b": bairro})
 
+    # contratos e licitações de obra publicados no Diário Oficial que citam a rua
+    atos = defaultdict(list)
+    for f in sorted(ATOS.glob("20*.json")):
+        for a in json.loads(f.read_text(encoding="utf-8")).values():
+            if a.get("tipo") not in TIPOS_ATO or not OBRA_TEXTO.search(sa(a.get("texto"))):
+                continue
+            rs, bairro = ruas_no_texto(a.get("texto"))
+            for k in set(rs):
+                if k in pedidos:
+                    atos[k].append({"id": a["id"], "d": a["data"], "tipo": a["tipo"], "x": re.sub(r"\s+", " ", a["texto"])[:300], "_b": bairro})
+
     ruas = []
     for k, ps in pedidos.items():
         bairros_ped = Counter(chave_bairro(p["b"]) for p in ps if p.get("b"))
@@ -123,6 +138,8 @@ def main():
             c = por_emp.setdefault((g["cnpj"], g["num"] or g["d"] + g["h"]), {**g, "e": 0.0, "p": 0.0})
             c["e"] += g["e"]; c["p"] += g["p"]
         gs = sorted((g for g in por_emp.values() if g["e"] > 0.5), key=lambda g: g["d"])
+        ats = [{kk: v for kk, v in a.items() if kk != "_b"} for a in atos.get(k, [])
+               if not (a["_b"] and bairros_ped and a["_b"] not in bairros_ped)]
         datas = sorted(p["d"] for p in ps if p.get("d"))
         autores = Counter(a for p in ps for a in p.get("au", []))
         ruas.append({
@@ -138,22 +155,24 @@ def main():
             "ge": round(sum(g["e"] for g in gs), 2),
             "gp": round(sum(g["p"] for g in gs), 2),
             "ng": len(gs),
+            "at": sorted(ats, key=lambda a: a["d"], reverse=True)[:6], "na": len(ats),
             "depois": sum(1 for g in gs if datas and g["d"] >= datas[0]),
         })
-    com = [r for r in ruas if r["ng"]]
-    sem = sorted((r for r in ruas if not r["ng"] and r["q"] >= 3), key=lambda r: -r["q"])[:60]
+    com = [r for r in ruas if r["ng"] or r["na"]]
+    sem = sorted((r for r in ruas if not r["ng"] and not r["na"] and r["q"] >= 3), key=lambda r: -r["q"])[:60]
     saida = {
         "atualizado": dt.datetime.now(dt.timezone(dt.timedelta(hours=-3))).strftime("%d/%m/%Y %H:%M"),
         "anos_gastos": [a for a in anos if a],
         "ruas_com_pedido": len(ruas), "pedidos_com_rua": sum(r["q"] for r in ruas),
         "ruas_com_gasto": len(com),
         "com_gasto": sorted(com, key=lambda r: (-r["q"], -r["ge"])),
-        "sem_gasto": [{k: v for k, v in r.items() if k not in ("g",)} for r in sem],
+        "sem_gasto": [{k: v for k, v in r.items() if k not in ("g", "at")} for r in sem],
+        "link_ato": LINK_ATO,
         "fonte_ped": "https://www.camarajf.mg.gov.br/sal/",
         "fonte_gastos": "https://www.pjf.mg.gov.br/transparencia/dados_abertos/arquivos.php",
     }
     SAIDA.write_text(json.dumps(saida, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
-    print(f"Pedido x obra: {len(com)} ruas com pedido e com gasto de obra encontrado; {len(sem)} ruas muito pedidas sem gasto encontrado")
+    print(f"Pedido x obra: {len(com)} ruas com pedido e com gasto ou contrato de obra encontrado; {len(sem)} ruas muito pedidas sem gasto encontrado")
 
 
 if __name__ == "__main__":
