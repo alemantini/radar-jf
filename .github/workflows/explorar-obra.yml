@@ -1,0 +1,21 @@
+name: Explorar pedido x obra (temporário)
+on:
+  push:
+    branches: [explorar-obra]
+permissions:
+  actions: read
+  contents: read
+jobs:
+  explorar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: bash tools/versao_anterior.sh
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - run: mkdir -p site/dados/prefeitura && cp /tmp/anterior/dados/propostas.json site/dados/ && cp /tmp/anterior/dados/prefeitura/empenhos_*.json site/dados/prefeitura/
+      - run: python -u scripts/pedido_obra.py
+      - run: echo "@@@ pedido_obra"; gzip -c site/dados/pedido_obra.json | base64 -w0; echo
