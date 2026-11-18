@@ -640,14 +640,14 @@ async function pgAtas(arg) {
     <div class="at-sel">
       <select id="at-tipo" aria-label="Tipo de reunião">${opt("", "Todos os tipos", P.get("tipo") || "")}${Object.keys(tipos).sort().map(t => opt(t, `${t} (${fmt(tipos[t])})`, P.get("tipo") || "")).join("")}</select>
       <select id="at-ano" aria-label="Ano">${opt("", "Todos os anos", P.get("ano") || "")}${anos.map(y => opt(y, y, P.get("ano") || "")).join("")}</select>
-      <select id="at-v" aria-label="Vereador citado">${opt("", "Qualquer vereador", P.get("v") || "")}${Object.keys(vers).filter(i => NV[i]).sort((x, y) => NV[x].localeCompare(NV[y], "pt-BR")).map(i => opt(i, `${NV[i]} (${fmt(vers[i])})`, P.get("v") || "")).join("")}</select>
+      <select id="at-v" aria-label="Vereador que falou">${opt("", "Qualquer vereador", P.get("v") || "")}${Object.keys(vers).filter(i => NV[i]).sort((x, y) => NV[x].localeCompare(NV[y], "pt-BR")).map(i => opt(i, `${NV[i]} (${fmt(vers[i])})`, P.get("v") || "")).join("")}</select>
     </div>
     <div class="chips-filtro" id="at-temas"><a href="javascript:void 0" data-t=""${P.get("tema") ? "" : ' class="on"'}>Todos os assuntos</a>${Object.keys(temas).sort().map(t => `<a href="javascript:void 0" data-t="${esc(t)}"${P.get("tema") === t ? ' class="on"' : ""}>${esc(t)} <b>${fmt(temas[t])}</b></a>`).join("")}</div>
     <p class="sub" id="at-n"></p>
     <div id="at-lista"></div>
     <button class="btn-ag sec at-mais" id="at-mais" type="button" hidden>Mostrar mais atas</button>`
     : `<div class="info">As atas ainda estão sendo carregadas pelo robô do Radar. Volte em algumas horas.</div>`}
-    <p class="sub fonte-linha">Fonte: atas publicadas pela <a href="https://www.camarajf.mg.gov.br/sal/" target="_blank" rel="noopener">Câmara Municipal de Juiz de Fora</a>${A ? `, conferidas em ${esc(A.atualizado.split(" ")[0].split("-").reverse().join("/"))}` : ""}. A busca olha o título e o começo de cada ata, os assuntos e os vereadores citados no texto; para ler tudo, abra o documento oficial. Ata "ainda não aprovada" é a versão provisória, antes da votação em plenário.</p>`;
+    <p class="sub fonte-linha">Fonte: atas publicadas pela <a href="https://www.camarajf.mg.gov.br/sal/" target="_blank" rel="noopener">Câmara Municipal de Juiz de Fora</a>${A ? `, conferidas em ${esc(A.atualizado.split(" ")[0].split("-").reverse().join("/"))}` : ""}. A busca olha o título e o começo de cada ata, os assuntos e os vereadores que falaram; para ler tudo, abra o documento oficial. Ata "ainda não aprovada" é a versão provisória, antes da votação em plenário.</p>`;
   if (!L.length) return;
 
   let mostrar = 30;
@@ -676,7 +676,7 @@ async function pgAtas(arg) {
         <div class="ag-tx"><small class="sub">${esc(a.t)}${a.ap ? "" : ' · <span class="at-pend">ata ainda não aprovada</span>'}${(a.tm || []).length ? " · " + a.tm.map(esc).join(", ") : ""}</small>
           <p><b>${esc(a.n)}</b></p>
           <p class="at-x">${destacar(a.x, termos)}${a.x.length >= 300 ? "…" : ""}</p>
-          ${nomes.length ? `<small class="sub">Vereadores citados: ${nomes.map(esc).join(", ")}</small>` : ""}
+          ${nomes.length ? `<small class="sub">Falaram: ${nomes.map(esc).join(", ")}</small>` : ""}
           <div class="ag-bt"><a href="${fonte(a.c)}" target="_blank" rel="noopener">Ler a ata completa (documento oficial)</a></div>
         </div></div>`;
     }).join("") || `<p class="sub">Nenhuma ata com esses filtros.</p>`;
