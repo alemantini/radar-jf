@@ -285,7 +285,7 @@
 "ementa": "Dispõe sobre a simplificação dos procedimentos relativos à Reclamação contra o Lançamento do Imposto Predial e Territorial Urbano (IPTU) e demais tributos municipais lançados em conjunto, estabelece medidas de acesso e celeridade processual e dá outras providências.",
 "autoria": "Vereadores Sargento Mello Casal, André Mariano, Zé Márcio-Garotinho, Julinho Rossignoli e Kátia Franco",
 "quorum": "Maioria absoluta com a presença de 2/3 dos Membros",
-"obs": "-",
+"obs": "COMISSÃO DE REDAÇÃO",
 "vista": false,
 "temas": [
 "Impostos e taxas"
@@ -309,7 +309,7 @@
 "n": 3,
 "fase": "2ª Discussão",
 "proposicao": "Projeto de Lei 81/2025",
-"ementa": "Dispõe sobre a fixação de placas informativas nas unidades públicas e privadas de saúde do município de Juiz de Fora, versando sobre a Entrega Legal, instituída pela Lei Federal n°13.509, de 22/11/2017.",
+"ementa": "Dispõe sobre a fixação de placas informativas nas unidades públicas e privadas de saúde do Município de Juiz de Fora, versando sobre a Entrega Legal, instituída pela Lei Federal n°13.509, de 22/11/2017.",
 "autoria": "Vereadora Roberta Lopes",
 "quorum": "Maioria simples",
 "obs": "VISTA Vereadoras Cida Oliveira, Kátia Franco e Laiz Perrut. SOBRESTADO Vereadora Cida Oliveira. Retirado Temporariamente pela Autora",
@@ -352,8 +352,8 @@
 "ementa": "Dispõe sobre a divulgação pública da agenda institucional dos compromissos oficiais do Chefe do Poder Executivo do Município de Juiz de Fora",
 "autoria": "Vereadora Roberta Lopes",
 "quorum": "Maioria simples",
-"obs": "",
-"vista": false,
+"obs": "VISTA Vereadores Laiz Perrut, Cida Oliveira, João Wagner Antoniol, Letícia Delgado, Dr. Antônio Aguiar, Fiote, Luiz Otávio Fernandes Coelho - Pardal, Yuri Fófano, Juraci Scheffer, Kátia Franco, Julinho Rossignoli, André Luiz Vieira e Dr. Marcelo Condé. SOBRESTADO Vereador Juraci Scheffer. ADIAMENTO DE VOTAÇÃO Vereador Juraci Scheffer. ENCERRADA 1ª DISCUSSÃO",
+"vista": true,
 "temas": []
 },
 {
@@ -397,6 +397,124 @@
 "proposicao": "Projeto de Lei 233/2026",
 "ementa": "Autoriza o Poder Executivo, no âmbito da sua competência e discricionariedade, a isentar de aplicação e inserção de cobrança do Estacionamento Rotativo Pago e da Área Azul a via pública que menciona.",
 "autoria": "Vereador Juraci Scheffer",
+"quorum": "Maioria absoluta",
+"obs": "LEITURA DOS PARECERES",
+"vista": false,
+"temas": []
+}
+]
+},
+{
+"data": "2026-11-19",
+"cod": "5184",
+"nome": "4ª Reunião Ordinária - 11º Período",
+"hora": "17:30",
+"url": "https://www.camarajf.mg.gov.br/sal/ordemdodia.php?cod=5184",
+"itens": [
+{
+"n": 1,
+"fase": "Veto Total",
+"proposicao": "Projeto de Lei 249/2025",
+"ementa": "Estabelece a obrigatoriedade de fornecimento de água potável e acesso a instalações sanitárias aos trabalhadores terceirizados e temporários pelos condomínios comerciais e residenciais localizados no Município de Juiz de Fora, e dá outras providências.",
+"autoria": "Vereadora Cida Oliveira",
+"quorum": "Maioria absoluta",
+"obs": "VISTA Vereadores Cida Oliveira, João Wagner Antoniol, Letícia Delgado, Kátia Franco, Yuri Fófano, André Mariano, Sargento Mello Casal, Cido Reis, Negro Bússola, Tiago Bonecão, Marlon Siqueira, Vitinho e Juraci Scheffer",
+"vista": true,
+"temas": [
+"Trabalho"
+]
+},
+{
+"n": 2,
+"fase": "Veto Total",
+"proposicao": "Projeto de Lei 291/2025",
+"ementa": "Cria a Rede Municipal de Cursinhos Populares no Município de Juiz de Fora, institui o Comitê Intersetorial da Rede Municipal de Cursinhos Populares e dá outras providências.",
+"autoria": "Vereadora Laiz Perrut",
+"quorum": "Maioria absoluta",
+"obs": "VISTA Vereadores João Wagner Antoniol, Kátia Franco, Cida Oliveira, André Luiz Vieira, Letícia Delgado, Yuri Fófano, André Mariano, Sargento Mello Casal, Cido Reis, Negro Bússola, Marlon Siqueira, Maurício Delgado, Juraci Scheffer e Luiz Otávio Fernandes Coelho - Pardal",
+"vista": true,
+"temas": [
+"Educação"
+]
+},
+{
+"n": 3,
+"fase": "Veto Total",
+"proposicao": "Projeto de Lei 113/2026",
+"ementa": "Institui a Política Municipal de Formação de Cuidadores de Pessoas Idosas no Município de Juiz de Fora, estabelece a oferta de cursos gratuitos mediante cooperação institucional e dá outras providências.",
+"autoria": "Vereadora Cida Oliveira",
+"quorum": "Maioria absoluta",
+"obs": "VISTA Vereadores Cida Oliveira, Letícia Delgado, Kátia Franco, Laiz Perrut, Yuri Fófano, João Wagner Antoniol, Sargento Mello Casal, Cido Reis, Negro Bússola, Marlon Siqueira, André Mariano, André Luiz Vieira e Juraci Scheffer",
+"vista": true,
+"temas": [
+"Pessoas idosas"
+]
+},
+{
+"n": 4,
+"fase": "Veto Total",
+"proposicao": "Projeto de Lei 184/2025",
+"ementa": "Institui a implantação de um painel físico estatístico denominado \"Bandidômetro\" em frente às Delegacias de Polícia em Juiz de Fora.",
+"autoria": "Vereadora Roberta Lopes",
+"quorum": "Maioria absoluta",
+"obs": "VISTA Vereadores Yuri Fófano, André Mariano, Sargento Mello Casal, Letícia Delgado, João Wagner Antoniol e Laiz Perrut. USOU DA PALAVRA Vereadora Laiz Perrut",
+"vista": true,
+"temas": [
+"Segurança"
+]
+},
+{
+"n": 5,
+"fase": "2ª Discussão",
+"proposicao": "Mensagem do Executivo (Projeto de Lei Complementar) 4736/2026",
+"ementa": "Dispõe sobre normas para instituição de condomínios de lotes no âmbito do Município de Juiz de Fora, e dá outras providências.",
+"autoria": "Executivo",
+"quorum": "Maioria absoluta",
+"obs": "VISTA Vereadores Luiz Otávio Fernandes Coelho - Pardal, Roberta Lopes, Letícia Delgado e Juraci Scheffer. USARAM DA PALAVRA Vereadores Luiz Otávio Fernandes Coelho - Pardal e Juraci Scheffer",
+"vista": true,
+"temas": []
+},
+{
+"n": 6,
+"fase": "2ª Discussão",
+"proposicao": "Projeto de Lei 184/2026",
+"ementa": "Altera o art. 9º e acrescenta os arts. 9°A; 9°B; 9°C; 9°D; 9°E; 9°F á Lei nº 14.364 de 25 de janeiro de 2022, que institui o \"Abrace um Campo\" para captação de parcerias para a implantação, reforma e manutenção de campos públicos de futebol amador, e dá outras providências\".",
+"autoria": "Vereador André Luiz Vieira",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereadores André Luiz Vieira, Sargento Mello Casal e Tiago Bonecão. USOU DA PALAVRA Vereador André Luiz Vieira",
+"vista": true,
+"temas": []
+},
+{
+"n": 7,
+"fase": "1ª Discussão",
+"proposicao": "Projeto de Lei 84/2026",
+"ementa": "Dispõe sobre garantias aos trabalhadores vinculados a contratos de prestação de serviços terceirizados no âmbito do Município de Juiz de Fora e dá outras providências.",
+"autoria": "Vereador Sargento Mello Casal",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereadores Sargento Mello Casal e Laiz Perrut. USARAM DA PALAVRA Vereadores Sargento Mello Casal e Laiz Perrut. 8 Apreciação Preliminar. Art",
+"vista": true,
+"temas": [
+"Trabalho"
+]
+},
+{
+"n": 94,
+"fase": "Regimento Interno",
+"proposicao": "Projeto de Lei 152/2026",
+"ementa": "Institui o Programa Municipal Casas Ancestrais e dá outras providências.",
+"autoria": "Vereadora Laiz Perrut",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereadora Roberta Lopes. USOU DA PALAVRA Vereadora Laiz Perrut",
+"vista": true,
+"temas": []
+},
+{
+"n": 9,
+"fase": "Veto Total",
+"proposicao": "Projeto de Lei 255/2026",
+"ementa": "Altera o § 2º do art. 17 da Lei nº 14.158, de 18 de janeiro de 2021.",
+"autoria": "Vereador Luiz Otávio Fernandes Coelho - Pardal",
 "quorum": "Maioria absoluta",
 "obs": "LEITURA DOS PARECERES",
 "vista": false,
