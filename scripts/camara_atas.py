@@ -49,7 +49,7 @@ TIPOS = [
     ("COMISSAO", "Comissão"),
 ]
 LIXO = [
-    r"Câmara Municipal\s+de Juiz de Fora",
+    r"Câmara Municipal\s*\n\s*de Juiz de Fora",  # só o cabeçalho (duas linhas), não o nome no meio do texto
     r"Home Page: www\.camarajf\.mg\.gov\.br\s*e-mail: \S+",
     r"Rua Halfeld, 955 - Fone: [\d() -]+",
     r"36016-000 - Juiz de Fora - Minas Gerais - Brasil",
@@ -138,6 +138,14 @@ def interpretar(cod, bruto):
 
 
 # ---------- índice do site ----------
+# Quem falou: "o Vereador Fulano comentou/pediu/cobrou...". Só citar o nome não basta,
+# porque toda ata traz a lista de presença e as votações com quase todos os vereadores.
+FALA = (r"(?:,? [^,.]{0,40},?)? (?:comentou|falou|disse|afirmou|mencionou|pediu|solicitou|parabenizou|agradeceu|"
+        r"questionou|destacou|ressaltou|explicou|registrou|cobrou|lembrou|informou|defendeu|criticou|relatou|"
+        r"apresentou|reclamou|denunciou|sugeriu|manifestou|declarou|enfatizou|esclareceu|argumentou|justificou|"
+        r"fez|usou|ocupou|se manifestou|discursou)")
+
+
 def nomes_vereadores():
     try:
         vs = json.loads(VEREADORES.read_text(encoding="utf-8"))
@@ -148,7 +156,7 @@ def nomes_vereadores():
         formas = {sem_acento(v.get("nome") or ""), sem_acento(v.get("apelido") or "")}
         formas = [f for f in formas if len(f) >= 6]
         if formas:
-            saida.append((v["id"], [re.compile(r"\b" + re.escape(f) + r"\b") for f in formas]))
+            saida.append((v["id"], re.compile(r"vereadora? (?:" + "|".join(re.escape(f) for f in formas) + r")" + FALA)))
     return saida
 
 
@@ -158,7 +166,7 @@ def gerar_site(atas):
     for a in sorted(atas.values(), key=lambda x: (x["data"] or "", x["cod"]), reverse=True):
         t = sem_acento(a["texto"])
         temas = [nome for nome, rx in TEMAS if re.search(rx, t)]
-        vs = [vid for vid, rxs in vereadores if any(r.search(t) for r in rxs)]
+        vs = [vid for vid, rx in vereadores if rx.search(t)]
         lista.append({"c": a["cod"], "d": a["data"], "t": a["tipo"], "n": a["titulo"],
                       "ap": a["aprovada"], "x": a["texto"][:TRECHO], "tm": temas, "v": vs})
     SAIDA.parent.mkdir(parents=True, exist_ok=True)
