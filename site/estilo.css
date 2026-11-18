@@ -621,3 +621,20 @@ mark{background:#ffe27a;color:inherit;border-radius:3px;padding:0 1px}
 .tp-barra.neg i{background:linear-gradient(90deg,#e0573a,#b23a22)}
 .tp-tab td.pos{color:var(--verde);font-weight:700}
 .tp-tab td.neg{color:#b23a22;font-weight:700}
+
+/* o pedido virou obra? */
+.po-card{border:1px solid var(--linha);border-radius:14px;margin:8px 0;background:#fff;box-shadow:0 1px 2px rgba(16,24,40,.05)}
+.po-card summary{list-style:none;cursor:pointer;display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 12px;padding:12px 14px}
+.po-card summary::-webkit-details-marker{display:none}
+.po-card[open] summary{border-bottom:1px solid var(--linha)}
+.po-rua b{font-size:17px}
+.po-nums{display:flex;flex-wrap:wrap;gap:6px}
+.po-nums span{font-size:13px;font-weight:700;border-radius:999px;padding:3px 10px}
+.po-ped{background:var(--azul-claro);color:var(--azul)}
+.po-gas{background:var(--verde-claro);color:var(--verde)}
+.po-sem{background:var(--calcada);color:var(--apoio)}
+.po-corpo{padding:10px 14px 14px}
+.po-corpo h3{font-size:16px;margin:14px 0 6px}
+.po-item{border-left:3px solid #b9cbe4;padding:4px 0 4px 10px;margin:8px 0}
+.po-item.obra{border-left-color:var(--verde)}
+.po-item p{margin:2px 0;font-size:15px}
