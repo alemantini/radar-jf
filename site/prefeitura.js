@@ -393,7 +393,7 @@ async function rotaPrefeitura(p) {
   if (sub === "comissionados") return pgComissionados(a);
   if (sub === "lupa") return pgLupa(a, b);
   if (sub === "supersalarios") return pgSupersalarios();
-  if (sub === "iptu") return pgIptu();
+  if (sub === "iptu") return a === "areas" ? pgIptuAreas(b) : pgIptu();
   if (sub === "emendas") return pgEmendas(a);
   if (sub === "diario") return pgDiario(a, b);
   if (sub === "s") return pgPrefSecretaria(a, +b);
@@ -762,6 +762,7 @@ async function pgIptu() {
       <select id="ic"><option value="0">Não sei ou não quero incluir</option><option value="2">2 vezes</option><option value="3" selected>3 vezes</option><option value="6">6 vezes (todo dia)</option></select></div>
     </div>
     <div id="ires"></div>
+    <a class="btn-grande prefeitura" href="#/prefeitura/iptu/areas">${ic("pin")}<span class="tx">Quanto vale o m² do IPTU em cada área da cidade<small>Ranking das 851 áreas, das mais caras às mais baratas, e o aumento barrado em 2026</small></span>›</a>
     <h2>Por que o seu carnê pode vir diferente</h2>
     <ul class="metodo">
       <li><b>Redução para casas pequenas:</b> imóveis residenciais pequenos em algumas regiões da cidade têm redução no IPTU (Lei 12.196/2010). Pelo manual da Prefeitura, ela pode chegar a 80% para casas de até 79 m² nas regiões do grupo D. A calculadora não aplica essa redução, porque ela depende da região e da área do imóvel.</li>
@@ -810,4 +811,67 @@ async function pgIptu() {
   };
   ["iv", "it", "ic"].forEach(id => { const el = document.getElementById(id); el.oninput = calc; el.onchange = calc; });
   calc();
+}
+
+
+// ---------- Valor do m² do IPTU por área isótima ----------
+// Decreto nº 17.618/2025 (revogado em janeiro de 2026): valores propostos para 17 áreas.
+const DECRETO_17618 = {RE072: 461.88, RE156: 461.88, RE206: 334.45, RE208: 334.45, RE373: 899.23, RE411: 355.09, RE570: 461.88, RE584: 461.88, RE610: 461.88, RE637: 332.26, RE639: 223.28, RE649: 258.88, RE650: 195.65, RE658: 219.58, RE671: 476.28, RE749: 363.46, RE751: 363.46};
+let IPTU_AREAS = null;
+async function pgIptuAreas(busca) {
+  if (!IPTU_AREAS) IPTU_AREAS = await fetch("dados/prefeitura/iptu_areas.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  const D = IPTU_AREAS;
+  if (!D) { app.innerHTML = "<h1>Valor do m² do IPTU</h1><p>Os dados ainda não foram publicados. Volte mais tarde.</p>"; return; }
+  const A = D.areas, por = Object.fromEntries(A.map(a => [a.cod, a]));
+  const vals = A.map(a => a.iptu).sort((x, y) => x - y), med = vals[Math.floor(vals.length / 2)];
+  const r2 = v => reais(v, false);
+  const GRP = {A: "sem redução", B: "sem redução", C: "redução para casas pequenas", D: "maiores reduções para casas pequenas"};
+  const linhaA = (a, i) => `<div class="linha"><span class="nm"><b>${i != null ? i + 1 + "º · " : ""}${esc(a.cod)}</b>${a.descricao ? `<small class="sub" style="display:block">${esc(a.descricao)}</small>` : ""}<small class="sub" style="display:block">Grupo ${esc(a.grupo || "?")}${a.itbi ? ` · ITBI: ${r2(a.itbi)} o m²` : ""}</small></span><span class="vl">${r2(a.iptu)}<small class="sub" style="display:block">o m²</small></span></div>`;
+  const dec = Object.entries(DECRETO_17618).map(([c, v]) => ({c, v, a: por[c]})).filter(x => x.a).sort((x, y) => (y.v / y.a.iptu) - (x.v / x.a.iptu));
+  app.innerHTML = `
+    <h1>Quanto vale o m² do IPTU em Juiz de Fora</h1>
+    <p class="sub">A alíquota do IPTU é a mesma na cidade toda: depende só do valor venal e do tipo do imóvel. O que muda de um lugar para outro é o <b>valor do metro quadrado do terreno</b>, fixado em lei para cada "área isótima" (um pedaço da cidade com imóveis parecidos). É isso que faz o IPTU de um bairro ser mais caro que o de outro.</p>
+    <div class="faixa-nums">
+      <div><b>${fmt(A.length)}</b><span>áreas isótimas</span></div>
+      <div><b>${r2(vals[vals.length - 1])}</b><span>o m² mais caro</span></div>
+      <div><b>${r2(med)}</b><span>o m² do meio da lista (mediana)</span></div>
+      <div><b>${r2(vals[0])}</b><span>o m² mais barato</span></div>
+    </div>
+    <div class="calc"><label for="ab">Procure a sua área pelo código ou pelo valor do m²</label><input id="ab" placeholder="Ex.: RE239 ou 1.823,11" autocomplete="off" value="${esc(busca || "")}"><small class="sub">O valor do m² do terreno aparece no espelho do IPTU, o detalhamento do cálculo que a Prefeitura disponibiliza. Com ele (ou com o código da área, se constar) você acha a sua área.</small><div id="ar"></div></div>
+    <h2>As 20 áreas com o m² mais caro</h2>
+    ${A.slice(0, 20).map(linhaA).join("")}
+    <h2>As 20 áreas com o m² mais barato</h2>
+    ${A.slice(-20).reverse().map(a => linhaA(a)).join("")}
+    <h2>O aumento barrado em 2026</h2>
+    <p>No fim de 2025, o Decreto nº 17.618 aumentou o valor do m² de 17 áreas, em bairros como Cruzeiro de Santo Antônio, Parque Jardim da Serra, Salvaterra, Aeroporto, Novo Horizonte, Bom Pastor, Boa Vista, São Pedro, Serro Azul, Democrata, Santa Catarina e Recanto dos Lagos. A Justiça suspendeu o decreto em janeiro de 2026 e a Prefeitura o revogou. Compare o valor de 2025 com o que o decreto queria cobrar:</p>
+    <table class="tab-equipe"><thead><tr><th>Área</th><th>m² em 2025</th><th>Decreto (2026)</th><th>Aumento</th></tr></thead><tbody>
+    ${dec.map(x => `<tr><td>${esc(x.c)}</td><td>${r2(x.a.iptu)}</td><td>${r2(x.v)}</td><td>${Math.round(100 * (x.v / x.a.iptu - 1))}%</td></tr>`).join("")}
+    </tbody></table>
+    <h2>Os grupos de redução</h2>
+    <p>Cada área pertence a um grupo. Nos grupos C e D, casas pequenas têm redução no IPTU; no grupo D ela pode chegar a 80% para casas de até 79 m².</p>
+    ${["A", "B", "C", "D"].map(g => `<div class="linha"><span class="nm">Grupo ${g}<small class="sub" style="display:block">${GRP[g]}</small></span><span class="vl">${fmt(D.grupos[g] || 0)} áreas</span></div>`).join("")}
+    <h2>O que falta</h2>
+    <ul class="metodo">
+      <li><b>Nome dos bairros:</b> a lei traz só o código de cada área, sem dizer a que bairro pertence (só as áreas criadas no ano têm descrição). O Radar pediu à Prefeitura, pela Lei de Acesso à Informação, a relação de áreas e bairros e o IPTU arrecadado por bairro.</li>
+      <li><b>Valores de 2026:</b> os valores mostrados são os de 2025 (Lei nº 15.039/2024). Para 2026 a lei manteve as áreas e corrigiu todos os valores pela inflação (IPCA), a mesma correção para todas, então a ordem do ranking não muda.</li>
+      <li><b>ITBI:</b> o imposto pago na compra de um imóvel usa outra tabela de m², mostrada junto.</li>
+    </ul>
+    <p class="sub fonte-linha">Fonte: <a href="${esc(D.fonte)}" target="_blank" rel="noopener">${esc(D.lei)}</a>, Anexos I, IV a IX (<a href="${esc(D.anexo)}" target="_blank" rel="noopener">PDF oficial</a>); <a href="https://www.pjf.mg.gov.br/e_atos/e_atos_vis.php?id=137992" target="_blank" rel="noopener">Decreto nº 17.618/2025</a>.</p>`;
+  const ab = document.getElementById("ab"), ar = document.getElementById("ar");
+  const procura = () => {
+    const q = ab.value.trim().toUpperCase().replace(/\s/g, "");
+    if (!q) { ar.innerHTML = ""; return; }
+    if (/^[\d.,]+$/.test(q)) {
+      const v = parseFloat(q.includes(",") ? q.replace(/\./g, "").replace(",", ".") : q);
+      const iguais = A.filter(a => Math.abs(a.iptu - v) < 0.01);
+      ar.innerHTML = iguais.length ? `<p class="sub">${fmt(iguais.length)} ${iguais.length === 1 ? "área tem" : "áreas têm"} esse valor de m²:</p>` + iguais.slice(0, 12).map(a => linhaA(a, A.indexOf(a))).join("") : '<p class="sub">Nenhuma área com esse valor exato em 2025. Os valores de 2026 têm a correção da inflação; tente o código da área.</p>';
+      return;
+    }
+    const i = A.findIndex(a => a.cod === q);
+    if (i < 0) { const parc = A.filter(a => a.cod.startsWith(q)).slice(0, 8); ar.innerHTML = parc.length ? parc.map(a => linhaA(a, A.indexOf(a))).join("") : '<p class="sub">Código não encontrado. Confira no espelho do IPTU.</p>'; return; }
+    const a = A[i];
+    ar.innerHTML = `${linhaA(a, i)}<p>É a <b>${i + 1}ª</b> mais cara de ${fmt(A.length)} áreas. O m² dela vale ${a.iptu >= med ? `${(a.iptu / med).toLocaleString("pt-BR", {maximumFractionDigits: 1})} vezes o do meio da lista` : `${Math.round(100 * a.iptu / med)}% do valor do meio da lista`}.${DECRETO_17618[a.cod] ? ` Esta área estava no decreto revogado, que queria levar o m² para ${r2(DECRETO_17618[a.cod])}.` : ""}</p>`;
+  };
+  ab.oninput = procura;
+  procura();
 }
