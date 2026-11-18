@@ -485,3 +485,5 @@ button.btn-ag{font:inherit;font-weight:700;cursor:pointer;border:0}
 .at-mais{display:block;margin:16px auto}
 .at-mais[hidden]{display:none}
 mark{background:#ffe27a;color:inherit;border-radius:3px;padding:0 1px}
+.ag-item.fala{display:block}
+.ag-item.fala p{font-size:15px;margin:4px 0}

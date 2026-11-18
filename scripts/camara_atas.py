@@ -59,6 +59,14 @@ LIXO = [
 ]
 
 
+RODAPE = re.compile(r"\s*,? conforme MP nº 2\.200-2/2001, que institui a Infraestrutura de Chaves Públicas Brasileira - ICP-BRASIL \d+/\d+\s*")
+
+
+def sem_rodape(texto):
+    """Tira o aviso de assinatura digital que o PDF repete no pé de cada página."""
+    return RODAPE.sub(" ", texto)
+
+
 # ---------- cache (um arquivo por ano, para o repositório não crescer a cada dia) ----------
 def ano_de(a):
     return (a.get("data") or "0000")[:4]
@@ -117,7 +125,7 @@ def interpretar(cod, bruto):
     texto = bruto
     for p in LIXO:
         texto = re.sub(p, " ", texto)
-    texto = re.sub(r"\s+", " ", texto).strip()
+    texto = sem_rodape(re.sub(r"\s+", " ", texto)).strip()
     i = texto.upper().find("ATA DA")
     corpo = texto[i:] if i >= 0 else texto
     if not data:  # sem o cabeçalho, tenta "realizada aos 12 dias do mês de fevereiro de 2026"
@@ -140,10 +148,10 @@ def interpretar(cod, bruto):
 # ---------- índice do site ----------
 # Quem falou: "o Vereador Fulano comentou/pediu/cobrou...". Só citar o nome não basta,
 # porque toda ata traz a lista de presença e as votações com quase todos os vereadores.
-FALA = (r"(?:,? [^,.]{0,40},?)? (?:comentou|falou|disse|afirmou|mencionou|pediu|solicitou|parabenizou|agradeceu|"
+FALA = (r"(?:,? (?!que |o qual |a qual |autora? |relatora? )[^,.]{0,40},?)? (?:comentou|falou|disse|afirmou|mencionou|pediu|solicitou|parabenizou|agradeceu|"
         r"questionou|destacou|ressaltou|explicou|registrou|cobrou|lembrou|informou|defendeu|criticou|relatou|"
         r"apresentou|reclamou|denunciou|sugeriu|manifestou|declarou|enfatizou|esclareceu|argumentou|justificou|"
-        r"fez|usou|ocupou|se manifestou|discursou)")
+        r"fez (?!a abertura|a leitura|o encerramento)|usou|ocupou|se manifestou|discursou)")
 
 
 def nomes_vereadores():
@@ -153,10 +161,11 @@ def nomes_vereadores():
         return []
     saida = []
     for v in vs:
-        formas = {sem_acento(v.get("nome") or ""), sem_acento(v.get("apelido") or "")}
-        formas = [f for f in formas if len(f) >= 6]
+        formas = {sem_acento(v.get("nome") or ""), sem_acento(v.get("apelido") or "").replace("-", " ")}
+        formas = sorted((f for f in formas if len(f) >= 4), key=len, reverse=True)
         if formas:
-            saida.append((v["id"], re.compile(r"vereadora? (?:" + "|".join(re.escape(f) for f in formas) + r")" + FALA)))
+            nome = r"(?:" + "|".join(re.escape(f) for f in formas) + r")"
+            saida.append((v["id"], re.compile(r"vereadora? " + nome + FALA), re.compile(r"\b" + nome + r"\b")))
     return saida
 
 
@@ -164,9 +173,10 @@ def gerar_site(atas):
     vereadores = nomes_vereadores()
     lista = []
     for a in sorted(atas.values(), key=lambda x: (x["data"] or "", x["cod"]), reverse=True):
+        a["texto"] = sem_rodape(a["texto"])
         t = sem_acento(a["texto"])
         temas = [nome for nome, rx in TEMAS if re.search(rx, t)]
-        vs = [vid for vid, rx in vereadores if rx.search(t)]
+        vs = [vid for vid, rx, _ in vereadores if rx.search(t)]
         lista.append({"c": a["cod"], "d": a["data"], "t": a["tipo"], "n": a["titulo"],
                       "ap": a["aprovada"], "x": a["texto"][:TRECHO], "tm": temas, "v": vs})
     SAIDA.parent.mkdir(parents=True, exist_ok=True)
@@ -176,6 +186,63 @@ def gerar_site(atas):
         "atas": lista,
     }, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"Atas: {len(lista)} no índice do site")
+    gerar_falas(atas, vereadores)
+
+
+# ---------- quem fala nas reuniões (mandato atual) ----------
+INICIO_MANDATO = "2025-01-01"
+TRECHOS_POR_VEREADOR = 20
+# Pedidos de rotina não contam como fala: licença para sair, justificar falta etc.
+ROTINA = re.compile(r"ausentar|ausencia|mais cedo|liberacao da reuniao|compromisso|se retirar|licenca|comparecer|nao pode estar presente")
+
+
+def mapa_sem_acento(s):
+    """Texto sem acento e minúsculo, com a posição de cada letra no texto original."""
+    import unicodedata
+    out, pos = [], []
+    for i, ch in enumerate(s):
+        for c in unicodedata.normalize("NFD", ch):
+            if unicodedata.category(c) != "Mn":
+                for l in c.lower():
+                    out.append(l)
+                    pos.append(i)
+    return "".join(out), pos
+
+
+def trecho_da_fala(texto, ini):
+    t = texto[ini:ini + 420]
+    corte = t.rfind(". ", 0, 330)
+    return t[:corte + 1] if corte > 120 else t[:330].rsplit(" ", 1)[0] + "…"
+
+
+def gerar_falas(atas, vereadores):
+    reunioes = sorted((a for a in atas.values() if (a["data"] or "") >= INICIO_MANDATO and a["tipo"] != "Outra"),
+                      key=lambda a: (a["data"], a["cod"]))
+    citado, falou, trechos = {}, {}, {}
+    for a in reunioes:
+        norm, pos = mapa_sem_acento(a["texto"])
+        for vid, rx_fala, rx_nome in vereadores:
+            if rx_nome.search(norm):
+                citado.setdefault(vid, []).append(a["data"])
+            m = next((m for m in rx_fala.finditer(norm) if not ROTINA.search(norm[m.end():m.end() + 140])), None)
+            if m:
+                falou.setdefault(vid, []).append(a["cod"])
+                trechos.setdefault(vid, []).append({"c": a["cod"], "d": a["data"], "t": a["tipo"],
+                                                    "x": trecho_da_fala(a["texto"], pos[m.start()])})
+    saida = {}
+    for vid, datas in citado.items():
+        de, ate = min(datas), max(datas)  # período em que aparece nas atas = período no mandato
+        no_periodo = [a for a in reunioes if de <= a["data"] <= ate]
+        saida[vid] = {"de": de, "ate": ate, "reunioes": len(no_periodo), "falou": len(falou.get(vid, [])),
+                      "trechos": list(reversed(trechos.get(vid, [])))[:TRECHOS_POR_VEREADOR]}
+    destino = SAIDA.parent / "atas_falas.json"
+    destino.write_text(json.dumps({
+        "atualizado": dt.datetime.now().strftime("%Y-%m-%d %H:%M"),
+        "desde": INICIO_MANDATO, "total_reunioes": len(reunioes),
+        "ultima": reunioes[-1]["data"] if reunioes else None,
+        "fonte": URL, "vereadores": saida,
+    }, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    print(f"Falas: {len(saida)} vereadores, {len(reunioes)} reuniões desde {INICIO_MANDATO}")
 
 
 # ---------- coleta ----------

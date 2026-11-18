@@ -26,7 +26,7 @@ const ICONE = {
 const ic = (n, cls = "") => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONE[n] || ""}</svg>`;
 const iniciais = n => String(n || "").replace(/^(Dr|Dra|Sargento|Prof|Profa)\.?\s+/i, "").split(/\s+/).filter(p => p.length > 2 || /^[A-ZÀ-Ý]/.test(p)).slice(0, 2).map(p => p[0]).join("").toUpperCase();
 
-let FOTOS = new Set(), CREDITO_FOTO = "", EMENDAS_R = null, GAB_R = null, TSE_R = null;
+let FOTOS = new Set(), CREDITO_FOTO = "", EMENDAS_R = null, GAB_R = null, TSE_R = null, FALAS = null;
 // emendas do vereador: a planilha da Prefeitura usa o nome completo
 function emendasDe(v) {
   if (!EMENDAS_R || !v) return null;
@@ -59,6 +59,7 @@ async function carregarResumo() {
   try { EMENDAS_R = await fetch("dados/prefeitura/emendas_resumo.json").then(r => r.ok ? r.json() : null); } catch (e) { EMENDAS_R = null; }
   try { GAB_R = await fetch("dados/gabinetes.json").then(r => r.ok ? r.json() : null); } catch (e) { GAB_R = null; }
   try { TSE_R = await fetch("dados/tse.json").then(r => r.ok ? r.json() : null); } catch (e) { TSE_R = null; }
+  try { FALAS = await fetch("dados/atas_falas.json").then(r => r.ok ? r.json() : null); } catch (e) { FALAS = null; }
   try { const f = await fetch("fotos/fotos.json").then(r => r.json()); FOTOS = new Set(f.ids); CREDITO_FOTO = f.credito; } catch (e) { /* sem fotos: ficam as iniciais */ }
   document.getElementById("atualizado").textContent = RESUMO.atualizado ? `Última coleta: ${RESUMO.atualizado}.` : "";
 }
@@ -314,6 +315,22 @@ async function pgGrupo(g) {
   mostra();
 }
 
+function blocoFalas(v) {
+  const f = falasDe(v);
+  if (!f || !f.reunioes) return "";
+  const pres = ehPresidente(v), pct = Math.round(100 * f.falou / f.reunioes);
+  const fonte = c => (FALAS.fonte || "").replace("{}", c);
+  return `<h2>Nas reuniões da Câmara</h2>
+    <div class="nums"><span><b>${fmt(f.falou)}</b>reuniões em que falou</span><span><b>${fmt(f.reunioes)}</b>reuniões no período</span>${pres ? "" : `<span><b>${pct}%</b>das reuniões</span>`}</div>
+    ${pres ? `<p class="sub">Como presidente da Câmara, conduz as reuniões. As falas dele como presidente aparecem nas atas como "o Presidente" e não entram nesta conta.</p>` : ""}
+    ${f.reunioes < 60 ? `<p class="sub">Esteve no mandato de ${dataBR(f.de)} a ${dataBR(f.ate)}.</p>` : ""}
+    ${f.trechos.length ? `<p class="sub">O que as atas registram das falas mais recentes (resumo escrito pela Câmara, não é transcrição palavra por palavra):</p>
+    ${f.trechos.slice(0, 5).map(t => `<div class="ag-item fala"><div class="ag-tx"><small class="sub">${dataBR(t.d)} · ${esc(t.t)}</small>
+      <p>${esc(t.x)}</p><div class="ag-bt"><a href="${fonte(t.c)}" target="_blank" rel="noopener">Ler a ata completa</a></div></div></div>`).join("")}` : ""}
+    <p><a href="#/atas/v=${v.id}">Ver todas as atas em que ${esc(v.apelido)} falou</a> · <a href="#/placar/tribuna">Comparar com os outros vereadores</a></p>
+    <p class="sub">${NOTA_FALAS()}</p>`;
+}
+
 async function pgVereador(id) {
   const v = VER[id];
   if (!v) { app.innerHTML = "<p>Vereador não encontrado.</p>"; return; }
@@ -341,6 +358,7 @@ async function pgVereador(id) {
       <p class="sub">Dinheiro do orçamento da Prefeitura que o vereador indicou para obras, serviços ou entidades, desde ${EMENDAS_R.desde}.</p>
       <div class="nums verde"><span><b>${reaisCurto(e.previsto)}</b>indicados em ${fmt(e.n)} emendas</span><span><b>${reaisCurto(e.pago)}</b>já pagos (${Math.round(100 * e.pago / (e.previsto || 1))}%)</span></div>
       <a class="btn-grande prefeitura" href="#/prefeitura/emendas/${encodeURIComponent(e.nome)}">${ic("dinheiro")}<span class="tx">Ver cada emenda e em que etapa está<small>Fonte: Monitor de Emendas da Prefeitura</small></span>›</a>`; })()}
+    ${blocoFalas(v)}
     ${blocoGabinete(v)}
     ${blocoEleicao(v)}
     <h2>O que propôs até agora</h2>
@@ -829,6 +847,11 @@ function valorCriterio(v, k) {
   if (k === "porvoto") { const t = tseDe(v); return t && t.votos ? t.gasto / t.votos : null; }
   return c[k] ?? 0;
 }
+// ---------- Falas nas reuniões (contadas nas atas) ----------
+const ehPresidente = v => /^presidente$/i.test(String(v.mesa || "").trim());
+const falasDe = v => FALAS && FALAS.vereadores ? FALAS.vereadores[v.id] || null : null;
+const NOTA_FALAS = () => `Contamos, nas atas oficiais, as reuniões em que o vereador aparece falando ("o Vereador Fulano comentou, pediu, cobrou..."), desde ${FALAS ? dataBR(FALAS.desde) : ""}. Pedidos de rotina, como licença para sair ou justificar falta, não contam. A conta é feita por computador a partir do texto das atas e pode ter pequenos erros; cada número leva às atas para conferir. Falar muito não é o mesmo que trabalhar bem: a conta não mede a qualidade das falas, o trabalho nas comissões nem o trabalho no gabinete. O presidente conduz as reuniões, e as falas dele como presidente não são registradas com o nome, por isso ele fica fora da comparação.`;
+
 const RANKINGS = [
   {id: "geral", t: "Placar geral", d: "Nota de 0 a 10 que junta propostas de lei, fiscalização, pedidos para os bairros, emendas pagas e gabinete econômico. Propostas de lei e fiscalização valem o dobro."},
   {id: "economico", t: "Gabinete mais econômico", d: "Quem gasta menos, por mês, com a equipe do gabinete (assessores escolhidos pelo vereador). Média mensal desde o início do mandato."},
@@ -837,6 +860,7 @@ const RANKINGS = [
   {id: "cobrancas", t: "Mais fiscalização", d: "Perguntas e cobranças à Prefeitura e pedidos de informação apresentados desde o início do mandato."},
   {id: "pedidos", t: "Mais pedidos para os bairros", d: "Pedidos de obra e serviço (buraco, luz, capina...) apresentados desde o início do mandato."},
   {id: "emendas", t: "Emendas que viraram pagamento", d: "Parte do dinheiro que o vereador indicou em emendas e que a Prefeitura já pagou."},
+  {id: "tribuna", t: "Quem mais fala nas reuniões", d: "Em quantas reuniões da Câmara o vereador falou, do total de reuniões do período em que esteve no mandato. Contado nas atas oficiais."},
   {id: "monte", t: "Monte o seu", d: "Escolha o quanto cada assunto importa para você e veja o seu ranking."},
 ];
 const NIVEIS = ["Não conta", "Pouco", "Importante", "Muito"];
@@ -918,6 +942,18 @@ function pgPlacar(arg) {
       const mx = Math.max(...lista.map(l => l.x), 0.0001);
       out.innerHTML = `<p class="sub">Itens apresentados para cada R$ 100 mil gastos com o gabinete desde ${esc(GAB_R.desde)}. ${conta.pedidos ? "Pedidos para os bairros são numerosos e costumam puxar a conta para cima; desmarque para ver só propostas de lei e fiscalização." : ""}</p>` +
         lista.map((l, i) => linha(l.v, i, 100 * l.x / mx, `${n1(l.x)}<small>por R$ 100 mil</small>`, `<span>${fmt(l.trab)} itens apresentados</span><span>Gabinete: ${reaisCurto(l.g.total)} no total</span>`)).join("");
+    } else if (aba === "tribuna") {
+      if (!FALAS) { out.innerHTML = '<p class="sub">Os dados das atas ainda estão sendo preparados.</p>'; return; }
+      const com = atuais.map(v => ({v, f: falasDe(v)})).filter(l => l.f && l.f.reunioes);
+      const presid = com.filter(l => ehPresidente(l.v));
+      lista = com.filter(l => !ehPresidente(l.v)).map(l => ({...l, x: l.f.falou / l.f.reunioes})).sort((a, b) => b.x - a.x);
+      const det = l => `<span>Falou em ${fmt(l.f.falou)} de ${fmt(l.f.reunioes)} reuniões</span>${l.f.reunioes < 60 ? `<span>No mandato de ${dataBR(l.f.de)} a ${dataBR(l.f.ate)}: período curto, compare com cuidado</span>` : ""}`;
+      out.innerHTML = `<p class="sub">${NOTA_FALAS()} <a href="#/atas">Ver todas as atas</a>.</p>` +
+        lista.map((l, i) => linha(l.v, i, 100 * l.x, `${Math.round(100 * l.x)}%<small>das reuniões</small>`, det(l))).join("") +
+        presid.map(l => `<a class="rk" href="#/v/${l.v.id}"><span class="rk-pos"></span>${avatar(l.v)}
+          <span class="rk-cx"><span class="rk-nm">${esc(l.v.apelido)}<small>${esc(l.v.partido || "")}</small></span>
+          <span class="rk-partes"><span>Presidente da Câmara: conduz as reuniões, por isso fica fora da comparação</span></span></span>
+          <span class="rk-nota"><small>presidente</small></span></a>`).join("");
     } else if (aba === "emendas") {
       lista = atuais.map(v => { const e = emendasDe(v); return {v, e, x: e && e.previsto ? e.pago / e.previsto : null}; }).filter(l => l.x != null).sort((a, b) => b.x - a.x);
       out.innerHTML = `<p class="sub">Percentual do valor indicado em emendas que a Prefeitura já pagou. Depende também da Prefeitura, não só do vereador.</p>` +
