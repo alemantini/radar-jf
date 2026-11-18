@@ -270,7 +270,7 @@ def vereadores():
 <div class="linha"><span>Indicado em {n_br(em.get('n'))} emendas</span><span class="vl">{reais(em.get('previsto'), True)}</span></div>
 <div class="linha"><span>Já pago pela Prefeitura</span><span class="vl">{reais(em.get('pago'), True)}</span></div>''' if em else ""}
 <p class="sub">O placar padrão dá peso 2 a propostas de lei e fiscalização e peso 1 a pedidos para os bairros, emendas pagas e gabinete econômico. No Radar você muda os pesos e monta o seu ranking.</p>
-<div class="botoes"><a class="btn ver" href="/#/v/{v['id']}">Ver tudo sobre {e(v['apelido'])} no Radar</a><a class="btn ver" href="/#/placar">Montar o meu placar</a></div>"""
+<div class="botoes"><a class="btn ver" href="/#/v/{v['id']}">Ver tudo sobre {e(v['apelido'])} no Radar</a><a class="btn ver" href="/#/placar">Ver o ranking dos vereadores</a></div>"""
         msg = f"Veja o que {v['apelido']} fez na Câmara de Juiz de Fora: {n_br(c.get('total'))} propostas, custo do gabinete e posição no placar. Dados oficiais no Radar JFlândia."
         (SITE / caminho / "index.html").write_text(pagina(caminho, f"{v['apelido']}: o que fez na Câmara de Juiz de Fora | Radar JFlândia",
                                                            desc, URL + caminho + "card.jpg", corpo, msg), encoding="utf-8")

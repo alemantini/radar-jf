@@ -456,3 +456,13 @@ body{padding-bottom:84px}
 .ac-novo{background:#e8272c;color:#fff;border-radius:6px;padding:1px 6px;font-size:11px;margin-left:4px;text-transform:none}
 button.btn-ag{font:inherit;font-weight:700;cursor:pointer;border:0}
 .tag-conc{background:#1f7a4d;color:#fff;border-radius:6px;padding:0 6px;font-size:11px;font-weight:700}
+
+/* ranking dos vereadores */
+.rk-abas{margin:12px 0 6px}
+.rk-abas a.on{background:var(--azul);color:#fff}
+.rk-expl{font-weight:600;margin:8px 0 10px}
+.rk-nota{text-align:right;white-space:nowrap}
+.rk-nota small{display:block;font-size:11px;font-weight:400;opacity:.75}
+.rk-conta{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;background:var(--calcada);border-radius:10px;padding:10px 12px;margin:6px 0 12px}
+.rk-conta span{font-weight:600}
+.rk-conta label{display:flex;gap:6px;align-items:center;cursor:pointer}

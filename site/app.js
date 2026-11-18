@@ -464,7 +464,7 @@ function pgSobre() {
 
 // ---------- rotas ----------
 const SUBNAV = {
-  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Placar", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"]],
+  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"]],
   prefeitura: [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/lupa", "Na lupa", "lupa"], ["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura/comissionados", "Cargos de confiança", "pessoas"], ["#/prefeitura/supersalarios", "Supersalários", "dinheiro"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
 };
 const SELO = {
@@ -500,7 +500,7 @@ function pgEscolha() {
       <a class="placa camara" href="#/camara">${ic("camara")}<span class="tx"><span class="tt">Câmara</span><span class="ds">O que cada um dos ${nV} vereadores apresentou, quanto custa cada gabinete e o que foi pedido para o seu bairro.</span><span class="num">${fmt(RESUMO.total)} propostas</span></span><span class="seta">›</span></a>
       <a class="placa prefeitura" href="#/prefeitura">${ic("dinheiro")}<span class="tx"><span class="tt">Prefeitura</span><span class="ds">Para onde vai o dinheiro: quanto cada secretaria gasta, com quem e em quê.</span><span class="num">Gastos por secretaria</span></span><span class="seta">›</span></a>
     </div>
-    <a class="btn-grande camara" href="#/placar">${ic("placar")}<span class="tx">Placar dos vereadores<small>Monte o seu ranking com os critérios que importam para você</small></span>›</a>
+    <a class="btn-grande camara" href="#/placar">${ic("placar")}<span class="tx">Ranking dos vereadores<small>Quem apresenta mais, quem fiscaliza mais, o gabinete mais econômico e o mais eficiente</small></span>›</a>
     <a class="btn-grande prefeitura" href="#/prefeitura/placar">${ic("balanca")}<span class="tx">Placar fiscal da Prefeitura<small>Gasta mais do que arrecada? Cumpre os mínimos de saúde e educação?</small></span>›</a>
     <a class="btn-grande prefeitura" href="#/prefeitura/busca">${ic("lupa")}<span class="tx">Pesquisar um gasto<small>Empresa, CNPJ ou palavra, como asfalto ou merenda</small></span>›</a>
     <div class="info">Câmara e Prefeitura são poderes diferentes. A Câmara (vereadores) faz leis, fiscaliza e pede melhorias. A Prefeitura (prefeita e secretarias) executa os serviços e gasta o orçamento.</div>`;
@@ -746,11 +746,25 @@ function valorCriterio(v, k) {
   if (k === "porvoto") { const t = tseDe(v); return t && t.votos ? t.gasto / t.votos : null; }
   return c[k] ?? 0;
 }
+const RANKINGS = [
+  {id: "geral", t: "Placar geral", d: "Nota de 0 a 10 que junta propostas de lei, fiscalização, pedidos para os bairros, emendas pagas e gabinete econômico. Propostas de lei e fiscalização valem o dobro."},
+  {id: "economico", t: "Gabinete mais econômico", d: "Quem gasta menos, por mês, com a equipe do gabinete (assessores escolhidos pelo vereador). Média mensal desde o início do mandato."},
+  {id: "eficiente", t: "Gabinete mais eficiente", d: "Quanto trabalho o vereador apresentou para cada R$ 100 mil gastos com o gabinete. Você escolhe o que conta como trabalho."},
+  {id: "leis", t: "Mais propostas de lei", d: "Projetos de lei, de resolução e emendas à Lei Orgânica apresentados desde o início do mandato."},
+  {id: "cobrancas", t: "Mais fiscalização", d: "Perguntas e cobranças à Prefeitura e pedidos de informação apresentados desde o início do mandato."},
+  {id: "pedidos", t: "Mais pedidos para os bairros", d: "Pedidos de obra e serviço (buraco, luz, capina...) apresentados desde o início do mandato."},
+  {id: "emendas", t: "Emendas que viraram pagamento", d: "Parte do dinheiro que o vereador indicou em emendas e que a Prefeitura já pagou."},
+  {id: "monte", t: "Monte o seu", d: "Escolha o quanto cada assunto importa para você e veja o seu ranking."},
+];
+const NIVEIS = ["Não conta", "Pouco", "Importante", "Muito"];
 function pgPlacar(arg) {
   const atuais = RESUMO.vereadores.filter(v => !v.fora_da_lista);
+  const custom = /^\d(-\d)+$/.test(arg || "");
+  let aba = custom ? "monte" : (RANKINGS.some(r => r.id === arg) ? arg : "geral");
   const pesos = {};
   const vindos = (arg || "").split("-").map(Number);
-  CRITERIOS.forEach((c, i) => pesos[c.k] = Number.isFinite(vindos[i]) && arg ? Math.max(0, Math.min(3, vindos[i])) : c.p);
+  CRITERIOS.forEach((c, i) => pesos[c.k] = custom && Number.isFinite(vindos[i]) ? Math.max(0, Math.min(3, vindos[i])) : c.p);
+  const conta = {leis: true, cobrancas: true, pedidos: true};
   const faixas = {};
   CRITERIOS.forEach(c => {
     const vals = atuais.map(v => valorCriterio(v, c.k)).filter(x => x !== null);
@@ -762,45 +776,83 @@ function pgPlacar(arg) {
     const n = 10 * (x - a) / (b - a);
     return c.mais ? n : 10 - n;
   };
+  const n1 = x => x.toLocaleString("pt-BR", {maximumFractionDigits: 1, minimumFractionDigits: 1});
+  const linha = (v, i, barra, valor, det) => `
+      <a class="rk" href="#/v/${v.id}"><span class="rk-pos">${i + 1}º</span>${avatar(v)}
+        <span class="rk-cx"><span class="rk-nm">${esc(v.apelido)}<small>${esc(v.partido || "")}</small></span>
+          <span class="rk-barra"><i style="width:${Math.max(0, Math.min(100, barra))}%"></i></span>
+          ${det ? `<span class="rk-partes">${det}</span>` : ""}</span>
+        <span class="rk-nota">${valor}</span></a>`;
   app.innerHTML = `
-    <h1>Placar dos vereadores: monte o seu</h1>
-    <p class="sub">Você escolhe o que pesa mais. Cada critério vira uma nota de 0 a 10 (10 para o melhor da Câmara naquele item) e o placar é a média com os pesos que você escolher. Todos os vereadores são contados com a mesma regra, a partir de dados oficiais.</p>
-    <div class="info">Quantidade não mede qualidade: um projeto de lei importante vale mais que dez simbólicos. Use o placar como ponto de partida e abra o perfil de cada vereador para ver o que ele apresentou.</div>
-    <div class="pesos" id="pesos">${CRITERIOS.map(c => `
-      <div class="peso"><div class="pz-t"><b>${c.t}</b><small>${c.d}</small></div>
-        <div class="pz-b" role="radiogroup" aria-label="Peso de ${c.t}">${[0, 1, 2, 3].map(n => `<button data-k="${c.k}" data-n="${n}" class="${pesos[c.k] === n ? "on" : ""}" aria-pressed="${pesos[c.k] === n}">${["Não conta", "Peso 1", "Peso 2", "Peso 3"][n]}</button>`).join("")}</div></div>`).join("")}
-    </div>
-    <div class="acoes-placar"><button id="copiar-placar" class="btn-sec">Copiar link deste placar</button><span id="copiado" class="sub"></span></div>
-    <h2>Resultado</h2>
+    <h1>Ranking dos vereadores</h1>
+    <p class="sub">Escolha o ranking que você quer ver. Todos os vereadores são contados com a mesma regra, a partir de dados oficiais.</p>
+    <div class="chips rk-abas" id="rk-abas">${RANKINGS.map(r => `<a href="javascript:void 0" data-a="${r.id}">${r.t}</a>`).join("")}</div>
+    <p class="rk-expl" id="rk-expl"></p>
+    <div id="rk-ctrl"></div>
     <div id="ranking"></div>
-    <p class="sub fonte-linha">Fontes: sistema de proposições da Câmara, Monitor de Emendas da Prefeitura, folha de pagamento da Câmara e TSE. Critérios sem dado para um vereador ficam de fora da média dele.</p>`;
+    <div class="info">Quantidade não mede qualidade: um projeto de lei importante vale mais que dez simbólicos. Use o ranking como ponto de partida e abra o perfil de cada vereador para ver o que ele apresentou.</div>
+    <div class="acoes-placar"><button id="copiar-placar" class="btn-sec">Copiar o link deste ranking</button><span id="copiado" class="sub"></span></div>
+    <p class="sub fonte-linha">Fontes: sistema de proposições da Câmara, Monitor de Emendas da Prefeitura, folha de pagamento da Câmara (Portal da Transparência) e TSE. Vereador sem dado num critério fica de fora daquele ranking ou daquela parte da nota.</p>`;
+  const linkAtual = () => location.href.split("#")[0] + "#/placar/" + (aba === "monte" ? CRITERIOS.map(c => pesos[c.k]).join("-") : aba);
+  const ctrl = document.getElementById("rk-ctrl"), out = document.getElementById("ranking");
   const desenha = () => {
-    const tot = CRITERIOS.reduce((s, c) => s + pesos[c.k], 0);
-    const linhas = atuais.map(v => {
-      let soma = 0, peso = 0; const partes = [];
-      CRITERIOS.forEach(c => { const n = nota(v, c); if (pesos[c.k] && n !== null) { soma += n * pesos[c.k]; peso += pesos[c.k]; partes.push([c, n]); } });
-      return {v, nota: peso ? soma / peso : null, partes};
-    }).sort((a, b) => (b.nota ?? -1) - (a.nota ?? -1));
-    document.getElementById("ranking").innerHTML = !tot ? '<p class="sub">Escolha o peso de pelo menos um critério.</p>' : linhas.map((l, i) => `
-      <a class="rk" href="#/v/${l.v.id}"><span class="rk-pos">${i + 1}º</span>${avatar(l.v)}
-        <span class="rk-cx"><span class="rk-nm">${esc(l.v.apelido)}<small>${esc(l.v.partido || "")}</small></span>
-          <span class="rk-barra"><i style="width:${l.nota === null ? 0 : l.nota * 10}%"></i></span>
-          <span class="rk-partes">${l.partes.map(([c, n]) => `<span>${c.t}: ${n.toFixed(1).replace(".", ",")}</span>`).join("")}</span></span>
-        <span class="rk-nota">${l.nota === null ? "sem dados" : l.nota.toFixed(1).replace(".", ",")}</span></a>`).join("");
+    const R = RANKINGS.find(r => r.id === aba);
+    document.querySelectorAll("#rk-abas a").forEach(a => a.classList.toggle("on", a.dataset.a === aba));
+    document.getElementById("rk-expl").textContent = R.d;
+    history.replaceState(null, "", "#/placar/" + (aba === "monte" ? CRITERIOS.map(c => pesos[c.k]).join("-") : aba));
+    if (aba === "geral" || aba === "monte") {
+      const ps = aba === "geral" ? Object.fromEntries(CRITERIOS.map(c => [c.k, c.p])) : pesos;
+      ctrl.innerHTML = aba === "monte" ? `<div class="pesos" id="pesos">${CRITERIOS.map(c => `
+        <div class="peso"><div class="pz-t"><b>${c.t}</b><small>${c.d}</small></div>
+          <div class="pz-b" role="radiogroup" aria-label="Quanto importa: ${c.t}">${[0, 1, 2, 3].map(n => `<button data-k="${c.k}" data-n="${n}" class="${pesos[c.k] === n ? "on" : ""}" aria-pressed="${pesos[c.k] === n}">${NIVEIS[n]}</button>`).join("")}</div></div>`).join("")}</div>
+        <p class="sub">Quanto mais importante, mais aquele assunto pesa na nota final.</p>` : "";
+      const tot = CRITERIOS.reduce((x, c) => x + ps[c.k], 0);
+      const lin = atuais.map(v => {
+        let soma = 0, peso = 0; const partes = [];
+        CRITERIOS.forEach(c => { const n = nota(v, c); if (ps[c.k] && n !== null) { soma += n * ps[c.k]; peso += ps[c.k]; partes.push([c, n]); } });
+        return {v, nota: peso ? soma / peso : null, partes};
+      }).sort((a, b) => (b.nota ?? -1) - (a.nota ?? -1));
+      out.innerHTML = !tot ? '<p class="sub">Marque pelo menos um assunto como importante.</p>' :
+        `<p class="sub">Nota de 0 a 10. Em cada assunto, 10 é o melhor da Câmara e 0 o pior.</p>` +
+        lin.map((l, i) => linha(l.v, i, l.nota === null ? 0 : l.nota * 10, l.nota === null ? "sem dados" : n1(l.nota), l.partes.map(([c, n]) => `<span>${c.t}: ${n1(n)}</span>`).join(""))).join("");
+      document.querySelectorAll("#pesos button").forEach(b => b.onclick = () => { pesos[b.dataset.k] = +b.dataset.n; desenha(); });
+      return;
+    }
+    ctrl.innerHTML = "";
+    let lista;
+    if (aba === "economico") {
+      lista = atuais.map(v => ({v, x: (gabDe(v) || {}).media})).filter(l => l.x != null).sort((a, b) => a.x - b.x);
+      const mx = Math.max(...lista.map(l => l.x));
+      out.innerHTML = `<p class="sub">Do mais barato para o mais caro. Soma dos salários brutos da equipe; não inclui o salário do próprio vereador.</p>` +
+        lista.map((l, i) => { const g = gabDe(l.v); return linha(l.v, i, 100 * (1 - l.x / mx) + 5, `${reaisCurto(l.x)}<small>por mês</small>`, `<span>Hoje: ${fmt(g.atual.n)} ${g.atual.n === 1 ? "pessoa" : "pessoas"}, ${reaisCurto(g.atual.custo)} no mês</span><span>Total desde ${esc(GAB_R.desde)}: ${reaisCurto(g.total)}</span>`); }).join("");
+    } else if (aba === "eficiente") {
+      ctrl.innerHTML = `<div class="rk-conta"><span>O que conta como trabalho:</span>${[["leis", "Propostas de lei"], ["cobrancas", "Fiscalização"], ["pedidos", "Pedidos para os bairros"]].map(([k, t]) => `<label><input type="checkbox" data-k="${k}" ${conta[k] ? "checked" : ""}> ${t}</label>`).join("")}</div>`;
+      ctrl.querySelectorAll("input").forEach(c => c.onchange = () => { conta[c.dataset.k] = c.checked; desenha(); });
+      const ks = Object.keys(conta).filter(k => conta[k]);
+      if (!ks.length) { out.innerHTML = '<p class="sub">Marque pelo menos um tipo de trabalho.</p>'; return; }
+      lista = atuais.map(v => { const g = gabDe(v), c = v.contagem || {}; const trab = ks.reduce((x, k) => x + (c[k] || 0), 0); return {v, trab, g, x: g && g.total ? trab / g.total * 100000 : null}; })
+        .filter(l => l.x != null).sort((a, b) => b.x - a.x);
+      const mx = Math.max(...lista.map(l => l.x), 0.0001);
+      out.innerHTML = `<p class="sub">Itens apresentados para cada R$ 100 mil gastos com o gabinete desde ${esc(GAB_R.desde)}. ${conta.pedidos ? "Pedidos para os bairros são numerosos e costumam puxar a conta para cima; desmarque para ver só propostas de lei e fiscalização." : ""}</p>` +
+        lista.map((l, i) => linha(l.v, i, 100 * l.x / mx, `${n1(l.x)}<small>por R$ 100 mil</small>`, `<span>${fmt(l.trab)} itens apresentados</span><span>Gabinete: ${reaisCurto(l.g.total)} no total</span>`)).join("");
+    } else if (aba === "emendas") {
+      lista = atuais.map(v => { const e = emendasDe(v); return {v, e, x: e && e.previsto ? e.pago / e.previsto : null}; }).filter(l => l.x != null).sort((a, b) => b.x - a.x);
+      out.innerHTML = `<p class="sub">Percentual do valor indicado em emendas que a Prefeitura já pagou. Depende também da Prefeitura, não só do vereador.</p>` +
+        lista.map((l, i) => linha(l.v, i, 100 * l.x, `${Math.round(100 * l.x)}%<small>pago</small>`, `<span>Indicado: ${reaisCurto(l.e.previsto)}</span><span>Pago: ${reaisCurto(l.e.pago)}</span>`)).join("");
+    } else {
+      const k = aba, nome = {leis: ["proposta", "propostas"], cobrancas: ["cobrança", "cobranças"], pedidos: ["pedido", "pedidos"]}[k];
+      lista = atuais.map(v => ({v, x: (v.contagem || {})[k] || 0})).sort((a, b) => b.x - a.x);
+      const mx = Math.max(...lista.map(l => l.x), 1);
+      out.innerHTML = lista.map((l, i) => linha(l.v, i, 100 * l.x / mx, `${fmt(l.x)}<small>${l.x === 1 ? nome[0] : nome[1]}</small>`, "")).join("");
+    }
   };
-  document.querySelectorAll("#pesos button").forEach(b => b.onclick = () => {
-    pesos[b.dataset.k] = +b.dataset.n;
-    document.querySelectorAll(`#pesos button[data-k="${b.dataset.k}"]`).forEach(x => { x.classList.toggle("on", x === b); x.setAttribute("aria-pressed", x === b); });
-    history.replaceState(null, "", "#/placar/" + CRITERIOS.map(c => pesos[c.k]).join("-"));
-    desenha();
-  });
+  document.querySelectorAll("#rk-abas a").forEach(a => a.onclick = () => { aba = a.dataset.a; desenha(); a.scrollIntoView({block: "nearest", inline: "center"}); });
   document.getElementById("copiar-placar").onclick = async () => {
-    const url = location.href.split("#")[0] + "#/placar/" + CRITERIOS.map(c => pesos[c.k]).join("-");
+    const url = linkAtual();
     try { await navigator.clipboard.writeText(url); document.getElementById("copiado").textContent = "Link copiado."; } catch (e) { document.getElementById("copiado").textContent = url; }
   };
   desenha();
 }
-
 
 // setas do menu de baixo quando as opções não cabem na tela
 function setasSubnav() {
