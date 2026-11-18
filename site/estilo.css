@@ -466,3 +466,12 @@ button.btn-ag{font:inherit;font-weight:700;cursor:pointer;border:0}
 .rk-conta{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;background:var(--calcada);border-radius:10px;padding:10px 12px;margin:6px 0 12px}
 .rk-conta span{font-weight:600}
 .rk-conta label{display:flex;gap:6px;align-items:center;cursor:pointer}
+
+/* calculadora do IPTU */
+.calc{display:grid;gap:6px;background:var(--calcada);border-radius:14px;padding:16px;margin:12px 0}
+.calc label{font-weight:700;margin-top:8px}
+.calc input,.calc select{font:inherit;font-size:18px;padding:10px 12px;border:1px solid var(--linha);border-radius:10px;background:#fff}
+.iptu-res{border:2px solid var(--azul);border-radius:14px;padding:14px 16px;margin:12px 0}
+.ir-linha{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px solid var(--linha)}
+.ir-linha b{white-space:nowrap}
+.ir-linha.total{font-size:1.2rem;border-bottom:2px solid var(--azul)}

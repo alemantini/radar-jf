@@ -136,6 +136,7 @@ async function pgPrefInicio(ano) {
   const max = Math.max(...A.secretarias.map(s => s.p), 1);
   const REC = await prefReceitas();
   app.innerHTML = `
+    <a class="btn-grande prefeitura" href="#/prefeitura/iptu">${ic("dinheiro")}<span class="tx">Calculadora do IPTU<small>Quanto dá o seu IPTU, quanto economiza à vista e para onde vai o dinheiro</small></span>›</a>
     <a class="btn-grande prefeitura" href="#/prefeitura/lupa">${ic("lupa")}<span class="tx">Gastos na lupa<small>Carros e combustível, viagens, publicidade, shows e a corrida de dezembro</small></span>›</a>
     <a class="btn-alerta" href="#/prefeitura/alertas">${ic("alerta")}<span class="tx"><b>Sinais de alerta nos gastos</b><small>Compras fatiadas, empresas punidas, sócios que doaram para campanhas e mais.</small></span><span class="seta">›</span></a>
     ${REC ? blocoImpostometro(REC) + `<a class="btn-grande prefeitura" href="#/prefeitura/impostometro">${ic("dinheiro")}<span class="tx">Ver o impostômetro completo<small>IPTU, ISS, ITBI, por morador e mês a mês</small></span>›</a>` : ""}
@@ -392,6 +393,7 @@ async function rotaPrefeitura(p) {
   if (sub === "comissionados") return pgComissionados(a);
   if (sub === "lupa") return pgLupa(a, b);
   if (sub === "supersalarios") return pgSupersalarios();
+  if (sub === "iptu") return pgIptu();
   if (sub === "emendas") return pgEmendas(a);
   if (sub === "diario") return pgDiario(a, b);
   if (sub === "s") return pgPrefSecretaria(a, +b);
@@ -724,4 +726,88 @@ async function pgSupersalarios() {
       <li><b>Salário de servidor é informação pública por lei (Lei de Acesso à Informação e decisão do STF). O Radar mostra exatamente o que a Prefeitura publica.</b></li>
     </ul>
     <p class="sub fonte-linha">Competência ${esc(S.competencia)}, baixado em ${esc(S.baixado_em.split("-").reverse().join("/"))}. Fonte: ${esc(S.fonte)}. Confira na <a href="${FONTE_SERV}" target="_blank" rel="noopener">pesquisa oficial de servidores</a>.</p>`;
+}
+
+
+// ---------- Calculadora do IPTU 2026 ----------
+// Tabelas do "Manual IPTU/TCRS/CIPS 2026" da Secretaria da Fazenda da PJF.
+const IPTU_FONTE = "https://www.pjf.mg.gov.br/secretarias/sf/iptu/arquivos/manual-iptu-2026.pdf";
+const IPTU_TAB = {
+  res: [[71048.98, .005], [142097.92, .006], [284197.94, .007], [1420987.55, .008], [Infinity, .009]],
+  nres: [[71048.98, .006], [142097.92, .007], [284197.94, .008], [1420987.55, .009], [Infinity, .010]],
+  lote_murado: [[28419.99, .011], [71048.98, .014], [142097.93, .017], [Infinity, .020]],
+  lote_aberto: [[28419.99, .015], [71048.98, .020], [142097.93, .025], [Infinity, .030]],
+};
+const TCRS_REF = {res: 170.49, nres: 341.00};
+async function pgIptu() {
+  const R = await prefResumo().catch(() => null);
+  const REC = await prefReceitas();
+  const anoG = R ? anosDisp(R).filter(a => +a < new Date().getFullYear())[0] || anosDisp(R)[0] : null;
+  const pct = x => (x * 100).toLocaleString("pt-BR", {maximumFractionDigits: 1}) + "%";
+  app.innerHTML = `
+    <h1>Calculadora do IPTU 2026</h1>
+    <p class="sub">Coloque o valor venal do seu imóvel e veja quanto dá o IPTU pelas regras de 2026, quanto economiza pagando à vista e para onde vai esse dinheiro.</p>
+    <div class="calc">
+      <label for="iv">Valor venal do imóvel (R$)</label>
+      <input id="iv" inputmode="decimal" placeholder="Ex.: 180.000" autocomplete="off">
+      <small class="sub">Está no seu carnê do IPTU ou na consulta do IPTU no site da Prefeitura. Não é o preço de venda do imóvel: costuma ser bem menor.</small>
+      <label for="it">Tipo de imóvel</label>
+      <select id="it">
+        <option value="res">Casa ou apartamento (residencial)</option>
+        <option value="nres">Loja, sala ou outro uso (não residencial)</option>
+        <option value="lote_murado">Lote vago murado ou cercado</option>
+        <option value="lote_aberto">Lote vago sem muro nem cerca</option>
+      </select>
+      <div id="ic-lixo"><label for="ic">Coleta de lixo por semana</label>
+      <select id="ic"><option value="0">Não sei ou não quero incluir</option><option value="2">2 vezes</option><option value="3" selected>3 vezes</option><option value="6">6 vezes (todo dia)</option></select></div>
+    </div>
+    <div id="ires"></div>
+    <h2>Por que o seu carnê pode vir diferente</h2>
+    <ul class="metodo">
+      <li><b>Redução para casas pequenas:</b> imóveis residenciais pequenos em algumas regiões da cidade têm redução no IPTU (Lei 12.196/2010). Pelo manual da Prefeitura, ela pode chegar a 80% para casas de até 79 m² nas regiões do grupo D. A calculadora não aplica essa redução, porque ela depende da região e da área do imóvel.</li>
+      <li><b>Isenções:</b> há isenções previstas em lei, por exemplo para quem recebe o BPC e tem um único imóvel residencial. Quem tem isenção não paga.</li>
+      <li><b>Taxa do lixo (TCRS):</b> valor de referência de 2026 vezes o número de coletas por semana, limitado a 1,5 vez o IPTU. A calculadora usa esse limite.</li>
+      <li><b>Iluminação pública (CIPS):</b> para imóvel construído, vem na conta de luz, não no carnê.</li>
+      <li><b>Prazos de 2026:</b> o desconto de 10% à vista valia até 02/02/2026. O parcelamento é em até 10 vezes, com a 1ª parcela em 20/03/2026.</li>
+    </ul>
+    <p class="sub fonte-linha">Fonte: <a href="${IPTU_FONTE}" target="_blank" rel="noopener">Manual IPTU/TCRS/CIPS 2026, Secretaria da Fazenda da Prefeitura</a>. A conta é uma estimativa; o valor oficial é o do carnê.</p>`;
+  const ler = t => { const x = String(t || "").replace(/[^\d,\.]/g, ""); if (!x) return 0; const n = x.includes(",") ? x.replace(/\./g, "").replace(",", ".") : (/\.\d{3}($|\.)/.test(x) ? x.replace(/\./g, "") : x); return parseFloat(n) || 0; };
+  const calc = () => {
+    const vv = ler(document.getElementById("iv").value), tp = document.getElementById("it").value;
+    const lote = tp.startsWith("lote");
+    document.getElementById("ic-lixo").hidden = lote;
+    const out = document.getElementById("ires");
+    if (!vv) { out.innerHTML = ""; return; }
+    const faixa = IPTU_TAB[tp].find(([lim]) => vv <= lim), aliq = faixa[1];
+    const iptu = vv * aliq;
+    const col = lote ? 0 : +document.getElementById("ic").value;
+    let tcrs = col ? TCRS_REF[tp === "res" ? "res" : "nres"] * col : 0;
+    const limitado = tcrs > 1.5 * iptu;
+    if (limitado) tcrs = 1.5 * iptu;
+    const total = iptu + tcrs;
+    let onde = "";
+    if (R && anoG) {
+      const A = R.anos[anoG], tot = A.total.p || 1;
+      const top = [...A.secretarias].sort((a, b) => b.p - a.p).slice(0, 6);
+      const resto = tot - top.reduce((x, y) => x + y.p, 0);
+      onde = `<h2>Se o seu IPTU fosse dividido como a Prefeitura gastou em ${anoG}</h2>
+        <p class="sub">A Prefeitura junta o IPTU com os outros impostos e repasses e gasta tudo junto. Esta divisão mostra a proporção real dos gastos pagos em ${anoG}.</p>
+        ${top.map(x => `<div class="linha"><span class="nm">${esc(secNome(x.nome))}<div class="barra-p" style="width:${Math.round(100 * x.p / tot)}%"></div></span><span class="vl">${reais(iptu * x.p / tot, false)}</span></div>`).join("")}
+        <div class="linha"><span class="nm">Todas as outras secretarias e órgãos</span><span class="vl">${reais(iptu * resto / tot, false)}</span></div>`;
+    }
+    const iptuCidade = REC && REC.contas && REC.contas.IPTU ? REC.contas.IPTU.total_12m : 0;
+    out.innerHTML = `
+      <div class="iptu-res">
+        <div class="ir-linha"><span>IPTU (${pct(aliq)} do valor venal)</span><b>${reais(iptu, false)}</b></div>
+        ${tcrs ? `<div class="ir-linha"><span>Taxa do lixo (${col} coletas por semana${limitado ? ", limitada a 1,5 vez o IPTU" : ""})</span><b>${reais(tcrs, false)}</b></div>` : ""}
+        <div class="ir-linha total"><span>Total no ano</span><b>${reais(total, false)}</b></div>
+        <div class="ir-linha"><span>À vista, com 10% de desconto</span><b>${reais(total * .9, false)}</b></div>
+        <div class="ir-linha"><span>Em 10 parcelas de</span><b>${reais(total / 10, false)}</b></div>
+        <p class="sub">Pagando à vista você economiza ${reais(total * .1, false)}. Em 2026 o desconto valia para quem pagou até 02/02.</p>
+      </div>
+      ${iptuCidade ? `<p>Somando todos os imóveis, a cidade pagou <b>${reais(iptuCidade)}</b> de IPTU nos últimos 12 meses. Veja no <a href="#/prefeitura/impostometro">Impostômetro</a>.</p>` : ""}
+      ${onde}`;
+  };
+  ["iv", "it", "ic"].forEach(id => { const el = document.getElementById(id); el.oninput = calc; el.onchange = calc; });
+  calc();
 }
