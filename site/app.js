@@ -599,10 +599,10 @@ function pgSobre() {
 
 // ---------- rotas ----------
 // itens recém-lançados ganham o selo "novo" no menu (tirar daqui depois de algumas semanas)
-const NOVOS = new Set(["#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais"]);
+const NOVOS = new Set(["#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos"]);
 const SUBNAV = {
   camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/atas", "Atas", "lupa"]],
-  prefeitura: [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/chuvas", "Dinheiro das chuvas", "alerta"], ["#/prefeitura/emprestimos", "Empréstimos", "dinheiro"], ["#/prefeitura/hospitais", "Hospitais", "coracao"], ["#/prefeitura/lupa", "Na lupa", "lupa"], ["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/iptu", "Calculadora do IPTU", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura/comissionados", "Cargos de confiança", "pessoas"], ["#/prefeitura/supersalarios", "Supersalários", "dinheiro"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
+  prefeitura: [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/chuvas", "Dinheiro das chuvas", "alerta"], ["#/prefeitura/emprestimos", "Empréstimos", "dinheiro"], ["#/prefeitura/hospitais", "Hospitais", "coracao"], ["#/prefeitura/creditos", "Orçamento que muda", "repete"], ["#/prefeitura/lupa", "Na lupa", "lupa"], ["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/iptu", "Calculadora do IPTU", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura/comissionados", "Cargos de confiança", "pessoas"], ["#/prefeitura/supersalarios", "Supersalários", "dinheiro"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
 };
 const SELO = {
   camara: () => `<div class="placa camara">${ic("camara")}<span class="tx"><span class="tt">Câmara Municipal de Juiz de Fora</span><span class="ds">O que os vereadores apresentam. Fonte: sistema oficial da Câmara.</span></span></div>`,
@@ -636,6 +636,7 @@ function pgEscolha() {
       </div>
       </div>
     </section>
+    <section class="dest" id="destaques" hidden aria-label="Destaques sobre Juiz de Fora"></section>
     <a class="btn-alerta" href="#/prefeitura/alertas">${ic("alerta")}<span class="tx"><b><span id="ba-n">Sinais</span> de alerta nos gastos da Prefeitura</b><small>Compras fatiadas, empresas punidas, sócios que doaram para campanhas e mais. Veja o que merece uma pergunta.</small></span><span class="seta">›</span></a>
     <div class="faixa-nums">
       <a href="#/camara"><b id="fx-sal">${reaisCurto(salarioAcumulado())}</b><span>em salários de vereadores desde a posse</span></a>
@@ -662,10 +663,45 @@ function pgEscolha() {
     </div>
     <div class="info">Câmara e Prefeitura são poderes diferentes. A Câmara (vereadores) faz leis, fiscaliza e pede melhorias. A Prefeitura (prefeita e secretarias) executa os serviços e gasta o orçamento.</div>`;
   botaoInstalar();
+  bannerDestaques();
   document.getElementById("esc-ver").onchange = e => { if (e.target.value) location.hash = "#/v/" + e.target.value; };
   document.getElementById("hero-busca").onsubmit = e => { e.preventDefault(); const q = document.getElementById("hb").value.trim(); location.hash = "#/busca" + (q ? "/" + encodeURIComponent(q) : ""); };
   if (window.prefReceitas) prefReceitas().then(R => { const x = R && impostometro(R); const el = document.getElementById("fx-imp"); if (el) el.textContent = x ? reaisCurto(x.total) : "ver"; });
   fetch("dados/prefeitura/alertas.json").then(r => r.ok ? r.json() : null).catch(() => null).then(A => { const el = document.getElementById("ba-n"); if (el && A) el.textContent = fmt(A.alertas.length) + " sinais"; });
+}
+
+// ---------- Banner da página inicial: "veja o que está acontecendo em Juiz de Fora" ----------
+let _destTimer = null;
+async function bannerDestaques() {
+  const el = document.getElementById("destaques");
+  if (!el) return;
+  const D = await fetch("dados/destaques.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  if (!D || !(D.itens || []).length || !document.body.contains(el)) return;
+  const it = D.itens;
+  el.innerHTML = `
+    <div class="dest-topo"><h2>Veja o que está acontecendo em Juiz de Fora</h2>
+      <div class="dest-setas"><button type="button" data-d="-1" aria-label="Destaque anterior">‹</button><button type="button" data-d="1" aria-label="Próximo destaque">›</button></div></div>
+    <div class="dest-trilho" id="dest-trilho">${it.map((x, i) => `
+      <a class="dest-card ${esc(x.area)}" href="${esc(x.href)}" data-i="${i}">
+        <span class="dest-rot"><span class="dest-ic">${ic(x.ic)}</span>${esc(x.rot)}</span>
+        <b class="dest-v">${esc(x.v)}</b>
+        <span class="dest-d">${esc(x.d)}</span>
+        <span class="dest-ver">Ver mais ›</span>
+      </a>`).join("")}</div>
+    <div class="dest-pontos">${it.map((_, i) => `<button type="button" data-i="${i}" aria-label="Destaque ${i + 1}"></button>`).join("")}</div>`;
+  el.hidden = false;
+  const tr = document.getElementById("dest-trilho"), cards = [...tr.children], pts = [...el.querySelectorAll(".dest-pontos button")];
+  const atual = () => { let m = 0, d = 1e9; cards.forEach((c, i) => { const x = Math.abs(c.offsetLeft - tr.offsetLeft - tr.scrollLeft); if (x < d) { d = x; m = i; } }); return m; };
+  const vai = i => { i = (i + cards.length) % cards.length; tr.scrollTo({left: cards[i].offsetLeft - tr.offsetLeft, behavior: "smooth"}); };
+  const marca = () => { const a = atual(); pts.forEach((p, i) => p.classList.toggle("on", i === a)); };
+  tr.addEventListener("scroll", () => { clearTimeout(tr._t); tr._t = setTimeout(marca, 80); }, {passive: true});
+  pts.forEach((p, i) => p.onclick = () => { vai(i); parar(); });
+  el.querySelectorAll(".dest-setas button").forEach(b => b.onclick = () => { vai(atual() + +b.dataset.d); parar(); });
+  const parar = () => { clearInterval(_destTimer); _destTimer = null; };
+  const andar = () => { parar(); if (!matchMedia("(prefers-reduced-motion: reduce)").matches) _destTimer = setInterval(() => { if (!document.body.contains(tr)) return parar(); vai(atual() + 1); }, 5500); };
+  ["pointerdown", "mouseenter", "focusin"].forEach(ev => tr.addEventListener(ev, parar));
+  tr.addEventListener("mouseleave", andar);
+  marca(); andar();
 }
 
 async function rota() {

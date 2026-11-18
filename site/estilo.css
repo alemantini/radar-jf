@@ -586,3 +586,38 @@ mark{background:#ffe27a;color:inherit;border-radius:3px;padding:0 1px}
 .tp-tab tr.tp-grupo td{background:var(--calcada);font-weight:700;font-size:14px}
 .tp-det{margin:14px 0;border:1px solid var(--linha);border-radius:var(--raio);padding:10px 14px}
 .tp-det summary{cursor:pointer;font-weight:700}
+
+/* banner de destaques da página inicial */
+.dest{margin:18px 0 6px}
+.dest-topo{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.dest-topo h2{margin:0;font-size:22px}
+.dest-setas{display:none;gap:6px}
+.dest-setas button{width:36px;height:36px;border-radius:50%;border:0;background:#fff;box-shadow:0 1px 3px rgba(16,24,40,.12),inset 0 0 0 1px var(--linha);font-size:22px;font-weight:700;line-height:1;cursor:pointer;color:var(--tinta)}
+.dest-setas button:hover{box-shadow:0 4px 10px rgba(16,24,40,.14),inset 0 0 0 1px var(--linha)}
+.dest-trilho{display:grid;grid-auto-flow:column;grid-auto-columns:86%;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;padding:12px 2px 6px;margin:0 -2px}
+.dest-trilho::-webkit-scrollbar{display:none}
+.dest-card{scroll-snap-align:start;position:relative;display:flex;flex-direction:column;gap:6px;min-height:178px;padding:16px 18px;border-radius:18px;color:#fff;text-decoration:none;overflow:hidden;box-shadow:0 6px 18px rgba(16,24,40,.16);transition:transform .15s}
+.dest-card:hover{transform:translateY(-2px)}
+.dest-card::after{content:"";position:absolute;right:-40px;bottom:-40px;width:150px;height:150px;border-radius:50%;border:18px solid rgba(255,255,255,.08)}
+.dest-card.camara{background:linear-gradient(135deg,#1b5aa8,#0b2545)}
+.dest-card.prefeitura{background:linear-gradient(135deg,#17905f,#0b4a33)}
+.dest-card.alerta{background:linear-gradient(135deg,#f5c518,#e9a800);color:#0b2545}
+.dest-rot{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;opacity:.92}
+.dest-ic{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.18)}
+.dest-ic svg{width:16px;height:16px}
+.dest-v{font-family:"Barlow Condensed",sans-serif;font-size:34px;line-height:1.05;font-weight:800}
+.dest-card.camara .dest-v,.dest-card.prefeitura .dest-v{color:#ffe27a}
+.dest-d{font-size:15px;line-height:1.35;opacity:.95}
+.dest-ver{margin-top:auto;font-weight:700;font-size:14px}
+.dest-pontos{display:flex;justify-content:center;gap:6px;margin-top:6px}
+.dest-pontos button{width:8px;height:8px;border-radius:99px;border:0;padding:0;background:#c9d1dc;cursor:pointer;transition:width .2s,background .2s}
+.dest-pontos button.on{width:22px;background:var(--azul)}
+@media (min-width:700px){
+  .dest-trilho{grid-auto-columns:calc((100% - 24px) / 3)}
+  .dest-setas{display:flex}
+  .dest-v{font-size:30px}
+}
+.tp-barra.neg{background:#fbe9e7}
+.tp-barra.neg i{background:linear-gradient(90deg,#e0573a,#b23a22)}
+.tp-tab td.pos{color:var(--verde);font-weight:700}
+.tp-tab td.neg{color:#b23a22;font-weight:700}
