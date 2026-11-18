@@ -844,7 +844,7 @@ async function pgIptuAreas(busca) {
     ${A.slice(-20).reverse().map(a => linhaA(a)).join("")}
     <h2>O aumento barrado em 2026</h2>
     <p>No fim de 2025, o Decreto nº 17.618 aumentou o valor do m² de 17 áreas, em bairros como Cruzeiro de Santo Antônio, Parque Jardim da Serra, Salvaterra, Aeroporto, Novo Horizonte, Bom Pastor, Boa Vista, São Pedro, Serro Azul, Democrata, Santa Catarina e Recanto dos Lagos. A Justiça suspendeu o decreto em janeiro de 2026 e a Prefeitura o revogou. Compare o valor de 2025 com o que o decreto queria cobrar:</p>
-    <table class="tab-equipe"><thead><tr><th>Área</th><th>m² em 2025</th><th>Decreto (2026)</th><th>Aumento</th></tr></thead><tbody>
+    <table class="tab-equipe"><thead><tr><th>Área</th><th>m² em 2025</th><th>Decreto (2026)</th><th>Aumento sobre 2025 (inclui a inflação do ano)</th></tr></thead><tbody>
     ${dec.map(x => `<tr><td>${esc(x.c)}</td><td>${r2(x.a.iptu)}</td><td>${r2(x.v)}</td><td>${Math.round(100 * (x.v / x.a.iptu - 1))}%</td></tr>`).join("")}
     </tbody></table>
     <h2>Os grupos de redução</h2>
