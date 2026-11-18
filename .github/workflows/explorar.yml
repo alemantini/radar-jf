@@ -17,4 +17,6 @@ jobs:
       - run: bash tools/versao_anterior.sh
         env:
           GH_TOKEN: ${{ github.token }}
-      - run: python -u tools/explorar.py
+      - run: mkdir -p site/dados/prefeitura && cp /tmp/anterior/dados/prefeitura/empenhos_*.json site/dados/prefeitura/
+      - run: python -u scripts/prefeitura_temas.py
+      - run: for f in chuvas emprestimos hospitais; do echo "@@@ $f"; gzip -c site/dados/prefeitura/$f.json | base64 -w0; echo; done
