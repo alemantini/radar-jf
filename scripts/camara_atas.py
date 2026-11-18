@@ -259,12 +259,12 @@ def falas_na_ata(norm, rx_fala):
 def exemplo_do_tema(texto, pos, i, j, k):
     """Trecho da fala que mostra o assunto: o começo da fala, ou a frase onde o assunto aparece."""
     orig = texto[pos[i]:pos[j - 1] + 1]
-    if k < 220:
+    fim_1a_frase = orig.find(". ")
+    if k < 220 and (fim_1a_frase < 0 or k <= fim_1a_frase):
         return trecho_da_fala(orig, 0)
     ini = pos[i + k] - pos[i]
     frase = orig.rfind(". ", 0, ini)
-    nome = re.match(r"\S+ (?:\S+ ){0,4}?\S+?(?=,? (?:\(|[a-zà-ú]))", orig)
-    return (nome.group(0) + ": " if nome else "") + "… " + trecho_da_fala(orig, frase + 2 if frase >= 0 else ini)
+    return "… " + trecho_da_fala(orig, frase + 2 if frase >= 0 else ini)
 
 
 def gerar_falas(atas, vereadores):
@@ -317,6 +317,72 @@ def gerar_falas(atas, vereadores):
     (SAIDA.parent / "atas_falas_trechos.json").write_text(json.dumps({**base, "vereadores": detalhe},
                                                           ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"Falas: {len(resumo)} vereadores, {len(reunioes)} reuniões desde {INICIO_MANDATO}")
+    gerar_quente(atas, vereadores)
+
+
+# ---------- assunto quente do mês ----------
+# Pautas concretas que voltam às reuniões. Um assunto é "quente" no mês quando muitos
+# vereadores diferentes falam dele: conta quantos falaram e em quantas reuniões.
+PAUTAS = [
+    ("Chuvas e famílias atingidas", r"(?<!faca )\bchuvas?\b|defesa civil|familias atingidas|pessoas atingidas|atingidos pel|desabrigad|desalojad|enchente|deslizament"),
+    ("Plano de saúde do servidor (PAS-JF)", r"saude servidor|pas-jf|plano de (?:assistencia a )?saude (?:dos |do )?servidor"),
+    ("CPI na Câmara", r"\bcpi\b|comissao parlamentar de inquerito"),
+    ("Empréstimos da Prefeitura", r"operac(?:ao|oes) de credito|emprestimo|financiamento"),
+    ("Contas e dívidas da Prefeitura", r"deficit|divida|contas publicas|responsabilidade fiscal|\blrf\b"),
+    ("Emendas dos vereadores", r"emendas? (?:parlamentar|impositiva|individua)"),
+    ("IPTU", r"\biptu\b"),
+    ("Ônibus e tarifa", r"onibus|transporte coletivo|tarifa"),
+    ("Hospitais e UPAs", r"hospita|\bhps\b|\bupa\b|santa casa"),
+    ("Escolas e creches", r"escolas? municip|creche|merenda"),
+    ("Segurança e Guarda Municipal", r"guarda municipal|seguranca publica"),
+    ("Causa animal", r"\banimai?s\b|castrac|bem-estar animal"),
+    ("Moradia", r"moradia|habitac|auxilio-moradia|aluguel social"),
+]
+PAUTAS_RX = [(n, re.compile(r)) for n, r in PAUTAS]
+PAUTAS_POR_MES = 5
+EXEMPLOS_POR_PAUTA = 4
+
+
+def gerar_quente(atas, vereadores):
+    reunioes = sorted((a for a in atas.values() if (a["data"] or "") >= INICIO_MANDATO and a["tipo"] != "Outra"),
+                      key=lambda a: (a["data"], a["cod"]))
+    meses = {}
+    for a in reunioes:
+        m = a["data"][:7]
+        M = meses.setdefault(m, {"reunioes": 0, "p": {}})
+        M["reunioes"] += 1
+        texto = sem_rodape(a["texto"])
+        norm, pos = mapa_sem_acento(texto)
+        for vid, rx_fala, _ in vereadores:
+            for i, j in falas_na_ata(norm, rx_fala):
+                seg = norm[i:j]
+                for nome, rx in PAUTAS_RX:
+                    k = rx.search(seg)
+                    if not k:
+                        continue
+                    P = M["p"].setdefault(nome, {"atas": set(), "v": {}, "ex": {}})
+                    P["atas"].add(a["cod"])
+                    P["v"][vid] = P["v"].get(vid, 0) + 1
+                    # um exemplo por vereador: o mais recente
+                    P["ex"][vid] = {"c": a["cod"], "d": a["data"], "v": vid,
+                                    "x": exemplo_do_tema(texto, pos, i, j, k.start())}
+    saida = []
+    for m in sorted(meses, reverse=True):
+        M = meses[m]
+        ps = [(n, P) for n, P in M["p"].items() if len(P["v"]) >= 2]
+        ps.sort(key=lambda x: (-len(x[1]["v"]), -len(x[1]["atas"]), x[0]))
+        lista = []
+        for n, P in ps[:PAUTAS_POR_MES]:
+            quem = sorted(P["v"], key=lambda v: -P["v"][v])
+            ex = sorted(P["ex"].values(), key=lambda e: (-P["v"][e["v"]], e["d"]))[:EXEMPLOS_POR_PAUTA]
+            lista.append({"p": n, "reunioes": len(P["atas"]), "vereadores": quem, "ex": ex})
+        todos = {n: len(P["v"]) for n, P in M["p"].items()}
+        saida.append({"m": m, "reunioes": M["reunioes"], "pautas": lista, "todos": todos})
+    (SAIDA.parent / "atas_quente.json").write_text(json.dumps({
+        "atualizado": dt.datetime.now().strftime("%Y-%m-%d %H:%M"), "fonte": URL,
+        "pautas": [n for n, _ in PAUTAS], "meses": saida,
+    }, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    print(f"Assunto do mês: {len(saida)} meses")
 
 
 # ---------- coleta ----------
