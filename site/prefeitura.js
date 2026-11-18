@@ -404,6 +404,7 @@ async function rotaPrefeitura(p) {
   if (sub === "emprestimos") return pgEmprestimos();
   if (sub === "hospitais") return pgHospitais(a);
   if (sub === "creditos") return pgCreditos(a);
+  if (sub === "aditivos") return pgAditivos(a);
   return pgPrefInicio();
 }
 
@@ -1048,4 +1049,36 @@ async function pgCreditos(ano) {
       ${x.fontes && x.fontes.length ? `<small class="sub">Fonte do dinheiro: ${esc(x.fontes.join(", ").toLowerCase())}</small>` : ""}
       <div class="ag-bt"><a href="${D.link_ato}${x.id}" target="_blank" rel="noopener">ver no Diário Oficial</a></div></div>`).join("")}
     <p class="sub fonte-linha">Fontes: decretos publicados no Diário Oficial do Município (${fmt(D.decretos_lidos)} de ${fmt(D.decretos_total)} já lidos por inteiro) e Tesouro Nacional (Siconfi), Relatório Resumido da Execução Orçamentária, Anexo 2. Atualizado em ${esc(D.atualizado)}.</p>`;
+}
+
+async function pgAditivos(aba) {
+  const D = await temaPref("aditivos");
+  if (!D || !D.n) { app.innerHTML = "<h1>Aditivos de contratos</h1><p>Os dados ainda não foram publicados. Volte mais tarde.</p>"; return; }
+  aba = ["muitos", "antigos", "quantidade"].includes(aba) ? aba : "muitos";
+  const totTipos = D.tipos.reduce((s, [, n]) => s + n, 0);
+  const anoAtual = new Date().getFullYear();
+  const cartaoC = c => `<div class="alerta-card"><div class="ac-topo"><span class="ac-tipo">Contrato ${esc(c.contrato)} · assinado em ${c.ano} · ${esc(c.orgao)}</span><span class="ac-valor">${fmt(c.aditivos_total)}º aditivo</span></div>
+    <b class="ac-nome">${esc(c.empresa || "Contratado não identificado no resumo")}</b>
+    <small class="sub">${anoAtual - c.ano >= 2 ? `Contrato com ${anoAtual - c.ano} anos. ` : ""}Tipos de aditivo publicados desde ${dataBR(D.desde)}: ${c.tipos.map(t => t.toLowerCase()).join(", ")}.</small>
+    ${c.atos.slice().reverse().slice(0, 3).map(a => `<p><small class="sub">${dataBR(a.d)}${a.seq ? ` · ${a.seq}º aditivo` : ""}${a.valor ? ` · ${reais(a.valor)}` : ""}</small><br>${esc(a.objeto || "")} <a href="${D.link_ato}${a.id}" target="_blank" rel="noopener">ver no Diário Oficial</a></p>`).join("")}</div>`;
+  const abas = [["muitos", "Mais aditivos"], ["antigos", "Contratos mais antigos"], ["quantidade", "Acréscimos e supressões"]];
+  app.innerHTML = `
+    <h1>Aditivos de contratos</h1>
+    <p class="sub">Depois de assinado, um contrato pode ser mudado por termos aditivos: prorrogar o prazo, reajustar o preço, aumentar ou diminuir a quantidade. Prorrogar serviços contínuos e aluguéis e reajustar pela inflação são permitidos. Acréscimos acima de 25% do valor (50% em reforma) são proibidos por lei, e contratos que se renovam por muitos anos merecem uma pergunta: não seria a hora de uma nova licitação?</p>
+    <div class="faixa-nums">
+      <div><b>${fmt(D.n)}</b><span>termos aditivos publicados desde ${dataBR(D.desde)}</span></div>
+      <div><b>${fmt(D.n_contratos)}</b><span>contratos diferentes</span></div>
+      <div><b>${fmt((D.tipos.find(t => t[0].startsWith("Acréscimo")) || [0, 0])[1])}</b><span>mudaram a quantidade contratada</span></div>
+    </div>
+    <h2>Que tipo de mudança</h2>
+    ${D.tipos.map(([t, n]) => `<div class="tp-linha"><div class="tp-tit"><b>${esc(t)}</b><span>${fmt(n)} aditivos</span></div>${barra2(n, totTipos)}</div>`).join("")}
+    <p class="sub">Um mesmo aditivo pode ter mais de um tipo, como prorrogação com reajuste.</p>
+    <div class="chips lupa-abas">${abas.map(([k, t]) => `<a href="#/prefeitura/aditivos/${k}" class="${k === aba ? "on" : ""}">${t}</a>`).join("")}</div>
+    ${aba === "muitos" ? `<p class="sub">Contratos com o maior número de aditivos (o número vem do próprio extrato: “/14” quer dizer 14º aditivo). Muitos são aluguéis de imóveis renovados ano a ano.</p>${D.mais_aditivados.map(cartaoC).join("")}` : ""}
+    ${aba === "antigos" ? `<p class="sub">Contratos assinados há 5 anos ou mais que continuam recebendo aditivos.</p>${D.mais_antigos.map(cartaoC).join("")}` : ""}
+    ${aba === "quantidade" ? `<p class="sub">Aditivos que aumentaram ou diminuíram a quantidade contratada. O percentual, quando informado, está no texto.</p>
+      ${D.quantitativos.map(q => `<div class="alerta-card"><div class="ac-topo"><span class="ac-tipo">${dataBR(q.d)} · contrato ${esc(q.contrato)}${q.seq ? ` · ${q.seq}º aditivo` : ""} · ${esc(q.orgao)}</span><span class="ac-valor">${q.valor ? reais(q.valor) : ""}</span></div>
+        <b class="ac-nome">${esc(q.empresa || "Contratado não identificado no resumo")}</b><p>${esc(q.objeto)}</p><div class="ag-bt"><a href="${D.link_ato}${q.id}" target="_blank" rel="noopener">ver no Diário Oficial</a></div></div>`).join("")}` : ""}
+    ${D.por_empresa.length ? `<h2>Quem mais recebeu aditivos</h2>${D.por_empresa.slice(0, 12).map(([e, n]) => `<div class="linha"><span class="nm">${esc(e)}</span><span class="vl">${fmt(n)}</span></div>`).join("")}` : ""}
+    <p class="sub fonte-linha">Fonte: extratos de termos aditivos publicados no Diário Oficial do Município de ${dataBR(D.desde)} a ${dataBR(D.ate)}. O Radar lê o resumo de cada extrato; o valor nem sempre aparece no resumo. Quem aluga imóvel para a Prefeitura como pessoa física aparece sem nome. Um aditivo é legal na maioria dos casos: a página mostra o que merece uma pergunta, não acusa ninguém.</p>`;
 }
