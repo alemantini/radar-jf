@@ -10,7 +10,8 @@ O que cada vereador de Juiz de Fora apresentou na Câmara Municipal, só com dad
 
 1. `scripts/coletar.py` baixa proposições (por ano e tipo), a lista de vereadores e a data de cada proposição (aos poucos, com cache em `data/cache/datas.json`).
 2. `scripts/processar.py` classifica as propostas em grupos com a mesma regra para todos, identifica rua, bairro e tipo de pedido, e cruza pedidos repetidos.
-3. `site/` é o site estático publicado no GitHub Pages.
+3. `scripts/camara_atas.py` baixa e lê as atas das reuniões e audiências públicas (workflow "Atas da Câmara", todo dia; texto completo guardado em `data/cache/atas/`, um arquivo por ano). A carga completa é feita uma vez pelo botão "Run workflow" com início 1 e fim 6000.
+4. `site/` é o site estático publicado no GitHub Pages.
 
 ## Correções
 

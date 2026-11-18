@@ -1,0 +1,61 @@
+name: Atas da Câmara
+
+on:
+  schedule:
+    # todo dia às 5h11 em Brasília, antes da rodada das 9h43 do Radar
+    - cron: "11 8 * * *"
+  workflow_dispatch:
+    inputs:
+      inicio:
+        description: "Carga completa: primeiro número de ata (ex.: 1). Deixe vazio para só buscar as novas."
+        required: false
+      fim:
+        description: "Carga completa: último número de ata (ex.: 6000)"
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: atas
+  cancel-in-progress: false
+
+env:
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  atas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Instalar dependências
+        run: pip install requests pypdf
+
+      - name: Baixar e ler as atas
+        run: |
+          if [ -n "${{ github.event.inputs.inicio }}" ]; then
+            python scripts/camara_atas.py --inicio "${{ github.event.inputs.inicio }}" --fim "${{ github.event.inputs.fim || '6000' }}"
+          else
+            python scripts/camara_atas.py --minutos 60
+          fi
+
+      - name: Guardar as atas no repositório
+        if: always()
+        run: |
+          git config user.name "radar-robo"
+          git config user.email "radar-robo@users.noreply.github.com"
+          git add data/cache/atas || true
+          if git diff --cached --quiet; then
+            echo "nenhuma ata nova"
+          else
+            git commit -m "Atas da Câmara $(date -u +%Y-%m-%d)"
+            for i in 1 2 3; do git pull --rebase origin main && git push origin HEAD:main && break; sleep 15; done
+          fi

@@ -464,7 +464,7 @@ function pgSobre() {
 
 // ---------- rotas ----------
 const SUBNAV = {
-  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"]],
+  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/atas", "Atas", "lupa"]],
   prefeitura: [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/lupa", "Na lupa", "lupa"], ["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/iptu", "Calculadora do IPTU", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura/comissionados", "Cargos de confiança", "pessoas"], ["#/prefeitura/supersalarios", "Supersalários", "dinheiro"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
 };
 const SELO = {
@@ -516,7 +516,7 @@ async function rota() {
   const h = location.hash.replace(/^#\/?/, "");
   const partes = h.split("/").map(decodeURIComponent);
   const pag = partes[0], arg = partes.slice(1).join("/");
-  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
+  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
   document.querySelectorAll("nav.areas a").forEach(a => a.classList.toggle("ativo", a.dataset.area === area));
   const sub = document.getElementById("subnav");
   const atual = "#/" + h;
@@ -533,6 +533,7 @@ async function rota() {
     else if (pag === "grupo") await pgGrupo(arg);
     else if (pag === "placar") pgPlacar(arg);
     else if (pag === "agenda") await pgAgenda();
+    else if (pag === "atas") await pgAtas(arg);
     else if (pag === "resumo") await pgResumo();
     else if (pag === "apoie") pgApoie();
     else if (pag === "sobre") { pgSobre(); if (window.sobrePrefeitura) await sobrePrefeitura(); }
@@ -604,13 +605,95 @@ async function pgAgenda() {
     ${futuros.length ? futuros.map(e => card(e, true)).join("") : `<p class="sub">Nenhuma audiência marcada na página oficial da Câmara por enquanto. A Câmara costuma publicar as do mês no início de cada mês; o Radar confere todo dia.</p>`}
     <h2>Reuniões ordinárias</h2>
     <p>${esc((A && A.ordinarias) || "Reuniões ordinárias de segunda a quinta às 17h30 e às sextas às 10h30.")} Veja o <a href="https://www.camarajf.mg.gov.br/www/agenda-de-reunioes" target="_blank" rel="noopener">calendário oficial</a>.</p>
-    ${passados.length ? `<h2>Audiências que já aconteceram</h2>${passados.slice(0, 20).map(e => card(e, false)).join("")}<p class="sub">As atas ficam na <a href="https://www.camarajf.mg.gov.br/sal/buscaratas.php" target="_blank" rel="noopener">busca de atas da Câmara</a>.</p>` : ""}
+    ${passados.length ? `<h2>Audiências que já aconteceram</h2>${passados.slice(0, 20).map(e => card(e, false)).join("")}<p class="sub">O que foi dito em cada uma está nas <a href="#/atas/tipo=${encodeURIComponent("Audiência pública")}">atas das audiências</a>.</p>` : ""}
     <p class="sub fonte-linha">Fontes: <a href="https://www.camarajf.mg.gov.br/sal/buscarreuniao.php" target="_blank" rel="noopener">Ordem do Dia</a> e <a href="https://www.camarajf.mg.gov.br/www/audiencias-publicas" target="_blank" rel="noopener">página de audiências públicas da Câmara Municipal</a>${A ? `, conferida em ${esc(A.atualizado.split(" ")[0].split("-").reverse().join("/"))}` : ""}. O Radar guarda o histórico a partir de outubro de 2026.</p>`;
 
   app.querySelectorAll(".pt-filtro a").forEach(a => a.onclick = () => {
     app.querySelectorAll(".pt-filtro a").forEach(b => b.classList.toggle("on", b === a));
     app.querySelectorAll(".pt-item").forEach(it => it.hidden = !!a.dataset.t && !it.dataset.temas.split("|").includes(a.dataset.t));
   });}
+
+// ---------- Atas da Câmara (reuniões e audiências) ----------
+async function pgAtas(arg) {
+  app.innerHTML = `<h1>Atas da Câmara</h1><p class="carregando">Carregando as atas…</p>`;
+  const A = await fetch("dados/atas.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  const L = (A && A.atas) || [];
+  const fonte = c => (A && A.fonte ? A.fonte : "https://www.camarajf.mg.gov.br/sal/ata.php?cod={}").replace("{}", c);
+  const semAc = s => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const NV = {}; (RESUMO.vereadores || []).forEach(v => NV[v.id] = v.apelido);
+  L.forEach(a => a._b = semAc(a.n + " " + a.x + " " + a.t + " " + (a.tm || []).join(" ") + " " + (a.v || []).map(i => NV[i] || "").join(" ")));
+  const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  const cont = (k, f) => L.reduce((o, a) => { (f(a) || []).forEach(x => o[x] = (o[x] || 0) + 1); return o; }, {});
+  const tipos = cont("t", a => [a.t]), anos = Object.keys(cont("d", a => a.d ? [a.d.slice(0, 4)] : [])).sort().reverse();
+  const temas = cont("tm", a => a.tm), vers = cont("v", a => a.v);
+  const P = new URLSearchParams(arg || "");
+  const opt = (v, t, sel) => `<option value="${esc(v)}"${sel === String(v) ? " selected" : ""}>${esc(t)}</option>`;
+
+  app.innerHTML = `
+    <h1>Atas da Câmara</h1>
+    <p class="sub">O registro oficial de cada reunião e audiência pública: quem falou, o que foi votado e o que foi cobrado. Cada ata leva ao documento oficial da Câmara.</p>
+    ${L.length ? `
+    <form class="busca-rapida" id="at-form" onsubmit="event.preventDefault()">
+      <label class="sr" for="at-q">Buscar nas atas</label>
+      <input type="search" id="at-q" placeholder="Tema, bairro, projeto…" value="${esc(P.get("q") || "")}" autocomplete="off">
+    </form>
+    <div class="at-sel">
+      <select id="at-tipo" aria-label="Tipo de reunião">${opt("", "Todos os tipos", P.get("tipo") || "")}${Object.keys(tipos).sort().map(t => opt(t, `${t} (${fmt(tipos[t])})`, P.get("tipo") || "")).join("")}</select>
+      <select id="at-ano" aria-label="Ano">${opt("", "Todos os anos", P.get("ano") || "")}${anos.map(y => opt(y, y, P.get("ano") || "")).join("")}</select>
+      <select id="at-v" aria-label="Vereador citado">${opt("", "Qualquer vereador", P.get("v") || "")}${Object.keys(vers).filter(i => NV[i]).sort((x, y) => NV[x].localeCompare(NV[y], "pt-BR")).map(i => opt(i, `${NV[i]} (${fmt(vers[i])})`, P.get("v") || "")).join("")}</select>
+    </div>
+    <div class="chips-filtro" id="at-temas"><a href="javascript:void 0" data-t=""${P.get("tema") ? "" : ' class="on"'}>Todos os assuntos</a>${Object.keys(temas).sort().map(t => `<a href="javascript:void 0" data-t="${esc(t)}"${P.get("tema") === t ? ' class="on"' : ""}>${esc(t)} <b>${fmt(temas[t])}</b></a>`).join("")}</div>
+    <p class="sub" id="at-n"></p>
+    <div id="at-lista"></div>
+    <button class="btn-ag sec at-mais" id="at-mais" type="button" hidden>Mostrar mais atas</button>`
+    : `<div class="info">As atas ainda estão sendo carregadas pelo robô do Radar. Volte em algumas horas.</div>`}
+    <p class="sub fonte-linha">Fonte: atas publicadas pela <a href="https://www.camarajf.mg.gov.br/sal/" target="_blank" rel="noopener">Câmara Municipal de Juiz de Fora</a>${A ? `, conferidas em ${esc(A.atualizado.split(" ")[0].split("-").reverse().join("/"))}` : ""}. A busca olha o título e o começo de cada ata, os assuntos e os vereadores citados no texto; para ler tudo, abra o documento oficial. Ata "ainda não aprovada" é a versão provisória, antes da votação em plenário.</p>`;
+  if (!L.length) return;
+
+  let mostrar = 30;
+  const $ = id => document.getElementById(id);
+  const destacar = (t, termos) => {
+    let h = esc(t);
+    termos.filter(x => x.length > 1).forEach(x => {
+      const n = semAc(h); let out = "", i = 0, p;
+      while ((p = n.indexOf(x, i)) >= 0) { out += h.slice(i, p) + "<mark>" + h.slice(p, p + x.length) + "</mark>"; i = p + x.length; }
+      h = out + h.slice(i);
+    });
+    return h;
+  };
+  const desenhar = () => {
+    const termos = semAc($("at-q").value).split(/\s+/).filter(Boolean);
+    const tipo = $("at-tipo").value, ano = $("at-ano").value, v = $("at-v").value;
+    const tema = ($("at-temas").querySelector("a.on") || {}).dataset?.t || "";
+    const R = L.filter(a => (!tipo || a.t === tipo) && (!ano || (a.d || "").startsWith(ano)) && (!v || (a.v || []).includes(+v))
+      && (!tema || (a.tm || []).includes(tema)) && termos.every(x => a._b.includes(x)));
+    $("at-n").textContent = `${fmt(R.length)} de ${fmt(L.length)} atas`;
+    $("at-lista").innerHTML = R.slice(0, mostrar).map(a => {
+      const [y, m, d] = (a.d || "--").split("-");
+      const nomes = (a.v || []).map(i => NV[i]).filter(Boolean);
+      return `<div class="ag-item">
+        <div class="ag-data">${a.d ? `<b>${+d}</b><span>${MESES[+m - 1]}</span><small>${y}</small>` : "<small>sem data</small>"}</div>
+        <div class="ag-tx"><small class="sub">${esc(a.t)}${a.ap ? "" : ' · <span class="at-pend">ata ainda não aprovada</span>'}${(a.tm || []).length ? " · " + a.tm.map(esc).join(", ") : ""}</small>
+          <p><b>${esc(a.n)}</b></p>
+          <p class="at-x">${destacar(a.x, termos)}${a.x.length >= 300 ? "…" : ""}</p>
+          ${nomes.length ? `<small class="sub">Vereadores citados: ${nomes.map(esc).join(", ")}</small>` : ""}
+          <div class="ag-bt"><a href="${fonte(a.c)}" target="_blank" rel="noopener">Ler a ata completa (documento oficial)</a></div>
+        </div></div>`;
+    }).join("") || `<p class="sub">Nenhuma ata com esses filtros.</p>`;
+    $("at-mais").hidden = R.length <= mostrar;
+    const q = new URLSearchParams();
+    [["q", $("at-q").value.trim()], ["tipo", tipo], ["ano", ano], ["v", v], ["tema", tema]].forEach(([k, x]) => x && q.set(k, x));
+    history.replaceState(null, "", "#/atas" + (q.toString() ? "/" + q : ""));
+  };
+  let tempo;
+  $("at-q").oninput = () => { clearTimeout(tempo); tempo = setTimeout(() => { mostrar = 30; desenhar(); }, 150); };
+  ["at-tipo", "at-ano", "at-v"].forEach(id => $(id).onchange = () => { mostrar = 30; desenhar(); });
+  $("at-temas").querySelectorAll("a").forEach(a => a.onclick = () => {
+    $("at-temas").querySelectorAll("a").forEach(b => b.classList.toggle("on", b === a)); mostrar = 30; desenhar();
+  });
+  $("at-mais").onclick = () => { mostrar += 30; desenhar(); };
+  desenhar();
+}
 
 // ---------- Resumo do dia (para o canal do Radar no WhatsApp) ----------
 const CANAL_ZAP = "";  // link do canal do Radar no WhatsApp (whatsapp.com/channel/...), quando existir
