@@ -101,7 +101,7 @@ def main():
                       "forn": defaultdict(lambda: [0.0, 0]), "maiores": []} for t in TEMAS}
         mes_sec = defaultdict(lambda: [0.0] * 12)
         mes_tot = [0.0] * 12
-        for data, u, ic, ie, e, p, hist, num in d["empenhos"]:
+        for data, u, ic, ie, e, p, hist, num, *_ in d["empenhos"]:
             hk = chave(hist)
             mes = int(data[5:7]) - 1 if data and len(data) >= 7 else None
             if mes is not None and e and not NAO_FOLHA.search(el_k[ie]):

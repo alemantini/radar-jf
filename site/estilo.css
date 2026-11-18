@@ -569,3 +569,20 @@ mark{background:#ffe27a;color:inherit;border-radius:3px;padding:0 1px}
   .ferramentas .btn-grande{flex-direction:column;align-items:flex-start;gap:8px;padding:14px 16px;font-size:18px;line-height:1.15}
   .ferramentas .btn-grande .tx small{margin-top:4px}
 }
+/* temas da Prefeitura: chuvas, empréstimos, hospitais */
+.tp-linha{padding:10px 0;border-bottom:1px solid var(--linha)}
+.tp-tit{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;align-items:baseline}
+.tp-tit span{font-size:14px;color:var(--apoio)}
+.tp-barra{display:block;height:9px;border-radius:99px;background:#e6f2ec;margin-top:6px;overflow:hidden}
+.tp-barra i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#17905f,var(--verde))}
+.tp-meses{display:flex;align-items:flex-end;gap:6px;height:170px;margin:8px 0 4px;overflow-x:auto}
+.tp-mes{flex:1;min-width:34px;display:flex;flex-direction:column;align-items:center;height:100%}
+.tp-col{position:relative;flex:1;width:100%;max-width:38px}
+.tp-col i{position:absolute;left:0;right:0;bottom:0;border-radius:6px 6px 0 0}
+.tp-col i.e{background:#cfe6da}
+.tp-col i.p{background:var(--verde);left:22%;right:22%}
+.tp-mes small{font-size:11px;color:var(--apoio);text-align:center;line-height:1.2;margin-top:4px}
+.tp-tab td small{display:block}
+.tp-tab tr.tp-grupo td{background:var(--calcada);font-weight:700;font-size:14px}
+.tp-det{margin:14px 0;border:1px solid var(--linha);border-radius:var(--raio);padding:10px 14px}
+.tp-det summary{cursor:pointer;font-weight:700}

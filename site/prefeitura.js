@@ -400,6 +400,9 @@ async function rotaPrefeitura(p) {
   if (sub === "fornecedores") return pgPrefFornecedores(a);
   if (sub === "empresa") return pgPrefEmpresa(a, b);
   if (sub === "busca") return pgPrefBusca(a, b);
+  if (sub === "chuvas") return pgChuvas();
+  if (sub === "emprestimos") return pgEmprestimos();
+  if (sub === "hospitais") return pgHospitais(a);
   return pgPrefInicio();
 }
 
@@ -874,4 +877,127 @@ async function pgIptuAreas(busca) {
   };
   ab.oninput = procura;
   procura();
+}
+
+// ---------- Temas quentes: chuvas, empréstimos e hospitais ----------
+const TEMAS_PREF = {};
+async function temaPref(nome) {
+  if (!(nome in TEMAS_PREF)) TEMAS_PREF[nome] = await fetch(`dados/prefeitura/${nome}.json`).then(r => r.ok ? r.json() : null).catch(() => null);
+  return TEMAS_PREF[nome];
+}
+const pctTx = (a, b) => b ? `${Math.round(100 * a / b)}%` : "";
+const atoLink = (D, a) => `<a href="${D.link_ato}${a.id}" target="_blank" rel="noopener">ver no Diário Oficial</a>`;
+const barra2 = (pago, total) => `<span class="tp-barra" title="${pctTx(pago, total)} pago"><i style="width:${total ? Math.min(100, 100 * pago / total) : 0}%"></i></span>`;
+const NOTA_EMPENHO = `<b>Empenhado</b> é o dinheiro que a Prefeitura reservou no orçamento para aquela despesa. <b>Pago</b> é o que já saiu do caixa. A diferença inclui obras e serviços que ainda vão ser feitos, então não quer dizer, sozinha, que há atraso.`;
+const atasLink = (texto, mes) => `<a href="#/quente${mes ? "/" + mes : ""}">${texto}</a>`;
+
+async function pgChuvas() {
+  const D = await temaPref("chuvas");
+  if (!D) { app.innerHTML = "<h1>O dinheiro das chuvas</h1><p>Os dados ainda não foram publicados. Volte mais tarde.</p>"; return; }
+  const tot = D.categorias.reduce((s, c) => s + c.e, 0), pago = D.categorias.reduce((s, c) => s + c.p, 0);
+  const mx = Math.max(...D.meses.map(m => m.e), 1);
+  const formaTot = D.forma.reduce((s, f) => s + f.e, 0);
+  app.innerHTML = `
+    <h1>O dinheiro das chuvas</h1>
+    <p class="sub">Quanto a Prefeitura reservou e gastou desde a situação de emergência de dezembro de 2025 e a calamidade de fevereiro de 2026: ajuda às famílias, limpeza, demolições em área de risco e obras de encostas e drenagem.</p>
+    <div class="faixa-nums">
+      <div><b>${reais(tot)}</b><span>empenhados (reservados) desde ${dataBR(D.desde)}</span></div>
+      <div><b>${reais(pago)}</b><span>já pagos (${pctTx(pago, tot)})</span></div>
+      <div><b>${reais(D.creditos_extraordinarios.total)}</b><span>em ${fmt(D.creditos_extraordinarios.n)} créditos extraordinários abertos por decreto desde dezembro de 2025</span></div>
+    </div>
+    <p class="sub">${NOTA_EMPENHO}</p>
+    <h2>Em que o dinheiro foi usado</h2>
+    ${D.categorias.map(c => `<div class="tp-linha"><div class="tp-tit"><b>${esc(c.nome)}</b><span>${reais(c.e)} empenhados · ${reais(c.p)} pagos · ${fmt(c.n)} empenhos</span></div>${barra2(c.p, c.e)}</div>`).join("")}
+    ${(D.secretarias || []).length ? `<details class="tp-det"><summary>Por órgão da Prefeitura</summary>${D.secretarias.map(s => `<div class="linha"><span class="nm">${esc(secNome(s.nome))}</span><span class="vl">${reais(s.e)}<small class="sub"> · pago ${reais(s.p)}</small></span></div>`).join("")}</details>` : ""}
+    ${D.pessoas_fisicas.n ? `<p class="sub">Inclui ${reais(D.pessoas_fisicas.e)} em auxílios pagos diretamente a pessoas (como o Auxílio Calamidade JF), mostrados só somados, sem nomes.</p>` : ""}
+    <h2>Mês a mês</h2>
+    <p class="sub">Pelo mês em que a despesa foi empenhada. A barra clara é o empenhado; a escura, o que desses empenhos já foi pago.</p>
+    <div class="tp-meses">${D.meses.map(m => `<div class="tp-mes"><span class="tp-col" title="${reais(m.e)} empenhados, ${reais(m.p)} pagos"><i class="e" style="height:${100 * m.e / mx}%"></i><i class="p" style="height:${100 * m.p / mx}%"></i></span><small>${NOMES_MES[+m.m.slice(5) - 1]}<br>${m.m.slice(2, 4)}</small></div>`).join("")}</div>
+    <h2>Como as empresas foram contratadas</h2>
+    <p class="sub">Segundo o texto de cada empenho. Em calamidade, a lei permite contratar sem licitação para agir rápido, mas a contratação continua tendo de ser justificada e publicada.</p>
+    ${D.forma.map(f => `<div class="tp-linha"><div class="tp-tit"><b>${esc(f.nome)}</b><span>${reais(f.e)} · ${fmt(f.n)} empenhos (${pctTx(f.e, formaTot)})</span></div>${barra2(f.e, formaTot)}</div>`).join("")}
+    <h2>Empresas que mais receberam reservas</h2>
+    <p class="sub">${fmt(D.n_fornecedores)} empresas no total. Toque para ver todos os gastos da empresa com a Prefeitura.</p>
+    <table class="tab-equipe tp-tab"><thead><tr><th>Empresa</th><th>Empenhado</th><th>Pago</th></tr></thead><tbody>
+      ${D.fornecedores.slice(0, 20).map(f => `<tr><td><a href="#/prefeitura/empresa/${D.dados_ate.slice(0, 4)}/${f.cnpj}">${esc(f.nome)}</a><small class="sub"> ${esc(f.cats.join(" e ").toLowerCase())}</small></td><td>${reais(f.e)}</td><td>${reais(f.p)}</td></tr>`).join("")}
+    </tbody></table>
+    <h2>As maiores despesas, uma a uma</h2>
+    <div id="ch-itens"></div><button class="btn-ag sec at-mais" id="ch-mais" type="button">Mostrar mais</button>
+    <h2>Linha do tempo no Diário Oficial</h2>
+    ${D.marcos.filter(a => !/^ERRATA/i.test(a.x)).map(a => `<div class="ag-item fala"><div class="ag-tx"><small class="sub">${dataBR(a.d)} · ${esc(a.tipo)}</small><p>${esc(a.x)}</p><div class="ag-bt">${atoLink(D, a)}</div></div></div>`).join("")}
+    <details class="tp-det"><summary>Os ${fmt(D.creditos_extraordinarios.n)} créditos extraordinários (${reais(D.creditos_extraordinarios.total)})</summary>
+      <p class="sub">Crédito extraordinário é dinheiro que a prefeita coloca no orçamento por decreto, sem passar antes pela Câmara, permitido só para despesas urgentes e imprevisíveis, como uma calamidade.</p>
+      ${D.creditos_extraordinarios.atos.map(a => `<div class="linha"><span class="nm">${dataBR(a.d)} · ${esc(a.x.split(" - ")[0].split(". ")[0])} ${atoLink(D, a)}</span><span class="vl">${a.v ? reais(a.v) : ""}</span></div>`).join("")}
+    </details>
+    <p>O que os vereadores disseram sobre as chuvas: ${atasLink("veja o Assunto do mês", "2026-03")}.</p>
+    <p class="sub fonte-linha">Fontes: arquivos de despesas do ${fonteLink("Portal da Transparência da Prefeitura")} (dados até ${dataBR(D.dados_ate)}) e Diário Oficial do Município. Entram as despesas desde ${dataBR(D.desde)} do Fundo Municipal de Calamidade Pública e as que citam a calamidade, as chuvas, famílias desabrigadas ou áreas de risco no texto do empenho, além das obras de encostas e drenagem da Secretaria de Obras. A separação é feita por computador a partir desses textos e pode deixar de fora alguma despesa que não cite o motivo. Mostra o que foi reservado e pago, não se a obra ou o serviço foi bem feito: isso merece uma pergunta à Prefeitura.</p>`;
+  let n = 0;
+  const box = document.getElementById("ch-itens"), btn = document.getElementById("ch-mais");
+  const mais = () => {
+    box.insertAdjacentHTML("beforeend", D.itens.slice(n, n + 15).map(i => `<div class="alerta-card"><div class="ac-topo"><span class="ac-tipo">${esc(i.cat)} · ${dataBR(i.d)}</span><span class="ac-valor">${reais(i.e)}</span></div>
+      <b class="ac-nome"><a href="#/prefeitura/empresa/${i.d.slice(0, 4)}/${i.cnpj}">${esc(i.cred)}</a></b><small class="sub">${esc(secNome(i.sec))} · pago até agora: ${reais(i.p)}${numEmp(i.num) ? " · empenho " + esc(numEmp(i.num)) : ""}</small>
+      <p>${esc(i.h)}</p></div>`).join(""));
+    n += 15; btn.style.display = n < D.itens.length ? "block" : "none";
+  };
+  btn.onclick = mais; mais();
+}
+
+async function pgEmprestimos() {
+  const D = await temaPref("emprestimos");
+  if (!D) { app.innerHTML = "<h1>Empréstimos da Prefeitura</h1><p>Os dados ainda não foram publicados. Volte mais tarde.</p>"; return; }
+  const L = D.limite || {}, DV = D.divida || {};
+  const bancos = r => /caixa|banco|bndes|bdmg|desenvolvimento/i.test(r.credor);
+  const anoAtual = Object.keys(D.servico || {}).sort().pop();
+  const tabServ = ano => {
+    const linhas = (D.servico[ano] || []).filter(r => r.juros_p + r.amort_p > 0 || r.juros_e + r.amort_e > 0);
+    const grupo = (tit, ls) => ls.length ? `<tr class="tp-grupo"><td colspan="3">${tit}</td></tr>` + ls.map(r => `<tr><td>${esc(r.credor === "Outros" ? "Credor não identificado no arquivo" : r.credor)}</td><td>${reais(r.juros_p)}</td><td>${reais(r.amort_p)}</td></tr>`).join("") : "";
+    return `<table class="tab-equipe tp-tab"><thead><tr><th>A quem</th><th>Juros pagos</th><th>Amortização paga</th></tr></thead><tbody>
+      ${grupo("Bancos (empréstimos)", linhas.filter(bancos))}${grupo("Parcelamentos e outras dívidas", linhas.filter(r => !bancos(r)))}</tbody></table>`;
+  };
+  const bancosAno = ano => (D.servico[ano] || []).filter(bancos).reduce((s, r) => s + r.juros_p + r.amort_p, 0);
+  app.innerHTML = `
+    <h1>Empréstimos da Prefeitura</h1>
+    <p class="sub">Quanto a Prefeitura pegou emprestado, quanto a Câmara autorizou, quanto custa pagar e se está dentro do limite da lei.</p>
+    <div class="faixa-nums">
+      ${D.entradas.map(e => `<div><b>${reais(e.recebido)}</b><span>de empréstimos entraram em ${e.ano}${e.ate_mes < 12 ? ` (até ${NOMES_MES[e.ate_mes - 1]})` : ""}, de ${reais(e.previsto)} previstos no orçamento</span></div>`).join("")}
+      ${anoAtual ? `<div><b>${reais(bancosAno(anoAtual))}</b><span>pagos aos bancos em ${anoAtual} (juros e amortização)</span></div>` : ""}
+    </div>
+    ${L.pct != null ? `<h2>Está dentro do limite?</h2>
+    <div class="tp-linha"><div class="tp-tit"><b>${String(L.pct).replace(".", ",")}% da receita corrente líquida</b><span>em empréstimos contratados em ${L.ano} (até o ${L.quadrimestre}º quadrimestre). O limite do Senado é ${L.limite_pct}% por ano.</span></div>${barra2(L.pct, L.limite_pct)}</div>
+    <p class="sub">Receita corrente líquida (RCL) é, de forma simples, quanto a Prefeitura arrecada para o dia a dia em 12 meses: ${reais(L.rcl)}.</p>` : ""}
+    ${DV.dc != null ? `<p>A dívida consolidada da Prefeitura era de <b>${reais(DV.dc)}</b> no ${DV.quadrimestre}º quadrimestre de ${DV.ano}. Descontado o dinheiro em caixa, a dívida líquida ficou em <b>${reais(DV.dcl)}</b>${DV.dcl_pct != null ? ` (${String(DV.dcl_pct).replace(".", ",")}% da RCL; o limite legal para municípios é 120%)` : ""}.</p>` : ""}
+    <h2>O que a Câmara autorizou</h2>
+    <p class="sub">Todo empréstimo precisa de uma lei aprovada pela Câmara. Depois, um decreto define o valor e o banco, e o contrato é publicado. Os vereadores discutiram esses projetos nas reuniões: ${atasLink("veja o Assunto do mês", "2026-07")}.</p>
+    ${D.leis.concat(D.contratos).sort((a, b) => a.d < b.d ? 1 : -1).map(a => `<div class="ag-item fala"><div class="ag-tx"><small class="sub">${dataBR(a.d)} · ${esc(a.tipo)}${a.v ? " · " + reais(a.v) : ""}</small><p>${esc(a.x)}</p><div class="ag-bt">${atoLink(D, a)}</div></div></div>`).join("")}
+    <h2>Quanto custa pagar</h2>
+    ${Object.keys(D.servico).sort().reverse().map(ano => `<h3>${ano}${ano === anoAtual ? " (até agora)" : ""}</h3>${tabServ(ano)}`).join("")}
+    <p class="sub">Amortização é a parte que abate o valor emprestado; juros são o custo do empréstimo. Parcelamentos são dívidas antigas negociadas, como as com o fundo de previdência dos servidores (JF Previdência) e com a Receita Federal.</p>
+    <p class="sub fonte-linha">Fontes: Tesouro Nacional (Siconfi), Relatório Resumido da Execução Orçamentária, Anexo 1, e Relatório de Gestão Fiscal, Anexos 2 e 4, enviados pela própria Prefeitura; Diário Oficial do Município; arquivos de despesas do ${fonteLink("Portal da Transparência")} (dados até ${dataBR(D.dados_ate)}). O Radar não consegue ligar cada real emprestado a cada obra, porque os arquivos públicos não trazem a fonte do dinheiro de cada despesa.</p>`;
+}
+
+async function pgHospitais(ano) {
+  const D = await temaPref("hospitais");
+  if (!D) { app.innerHTML = "<h1>Hospitais</h1><p>Os dados ainda não foram publicados. Volte mais tarde.</p>"; return; }
+  const anos = Object.keys(D.anos).sort();
+  ano = anos.includes(ano) ? ano : anos[anos.length - 1];
+  const L = D.anos[ano], te = L.reduce((s, h) => s + h.e, 0), tp = L.reduce((s, h) => s + h.p, 0);
+  const temL = L.some(h => h.l != null);
+  app.innerHTML = `
+    <h1>Quanto a Prefeitura paga aos hospitais</h1>
+    <p class="sub">Os hospitais que atendem pelo SUS em Juiz de Fora recebem da Prefeitura pelo serviço prestado, com dinheiro do Ministério da Saúde, do Estado e do próprio Município.</p>
+    <div class="anos">${anos.map(a => `<button class="${a === ano ? "on" : ""}" onclick="location.hash='#/prefeitura/hospitais/${a}'">${a}</button>`).join("")}</div>
+    <div class="faixa-nums">
+      <div><b>${reais(te)}</b><span>empenhados para ${fmt(L.length)} hospitais em ${ano}</span></div>
+      <div><b>${reais(tp)}</b><span>já pagos (${pctTx(tp, te)})</span></div>
+      <div><b>${reais(Math.max(0, te - tp))}</b><span>reservados e ainda não pagos</span></div>
+    </div>
+    <p class="sub">${NOTA_EMPENHO}${ano === anos[anos.length - 1] ? " O ano ainda não terminou, e parte do valor reservado é para meses que ainda vão chegar." : ""}${temL ? " Quando a Prefeitura informa, mostramos também o valor já liquidado (serviço prestado e conferido) que ainda não foi pago: esse é o sinal de conta em aberto." : ""}</p>
+    ${L.map(h => `<div class="tp-linha"><div class="tp-tit"><b><a href="#/prefeitura/empresa/${ano}/${h.cnpj}">${esc(h.nome)}</a></b>
+      <span>${reais(h.e)} empenhados · ${reais(h.p)} pagos (${pctTx(h.p, h.e)})${h.l != null && h.l - h.p > 1 ? ` · <b>${reais(h.l - h.p)} liquidados e não pagos</b>` : ""}</span></div>${barra2(h.p, h.e)}</div>`).join("")}
+    <p class="sub">Às vezes o pago passa do empenhado no ano: são contas de anos anteriores pagas agora.</p>
+    ${D.convenios.length ? `<h2>Contratos e convênios publicados</h2>
+    <p class="sub">Os mais recentes no Diário Oficial envolvendo hospitais.</p>
+    ${D.convenios.slice(0, 12).map(a => `<div class="ag-item fala"><div class="ag-tx"><small class="sub">${dataBR(a.d)} · ${esc(a.tipo)}</small><p>${esc(a.x)}</p><div class="ag-bt">${atoLink(D, a)}</div></div></div>`).join("")}` : ""}
+    <p>Hospitais e o plano de saúde dos servidores estão entre os assuntos que mais voltam às reuniões da Câmara: ${atasLink("veja o Assunto do mês", "")}.</p>
+    <p class="sub fonte-linha">Fontes: arquivos de despesas do ${fonteLink("Portal da Transparência da Prefeitura")} (dados até ${dataBR(D.dados_ate)}), despesas da área da Saúde com hospitais, santas casas, maternidades e institutos de tratamento; e Diário Oficial do Município. Um mesmo hospital pode aparecer duas vezes quando tem mais de um CNPJ.</p>`;
 }

@@ -89,7 +89,7 @@ def carregar_empenhos():
         sec, el, cred = d["secretarias"], d["elementos"], d["credores"]
         for c, n in cred:
             nomes[c] = n
-        for data, u, ic, ie, e, p, hist, num in d["empenhos"]:
+        for data, u, ic, ie, e, p, hist, num, *_ in d["empenhos"]:
             if ic < 0:
                 continue  # pessoa física: fora dos sinais
             linhas.append({"ano": ano, "data": data, "sec": sec[u], "cnpj": cred[ic][0], "el": el[ie],

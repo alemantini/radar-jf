@@ -161,7 +161,7 @@ def main():
     for ano, d in sorted(anos.items()):
         secs, els, creds = d["secretarias"], d["elementos"], d["credores"]
         for x in d["empenhos"]:
-            data, si, ci, ei, e, p, hist, num = x
+            data, si, ci, ei, e, p, hist, num = x[:8]
             sec, el = secs[si], els[ei]
             cnpj, nome = (creds[ci] if ci is not None and ci >= 0 else ("", ""))
             nome = limpo(nome)

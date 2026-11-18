@@ -228,6 +228,7 @@ def processar_ano(ano, registros):
             round(p, 2),
             hist,
             str(x.get("nº do empenho") or "").strip(),
+            round(l, 2),
         ])
 
     def r2(d):
@@ -261,7 +262,7 @@ def processar_ano(ano, registros):
         "secretarias": nomes_u,
         "elementos": nomes_el,
         "credores": [[c, credores[c]] for c in lista_c],
-        "campos": ["data", "secretaria", "credor", "elemento", "empenhado", "pago", "historico", "numero"],
+        "campos": ["data", "secretaria", "credor", "elemento", "empenhado", "pago", "historico", "numero", "liquidado"],
         "empenhos": empenhos,
     }
     return resumo, busca
