@@ -136,6 +136,10 @@ jobs:
       - name: Prefeitura, sinais do PNCP (gerados toda semana pelo workflow PNCP)
         run: if [ -f data/prefeitura/pncp_sinais.json ]; then cp data/prefeitura/pncp_sinais.json site/dados/prefeitura/; fi
 
+      - name: Prefeitura, temas quentes (chuvas, empréstimos e hospitais)
+        continue-on-error: true
+        run: python scripts/prefeitura_temas.py || cp /tmp/anterior/dados/prefeitura/chuvas.json /tmp/anterior/dados/prefeitura/emprestimos.json /tmp/anterior/dados/prefeitura/hospitais.json site/dados/prefeitura/ || true
+
       - name: Prefeitura, sinais de alerta (cruzamento de dados públicos)
         id: alertas
         continue-on-error: true
