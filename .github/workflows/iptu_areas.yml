@@ -1,0 +1,21 @@
+name: Planta de valores do IPTU (manual)
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  areas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install requests pypdf
+      - run: python scripts/iptu_areas.py
+      - name: Gravar
+        run: |
+          git config user.name "radar-jf-bot"
+          git config user.email "radar-jf-bot@users.noreply.github.com"
+          git add data/prefeitura/iptu_areas.json
+          git diff --cached --quiet || git commit -m "Planta de valores do IPTU (áreas isótimas)"
+          git pull --rebase -q && git push
