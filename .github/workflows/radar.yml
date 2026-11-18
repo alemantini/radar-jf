@@ -153,6 +153,10 @@ jobs:
         continue-on-error: true
         run: python scripts/camara_agenda.py || (cp /tmp/anterior/dados/agenda.json site/dados/ && cp /tmp/anterior/agenda.ics site/) || true
 
+      - name: Atas da Câmara (índice montado a partir do que o workflow "Atas da Câmara" baixou)
+        continue-on-error: true
+        run: python scripts/camara_atas.py --so-gerar || cp /tmp/anterior/dados/atas.json site/dados/ || true
+
       - name: Páginas fixas para o Google e imagens de compartilhamento
         continue-on-error: true
         run: python scripts/paginas_estaticas.py
