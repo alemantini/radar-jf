@@ -359,6 +359,53 @@ function blocoFalas(v) {
     <p class="sub">${NOTA_FALAS()} ${NOTA_TEMAS}</p>`;
 }
 
+// ---------- Assunto quente do mês ----------
+const MESES_LONGOS = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+const nomeMes = m => `${MESES_LONGOS[+m.slice(5, 7) - 1]} de ${m.slice(0, 4)}`;
+async function pgQuente(arg) {
+  await carregarResumo();
+  app.innerHTML = `<h1>Assunto quente do mês</h1><p class="carregando">Carregando…</p>`;
+  const Q = await fetch("dados/atas_quente.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  if (!Q || !Q.meses.length) { app.innerHTML = `<h1>Assunto quente do mês</h1><div class="info">Os dados das atas ainda estão sendo preparados.</div>`; return; }
+  const nomeV = id => (VER[id] || {}).apelido || "";
+  const COMPLETO = 8;  // mês com poucas atas publicadas ainda está incompleto
+  let m = Q.meses.some(x => x.m === arg) ? arg : (Q.meses.find(x => x.reunioes >= COMPLETO) || Q.meses[0]).m;
+  const fonte = c => (Q.fonte || "").replace("{}", c);
+  const ult = Q.meses.slice(0, 12).reverse();
+  const termometro = () => {
+    const mx = Math.max(...ult.flatMap(x => Object.values(x.todos)), 1);
+    const linhas = Q.pautas.filter(p => ult.some(x => (x.todos[p] || 0) >= 2));
+    return `<div class="qt-term"><table><thead><tr><th></th>${ult.map(x => `<th><a href="#/quente/${x.m}">${MESES_LONGOS[+x.m.slice(5, 7) - 1].slice(0, 3)}<br>${x.m.slice(2, 4)}</a></th>`).join("")}</tr></thead>
+      <tbody>${linhas.map(p => `<tr><th>${esc(p)}</th>${ult.map(x => { const n = x.todos[p] || 0; return `<td${n ? ` style="background:rgba(214,69,40,${(0.12 + 0.88 * n / mx).toFixed(2)})"` : ""}${n / mx > .55 ? ' class="forte"' : ""} title="${esc(p)}, ${nomeMes(x.m)}: ${n} vereadores">${n || ""}</td>`; }).join("")}</tr>`).join("")}</tbody></table></div>`;
+  };
+  const desenha = () => {
+    const M = Q.meses.find(x => x.m === m), i = Q.meses.indexOf(M), ant = Q.meses[i + 1];
+    history.replaceState(null, "", "#/quente/" + m);
+    app.innerHTML = `
+      <h1>Assunto quente do mês</h1>
+      <p class="sub">O que mais vereadores levaram às reuniões da Câmara em cada mês, contado nas atas oficiais. Quanto mais vereadores diferentes falam de um assunto, mais quente ele está.</p>
+      <label class="sr" for="qt-mes">Mês</label>
+      <select id="qt-mes" class="qt-mes">${Q.meses.map(x => `<option value="${x.m}"${x.m === m ? " selected" : ""}>${nomeMes(x.m)} (${x.reunioes} ${x.reunioes === 1 ? "reunião" : "reuniões"})</option>`).join("")}</select>
+      ${M.reunioes < COMPLETO ? `<div class="info">Mês ainda incompleto: só ${M.reunioes} ${M.reunioes === 1 ? "reunião tem" : "reuniões têm"} ata publicada pela Câmara até agora. O resultado pode mudar.</div>` : ""}
+      ${M.pautas.length ? M.pautas.map((p, k) => {
+        const antes = ant ? (ant.todos[p.p] || 0) : null;
+        return `<div class="qt-card${k ? "" : " top"}">
+          <div class="qt-tit"><span class="qt-pos">${k + 1}º</span><h2>${esc(p.p)}</h2></div>
+          <p class="qt-num"><b>${p.vereadores.length} vereadores</b> falaram do assunto em <b>${p.reunioes} de ${M.reunioes}</b> reuniões do mês${antes !== null ? `. Em ${MESES_LONGOS[+ant.m.slice(5, 7) - 1]}: ${antes} ${antes === 1 ? "vereador" : "vereadores"}` : ""}.</p>
+          <p class="sub">Quem falou: ${p.vereadores.map(id => `<a href="#/v/${id}">${esc(nomeV(id))}</a>`).join(", ")}</p>
+          ${p.ex.map(e => `<div class="ag-item fala"><div class="ag-tx"><small class="sub">${dataBR(e.d)} · ${esc(nomeV(e.v))}</small><p>${esc(e.x)}</p>
+            <div class="ag-bt"><a href="${fonte(e.c)}" target="_blank" rel="noopener">Ler a ata completa</a></div></div></div>`).join("")}
+        </div>`;
+      }).join("") : `<p class="sub">Nenhum assunto acompanhado foi levado por dois ou mais vereadores neste mês.</p>`}
+      <h2>Termômetro dos últimos 12 meses</h2>
+      <p class="sub">Quantos vereadores falaram de cada assunto em cada mês. Toque no mês para ver os detalhes.</p>
+      ${termometro()}
+      <p class="sub fonte-linha">Como é feito: o computador lê, nas atas, só os trechos em que os vereadores falam (não conta a leitura de projetos nem as votações) e procura palavras ligadas a cada assunto, como "chuvas", "Defesa Civil" e "famílias atingidas". Acompanhamos ${Q.pautas.length} assuntos que voltam com frequência às reuniões: ${Q.pautas.map(esc).join(", ")}. Um assunto só entra no mês quando pelo menos dois vereadores falaram dele. Mostra do que se falou, não a posição de cada um: para isso, leia as falas, que levam à ata oficial. As atas são um resumo escrito pela Câmara, não uma transcrição palavra por palavra.</p>`;
+    document.getElementById("qt-mes").onchange = e => { m = e.target.value; desenha(); window.scrollTo(0, 0); };
+  };
+  desenha();
+}
+
 // ---------- Quem defende o quê ----------
 async function pgDefende(arg) {
   await carregarResumo();
@@ -552,7 +599,7 @@ function pgSobre() {
 
 // ---------- rotas ----------
 const SUBNAV = {
-  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/defende", "Quem defende o quê", "fala"], ["#/atas", "Atas", "lupa"]],
+  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/atas", "Atas", "lupa"]],
   prefeitura: [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/lupa", "Na lupa", "lupa"], ["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/iptu", "Calculadora do IPTU", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura/comissionados", "Cargos de confiança", "pessoas"], ["#/prefeitura/supersalarios", "Supersalários", "dinheiro"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
 };
 const SELO = {
@@ -604,7 +651,7 @@ async function rota() {
   const h = location.hash.replace(/^#\/?/, "");
   const partes = h.split("/").map(decodeURIComponent);
   const pag = partes[0], arg = partes.slice(1).join("/");
-  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
+  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende", "quente"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
   document.querySelectorAll("nav.areas a").forEach(a => a.classList.toggle("ativo", a.dataset.area === area));
   const sub = document.getElementById("subnav");
   const atual = "#/" + h;
@@ -623,6 +670,7 @@ async function rota() {
     else if (pag === "agenda") await pgAgenda();
     else if (pag === "atas") await pgAtas(arg);
     else if (pag === "defende") await pgDefende(arg);
+    else if (pag === "quente") await pgQuente(arg);
     else if (pag === "resumo") await pgResumo();
     else if (pag === "apoie") pgApoie();
     else if (pag === "sobre") { pgSobre(); if (window.sobrePrefeitura) await sobrePrefeitura(); }
