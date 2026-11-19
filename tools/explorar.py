@@ -1,28 +1,19 @@
-import re, requests, urllib.parse as U
+import re, requests, io
 UA={"User-Agent":"RadarJF/1.0 (robo de transparencia; codigo aberto em https://github.com/alemantini/radar-jf)"}
-B="https://www.camarajf.mg.gov.br/transparencia/"
-vistos=set()
-def links(url):
-    try: r=requests.get(url,headers=UA,timeout=40)
-    except Exception as e: print("ERRO",url,e); return []
-    print("==",r.status_code,url,len(r.text))
-    out=[]
-    for h,t in re.findall(r'<a[^>]+href="([^"#]+)"[^>]*>(.*?)</a>',r.text,re.S):
-        t=re.sub(r"<[^>]+>|\s+"," ",t).strip()
-        out.append((U.urljoin(url,h),t))
-    return out,r.text
-res=links(B)
-L,html=res
-for u,t in L: print("  ",t[:70],"|",u)
-KW=re.compile(r"gabin|combust|despes|verba|di[aá]ri|ve[ií]cul|abastec|custeio|contrat|empenho|pagament|frota",re.I)
-for u,t in L:
-    if KW.search(t+u) and u.startswith("https://www.camarajf") and u not in vistos:
-        vistos.add(u)
-        r=links(u)
-        if not r: continue
-        L2,h2=r
-        txt=re.sub(r"<[^>]+>"," ",h2); txt=re.sub(r"\s+"," ",txt)
-        print("   TXT:",txt[:600])
-        for u2,t2 in L2:
-            if KW.search(t2+u2) or "php?" in u2: print("     ->",t2[:60],"|",u2)
-        for m in re.finditer(r"(?i)combust\w*.{0,200}",txt): print("     COMB:",m.group(0)[:200]); break
+def txt(h):
+    h=re.sub(r"(?s)<script.*?</script>|<style.*?</style>","",h)
+    h=re.sub(r"<(br|/tr|/p|/li|/h\d|/div)[^>]*>","\n",h); h=re.sub(r"<td[^>]*>"," | ",h)
+    t=re.sub(r"<[^>]+>","",h); t=re.sub(r"[ \t]+"," ",t); return re.sub(r"\n\s*\n+","\n",t)
+for u in ["https://www.camarajf.mg.gov.br/transparencia/combustiveis.php","https://www.camarajf.mg.gov.br/transparencia/viagens.php"]:
+    r=requests.get(u,headers=UA,timeout=40); r.encoding="utf-8"; t=txt(r.text)
+    i=t.find("Despesas com Combust") if "combust" in u else t.find("Viagens")
+    print("=====",u); print(t[max(0,i-200):i+5000])
+    for h,a in re.findall(r'<a[^>]+href="([^"#]+)"[^>]*>(.*?)</a>',r.text,re.S):
+        if re.search(r"pdf|xls|csv|ods|relatorio|anexo",h,re.I): print("  LINK",re.sub("<[^>]+>","",a).strip()[:60],"|",h)
+from pypdf import PdfReader
+for u in ["https://www.camarajf.mg.gov.br/transparencia/termocessao/2025/locacao.pdf"]:
+    r=requests.get(u,headers=UA,timeout=60); print("=====",u,r.status_code,len(r.content))
+    try:
+        p=PdfReader(io.BytesIO(r.content)); print("paginas",len(p.pages))
+        for pg in p.pages[:6]: print((pg.extract_text() or "")[:2500])
+    except Exception as e: print("ERRO",e)
