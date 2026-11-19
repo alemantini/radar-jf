@@ -1,8 +1,15 @@
-import re, requests
+import re, requests, json, io
+from pypdf import PdfReader
 UA={"User-Agent":"RadarJF/1.0 (robo de transparencia; codigo aberto em https://github.com/alemantini/radar-jf)"}
 B="https://www.camarajf.mg.gov.br/transparencia/"
-h=requests.get(B+"despesas.php",headers=UA,timeout=60); h.encoding="utf-8"
-for s in re.findall(r"(?s)<script[^>]*>(.*?)</script>",h.text):
-    if "gerarRelatorioDataPrev" in s: print("SCRIPT",re.sub(r"[ \t]+"," ",s)[:6000])
-for m in re.findall(r'(?s)<div[^>]*id="divCredor".{0,1200}',h.text)[:1]: print("DIVCRED",re.sub(r"\s+"," ",m))
-r=requests.get(B+"geraIntervalo.php",params={"ct":22},headers=UA,timeout=60); print("INT22",r.text[:600])
+for cnpj in ["29979036009105","29.979.036/0091-05","29979036009016"]:
+  for ano in ["2024","2025","2026"]:
+    for cod in (22,21):
+        try:
+            r=requests.get(B+"geraPesquisa.php",params={"codTpRel":cod,"credor":"","nempenho":"","cpf":"","cnpj":cnpj,"dia":"","mes":"","ano":ano,"anoPesquisa":ano},headers=UA,timeout=90)
+            print("Q",cnpj,ano,cod,r.status_code,r.text[:500])
+            data=r.json()
+        except Exception as e: print("ERR",e); continue
+        if isinstance(data,list) and data:
+            c=data[0].get("cod") or data[0].get("cod_relatorio") or data[0].get("value")
+            print("  primeiro",data[0])
