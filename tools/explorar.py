@@ -2,17 +2,16 @@ import re, requests, json
 UA={"User-Agent":"RadarJF/1.0 (robo de transparencia; codigo aberto em https://github.com/alemantini/radar-jf)"}
 B="https://www.camarajf.mg.gov.br/transparencia/"
 D=requests.get(B+"exportardata.php",params={"tpr":"CONT","tpo":"JSON","dti":"01/01/2010","dtf":"31/12/2026"},headers=UA,timeout=120).json()
-KW=re.compile(r"loca[cç][aã]o d[oe] im[oó]vel|im[oó]vel (situado|sito)|marechal deodoro|andar|vagas? (para|de) estacionamento|torre de transmiss|loca[cç][aã]o de (espa[cç]o|sala|galp|garag|dep[oó]sito|pr[eé]dio)|aluguel de (im|sala|espa)|cess[aã]o de uso|n[aã]o.residencial",re.I)
-base={}
+print("== INSS / Marechal")
 for x in D:
-    if KW.search(x["objeto"] or ""):
-        print("|".join([x["tipo"],x["numContrato"],x["contratado"],x["docContratado"],x["valor"],x["data"],x["dataInicioVigencia"],x["dataFinalVigencia"],str(x["anexo"]),re.sub(r"\s+"," ",x["objeto"])[:400]]))
-# cessão
-r=requests.get(B,headers=UA,timeout=60); r.encoding="utf-8"
-for u in set(re.findall(r'href="([^"]*termocess[^"]*)"',r.text)): print("CESSAO",u)
-for pg in ["vereadores.php","index.php","outros.php","patrimonio.php"]:
-    try:
-        x=requests.get(B+pg,headers=UA,timeout=60); x.encoding="utf-8"
-        for u,t in re.findall(r'<a[^>]+href="([^"]+)"[^>]*>(.*?)</a>',x.text,re.S):
-            if re.search(r"cess|termo|loca|imov",u+t,re.I): print("LNK",pg,re.sub(r"<[^>]+>|\s+"," ",t).strip()[:60],"|",u)
-    except Exception as e: print("err",pg,e)
+    if x["docContratado"].startswith("29979036") or re.search(r"seguro social|INSS|marechal",x["contratado"]+x["objeto"],re.I):
+        print("  ",x["tipo"],x["numContrato"],x["valor"],x["dataInicioVigencia"],"->",x["dataFinalVigencia"],x["dataPublicacao"],re.sub(r"\s+"," ",x["objeto"])[:200])
+print("== tudo 2025-2026 (tipo|num|contratado|valor|vig|objeto)")
+for x in D:
+    if re.search(r"/202[56]$",x["data"] or ""):
+        print("  ",x["tipo"],"|",x["numContrato"],"|",x["contratado"][:35],"|",x["valor"],"|",x["dataInicioVigencia"],"->",x["dataFinalVigencia"],"|",re.sub(r"\s+"," ",x["objeto"])[:110])
+h=requests.get(B+"despesas.php",headers=UA,timeout=60); h.encoding="utf-8"
+for s in re.findall(r"(?s)<script[^>]*>(.*?)</script>",h.text):
+    if re.search(r"exportar|relat|gera|ajax",s,re.I): print("--DESP SCRIPT--",re.sub(r"\s+"," ",s)[:1800])
+for m in re.findall(r'onclick=[^>]{0,200}',h.text): 
+    if re.search(r"gera|desp|emit",m,re.I): print("ONCLICK",m[:200])
