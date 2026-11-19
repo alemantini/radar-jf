@@ -405,7 +405,6 @@ async function rotaPrefeitura(p) {
   if (sub === "hospitais") return pgHospitais(a);
   if (sub === "creditos") return pgCreditos(a);
   if (sub === "aditivos") return pgAditivos(a);
-  if (sub === "numeros") return pgNumeros();
   return pgPrefInicio();
 }
 
@@ -1084,31 +1083,3 @@ async function pgAditivos(aba) {
     <p class="sub fonte-linha">Fonte: extratos de termos aditivos publicados no Diário Oficial do Município de ${dataBR(D.desde)} a ${dataBR(D.ate)}. O Radar lê o resumo de cada extrato; o valor nem sempre aparece no resumo. Quem aluga imóvel para a Prefeitura como pessoa física aparece sem nome. Um aditivo é legal na maioria dos casos: a página mostra o que merece uma pergunta, não acusa ninguém.</p>`;
 }
 
-// ---------- Números que não batem: descrição do empenho x valor reservado ----------
-async function pgNumeros() {
-  const D = await temaPref("numeros");
-  const titulo = "<h1>Números que não batem</h1>";
-  if (!D) { app.innerHTML = titulo + "<p>Os dados ainda não foram publicados. Volte mais tarde.</p>"; return; }
-  const brl = v => "R$ " + v.toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2});
-  const q = v => v.toLocaleString("pt-BR");
-  const cartao = c => `<div class="alerta-card">
-      <div class="ac-topo"><span class="ac-tipo">${dataBR(c.data)} · empenho ${esc(c.numero)} · ${esc(c.secretaria)}</span><span class="ac-valor">${c.razao >= 1 ? `${c.razao.toLocaleString("pt-BR", {maximumFractionDigits: 1})} vezes` : `${Math.round(100 * c.razao)}%`}</span></div>
-      <b class="ac-nome">${esc(c.credor)}</b>
-      <div class="nb-conta">
-        <div><small>A descrição soma</small><b>${brl(c.conta)}</b></div>
-        <div><small>Valor reservado (empenhado)</small><b>${brl(c.empenhado)}</b></div>
-        <div><small>Pago até agora</small><b>${brl(c.pago)}</b></div>
-      </div>
-      <ul class="nb-itens">${c.itens.map(i => `<li>${i.qtd != null ? `<b>${q(i.qtd)} × ${brl(i.preco)} = ${brl(i.qtd * i.preco)}</b><br>` : ""}<small class="sub">${esc(i.texto)}</small></li>`).join("")}</ul>
-      <p><small class="sub">${c.doc ? `<a href="#/prefeitura/busca/${c.ano}/${encodeURIComponent(c.credor)}">Ver os lançamentos deste fornecedor na busca de gastos ›</a>` : `<a href="#/prefeitura/busca/${c.ano}">Abrir a busca de gastos de ${c.ano} ›</a>`}</small></p>
-    </div>`;
-  app.innerHTML = `${titulo}
-    <p class="sub">Gastos da Prefeitura em que a descrição publicada traz a quantidade e o preço de cada item, mas a conta (quantidade × preço) fica muito longe do valor reservado no empenho. Mostramos só diferenças de pelo menos ${D.criterio.razao} vezes e de ${reais(D.criterio.dif_min)} ou mais.</p>
-    <div class="faixa-nums">
-      <div><b>${fmt(D.casos.length)}</b><span>${D.casos.length === 1 ? "empenho encontrado" : "empenhos encontrados"} em 2025 e 2026</span></div>
-      <div><b>${reais(D.casos.reduce((s, c) => s + c.empenhado, 0))}</b><span>reservados nesses empenhos</span></div>
-      <div><b>${reais(D.casos.reduce((s, c) => s + c.conta, 0))}</b><span>é o que as descrições somam</span></div>
-    </div>
-    ${D.casos.length ? D.casos.map(cartao).join("") : `<div class="info">Nenhum empenho com diferença grande encontrado agora.</div>`}
-    <div class="info"><b>Como ler:</b> isto não é prova de irregularidade. A diferença pode ser erro de digitação, um item que ficou fora da descrição publicada ou um empenho reservado a mais para ser usado aos poucos. Por isso cada caso é uma pergunta à Prefeitura: o que explica a diferença? Deixamos de fora as parcelas de contratos mensais (como "6 meses a R$ X cada"), que costumam ser completadas por outros empenhos, e os empenhos em que algum item não traz quantidade e preço. A conta é feita por computador a partir do texto do Portal da Transparência e é refeita a cada atualização; o nome de pessoas físicas não é publicado.</div>`;
-}
