@@ -1,4 +1,8 @@
-"""Números que não batem: empenhos em que a descrição traz quantidade e preço unitário
+"""FORA DO AR (19/11/2026): a conferência mostrou que o Portal da Prefeitura repete a mesma
+descrição em linhas de valores diferentes e lista só parte dos itens, então a conta
+quantidade x preço não é confiável. Não usar sem conferir cada caso no documento oficial.
+
+Números que não batem: empenhos em que a descrição traz quantidade e preço unitário
 e a conta (quantidade x preço) fica muito longe do valor empenhado.
 
 Entrada: site/dados/prefeitura/empenhos_AAAA.json (gerado por prefeitura_despesas.py)
