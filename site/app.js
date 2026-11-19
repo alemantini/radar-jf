@@ -695,8 +695,9 @@ async function pgCombustivel(arg) {
     const x = M.find(y => y.m === mesSel);
     linhas = x.em === "reais" ? x.por.filter(p => p.id).map(p => ({id: p.id, v: p.reais, rs: true, sub: ""}))
       : x.por.filter(p => p.id).map(p => ({id: p.id, v: p.litros, sub: p.reais ? "cerca de " + reaisBR(p.reais) : ""}));
+    linhas.forEach(l => { const t = ((C.por_vereador[l.id] || {}).teto || []).filter(t => t.m === mesSel); l.teto = t.filter(y => y.teto); l.acima = t.filter(y => y.abastecidos && y.abastecidos > y.pagos + 0.5); });
   } else {
-    linhas = Object.entries(C.por_vereador).filter(([, p]) => p.meses).map(([id, p]) => ({id: +id, v: p.litros / p.meses, sub: `${lt(p.litros)} em ${p.meses} ${p.meses > 1 ? "meses" : "mês"}${p.reais_est ? `; cerca de ${reaisCurto(p.reais_est)} em ${p.meses_reais} ${p.meses_reais > 1 ? "meses" : "mês"}` : ""}`}));
+    linhas = Object.entries(C.por_vereador).filter(([, p]) => p.meses).map(([id, p]) => ({id: +id, v: p.litros / p.meses, sub: `${lt(p.litros)} em ${p.meses} ${p.meses > 1 ? "meses" : "mês"}${p.reais_est ? `; cerca de ${reaisCurto(p.reais_est)} em ${p.meses_reais} ${p.meses_reais > 1 ? "meses" : "mês"}` : ""}`, teto: (p.teto || []).filter(t => t.teto), acima: (p.teto || []).filter(t => t.abastecidos && t.abastecidos > t.pagos + 0.5)}));
   }
   linhas = linhas.filter(l => VER[l.id]).sort((a, b) => b.v - a.v);
   const mx = Math.max(...linhas.map(l => l.v), 1);
@@ -717,8 +718,12 @@ async function pgCombustivel(arg) {
         <div class="tp-tit"><b>${i + 1}. <a href="#/v/${l.id}">${esc(nomeV(l.id))}</a>${ehPresidente(v) ? ` <small class="sub">(presidente da Câmara)</small>` : ""}</b><span>${l.rs ? reaisBR(l.v) : lt(l.v) + (mesSel ? "" : " por mês")}</span></div>
         <span class="tp-barra"><i style="width:${(100 * l.v / mx).toFixed(1)}%"></i></span>
         ${l.sub ? `<small class="sub">${esc(l.sub)}</small>` : ""}
+        ${(l.teto || []).length ? `<span class="cb-teto" title="${esc(l.teto.map(t => nomeMes(t.m)).join(", "))}">${mesSel ? "Bateu o teto" : `Bateu o teto em ${l.teto.length} ${l.teto.length > 1 ? "meses" : "mês"}`}</span>` : ""}
+        ${(l.acima || []).length ? `<small class="sub cb-acima">Abasteceu mais do que a Câmara pagou: ${l.acima.map(t => `${nomeMes(t.m)} (${Math.round(t.abastecidos)} litros, a Câmara pagou ${Math.round(t.pagos)})`).join("; ")}.</small>` : ""}
       </div>`; }).join("")}
     <p class="sub" style="margin-top:12px">${xMes ? `<a href="${C.relatorio.replace("{}", xMes.cod)}" target="_blank" rel="noopener">Abrir o relatório oficial de ${nomeMes(mesSel)}</a> · ` : ""}<a href="${C.fonte}" target="_blank" rel="noopener">Página de combustível no Portal da Transparência da Câmara</a></p>
+    <div class="info"><b>Teto:</b> a Câmara paga no máximo ${C.teto_litros || 400} litros por carro no mês (de fevereiro a maio de 2025, quando publicava em reais, o limite era ${reaisBR(C.teto_reais || 2000)}). "Bateu o teto" quer dizer que o vereador chegou a esse limite. Quando o relatório mostra mais litros abastecidos do que pagos, a Câmara pagou só até o teto; o relatório não diz quem pagou a diferença.</div>
+    ${(C.avisos || []).filter(a => !mesSel || a.m === mesSel).map(a => `<div class="info cb-aviso"><b>Erro no relatório oficial de ${nomeMes(a.m)}:</b> ${esc(a.texto)} <a href="${C.relatorio.replace("{}", (M.find(y => y.m === a.m) || {}).cod)}" target="_blank" rel="noopener">Ver o relatório</a>.</div>`).join("")}
     <div class="info">Como ler: os litros são os que a própria Câmara publica para cada carro. O valor em reais é uma estimativa nossa: litros do vereador vezes o preço médio pago pela Câmara naquele mês. Usar o carro faz parte do mandato (visitar bairros, reuniões, eventos), e cada vereador tem uma rotina e uma área de atuação diferentes, então gastar mais combustível não é, sozinho, sinal de irregularidade. A média por mês considera só os meses em que o carro do vereador aparece no relatório. De fevereiro a maio de 2025 a Câmara publicou o valor em reais em vez dos litros; esses meses entram só no valor em reais. O relatório chamado "janeiro de 2025" soma vários meses de uma vez e por isso ficou de fora. Os carros marcados como "Administração" ficam fora da comparação.</div>`;
   document.getElementById("cb-mes").onchange = e => { location.hash = "#/combustivel" + (e.target.value ? "/" + e.target.value : ""); };
 }

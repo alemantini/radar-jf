@@ -28,6 +28,7 @@ UA = {"User-Agent": "RadarJF/1.0 (robo de transparencia; codigo aberto em https:
 CACHE = RAIZ / "data" / "cache" / "combustivel.json"
 SAIDA = RAIZ / "site" / "dados" / "combustivel.json"
 INICIO = "2025-01"  # legislatura atual
+TETO_L, TETO_R = 400, 2000  # a Câmara paga até 400 litros por carro no mês (até mai/2025: R$ 2.000)
 REVER = 2  # meses mais recentes sempre lidos de novo
 MESES = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
 LINHA = re.compile(r"Placa:\s*([A-Z0-9-]+)\s*-\s*(.+?)\s*-\s*Litros:\s*([\d.,]+)\s*-\s*Litros Pagos/CMJF:\s*([\d.,]+)")
@@ -45,6 +46,10 @@ def num(s):
         return float(s.replace(".", "").replace(",", "."))
     except ValueError:
         return 0.0
+
+
+def br(v):
+    return f"{v:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 
 def get(url, **kw):
@@ -149,6 +154,7 @@ def main():
     VER = mapa_vereadores()
     saida_meses = []
     por = {}
+    avisos, marcas = [], {}
     for m in sorted(cache, reverse=True):
         c = cache[m]
         if not c.get("carros"):
@@ -167,6 +173,14 @@ def main():
             a = soma.setdefault(k, [0.0, 0.0])
             a[0] += x.get("litros", 0)
             a[1] += x.get("reais", 0) or (x.get("litros", 0) * preco if preco else 0)
+            ab = x.get("abastecidos") or 0
+            if ab > TETO_L * 5:
+                avisos.append({"m": m, "placa": x["placa"], "quem": x["quem"], "abastecidos": ab, "pagos": x.get("litros"),
+                               "texto": f"O relatório oficial mostra {br(ab)} litros abastecidos pelo carro {x['placa']} ({x['quem']}), número impossível para um mês. A Câmara pagou {br(x.get('litros', 0))} litros. Parece erro de digitação no relatório."})
+            elif isinstance(k, int):
+                bateu = x.get("litros", 0) >= TETO_L - 0.5 or x.get("reais", 0) >= TETO_R - 0.5
+                if bateu or ab > (x.get("litros") or 0) + 0.5:
+                    marcas.setdefault(k, []).append({"m": m, "teto": bateu, "abastecidos": ab or None, "pagos": x.get("litros") or x.get("reais")})
         for k, (l, r) in soma.items():
             if isinstance(k, int):
                 p = por.setdefault(k, {"litros": 0, "meses": 0, "reais_est": 0.0, "meses_reais": 0})
@@ -189,7 +203,9 @@ def main():
         "fonte": B + "transparencia/combustiveis.php",
         "relatorio": B + "relatorio.php?cod_relatorio={}",
         "meses": saida_meses,
-        "por_vereador": {str(k): v for k, v in por.items()},
+        "por_vereador": {str(k): {**v, "teto": sorted(marcas.get(k, []), key=lambda x: x["m"])} for k, v in por.items()},
+        "teto_litros": TETO_L, "teto_reais": TETO_R,
+        "avisos": avisos,
     }, ensure_ascii=False, separators=(",", ":")))
     print(f"combustivel.json: {len(saida_meses)} meses, {len(por)} vereadores")
 
