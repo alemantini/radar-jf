@@ -653,6 +653,7 @@ function pgEscolha() {
       <a href="#/obra"><span class="nv-ic">${ic("predios")}</span><b>O pedido virou obra?</b><small>Os pedidos dos vereadores para a sua rua e as obras da Prefeitura.</small>${SELO_NOVO}</a>
       <a href="#/prefeitura/chuvas" class="pref"><span class="nv-ic">${ic("alerta")}</span><b>Dinheiro das chuvas</b><small>Quanto foi reservado e pago desde a emergência de dezembro.</small>${SELO_NOVO}</a>
       <a href="#/prefeitura/creditos" class="pref"><span class="nv-ic">${ic("repete")}</span><b>Orçamento que muda</b><small>De onde saiu e para onde foi o dinheiro mexido por decreto.</small>${SELO_NOVO}</a>
+      <a href="#/rankings"><span class="nv-ic">${ic("placar")}</span><b>JF nos rankings</b><small>IDH, progresso social, saneamento, competitividade e mais.</small>${SELO_NOVO}</a>
     </div>
     <p class="sec-t">Escolha por onde começar</p>
     <div class="escolhas">
@@ -663,6 +664,7 @@ function pgEscolha() {
     <div class="ferramentas">
     <a class="btn-grande camara" href="#/placar">${ic("placar")}<span class="tx">Ranking dos vereadores<small>Quem apresenta mais, quem fiscaliza mais, o gabinete mais econômico e o mais eficiente</small></span>›</a>
     <a class="btn-grande prefeitura" href="#/prefeitura/placar">${ic("balanca")}<span class="tx">Placar fiscal da Prefeitura<small>Gasta mais do que arrecada? Cumpre os mínimos de saúde e educação?</small></span>›</a>
+    <a class="btn-grande" href="#/rankings">${ic("placar")}<span class="tx">Juiz de Fora nos rankings<small>Onde a cidade aparece em IDH, progresso social, saneamento e outros índices</small></span>›</a>
     <a class="btn-grande prefeitura" href="#/prefeitura/busca">${ic("lupa")}<span class="tx">Pesquisar um gasto<small>Empresa, CNPJ ou palavra, como asfalto ou merenda</small></span>›</a>
     </div>
     <div class="info">Câmara e Prefeitura são poderes diferentes. A Câmara (vereadores) faz leis, fiscaliza e pede melhorias. A Prefeitura (prefeita e secretarias) executa os serviços e gasta o orçamento.</div>`;
@@ -672,6 +674,53 @@ function pgEscolha() {
   document.getElementById("hero-busca").onsubmit = e => { e.preventDefault(); const q = document.getElementById("hb").value.trim(); location.hash = "#/busca" + (q ? "/" + encodeURIComponent(q) : ""); };
   if (window.prefReceitas) prefReceitas().then(R => { const x = R && impostometro(R); const el = document.getElementById("fx-imp"); if (el) el.textContent = x ? reaisCurto(x.total) : "ver"; });
   fetch("dados/prefeitura/alertas.json").then(r => r.ok ? r.json() : null).catch(() => null).then(A => { const el = document.getElementById("ba-n"); if (el && A) el.textContent = fmt(A.alertas.length) + " sinais"; });
+}
+
+// ---------- Juiz de Fora nos rankings (lista curada à mão, cada item com a fonte) ----------
+// Para atualizar: troque os números e o ano quando sair edição nova. Mostrar pontos fortes e fracos, sem escolher lado.
+const RANK_JF = [
+  {t: "Progresso social (IPS Brasil)", ano: "2026", pos: "94º", de: "de 5.570 cidades", extra: "10º em Minas Gerais",
+   d: "Mede necessidades básicas, bem-estar e oportunidades, com 57 indicadores. Nota 68,95. Em 2025 a cidade era a 107ª do país.",
+   fraco: "Ponto fraco: no item Inclusão Social a cidade fica na posição 5.274.", tom: "bom",
+   fonte: "IPS Brasil", url: "https://ipsbrasil.org.br/"},
+  {t: "Competitividade (CLP)", ano: "2025", pos: "58º", de: "entre cidades com mais de 80 mil habitantes", extra: "4º em Minas Gerais",
+   d: "Junta 65 indicadores de economia, serviços públicos e gestão. Subiu 70 posições em relação a 2024. A edição 2026 já saiu e o número de Juiz de Fora será atualizado aqui.",
+   fraco: "Ponto fraco: acesso à saúde ficou em 25º, mas qualidade da saúde em 254º.", tom: "bom",
+   fonte: "Centro de Liderança Pública, via Tribuna de Minas", url: "https://tribunademinas.com.br/noticias/cidade/17-09-2025/jf-ranking-competitividade-saude.html"},
+  {t: "Saneamento (Trata Brasil)", ano: "2026", pos: "58º", de: "entre as 100 maiores cidades", extra: "era 70º na edição anterior",
+   d: "Água tratada e coleta de esgoto chegam a praticamente toda a cidade.",
+   fraco: "Ponto fraco: só cerca de metade do esgoto coletado é tratado.", tom: "meio",
+   fonte: "Instituto Trata Brasil", url: "https://tratabrasil.org.br/ranking-do-saneamento/"},
+  {t: "Desenvolvimento (IFDM Firjan)", ano: "2025", pos: "847º", de: "no Brasil", extra: "89º em Minas Gerais",
+   d: "Índice da Firjan que soma emprego e renda, educação e saúde.",
+   fraco: "Fica atrás de muitas cidades mineiras menores neste índice.", tom: "ruim",
+   fonte: "Firjan, via Tribuna de Minas (28/05/2025)", url: "https://www.firjan.com.br/ifdm/"},
+  {t: "Desenvolvimento humano (IDHM)", ano: "2010", pos: "0,778", de: "faixa alta (0,700 a 0,799)", extra: "último dado municipal oficial",
+   d: "O IDH das cidades usa o Censo. O de 2010 é o último publicado por município; o cálculo com o Censo 2022 ainda não saiu para todas as cidades.",
+   fraco: "", tom: "meio",
+   fonte: "IBGE Cidades / Atlas Brasil (PNUD)", url: "https://www.ibge.gov.br/cidades-e-estados/mg/3136702.html"},
+  {t: "Homicídios (Atlas da Violência)", ano: "2022", pos: "4ª", de: "em Minas Gerais em número de homicídios", extra: "68ª do Brasil",
+   d: "88 homicídios registrados em 2022, atrás de Belo Horizonte, Contagem e Betim.",
+   fraco: "Atenção: é contagem absoluta, e cidade grande tende a aparecer mais alto. Não é taxa por habitante.", tom: "ruim",
+   fonte: "Ipea e Fórum Brasileiro de Segurança Pública, via Tribuna de Minas", url: "https://tribunademinas.com.br/?p=664843"},
+];
+function pgRankings() {
+  const cor = {bom: "rk-bom", meio: "rk-meio", ruim: "rk-ruim"};
+  app.innerHTML = `
+    <h1>Juiz de Fora nos rankings</h1>
+    <p class="sub">Onde a cidade aparece nos principais índices do país. Cada número tem o ano e o link da fonte. Mostramos o lado bom e o lado fraco de cada um.</p>
+    <div class="rk-lista">${RANK_JF.map(r => `
+      <article class="rk ${cor[r.tom]}">
+        <div class="rk-pos"><b>${esc(r.pos)}</b><small>${esc(r.de)}</small></div>
+        <div class="rk-tx">
+          <h2>${esc(r.t)} <span class="rk-ano">${esc(r.ano)}</span></h2>
+          ${r.extra ? `<p class="rk-extra">${esc(r.extra)}</p>` : ""}
+          <p>${esc(r.d)}</p>
+          ${r.fraco ? `<p class="rk-fraco">${esc(r.fraco)}</p>` : ""}
+          <p class="rk-fonte">Fonte: <a href="${esc(r.url)}" target="_blank" rel="noopener">${esc(r.fonte)}</a></p>
+        </div>
+      </article>`).join("")}</div>
+    <div class="info">Cada ranking usa uma régua diferente, com anos e grupos de cidades diferentes. Por isso as posições não se comparam entre si. Ranking mostra um retrato, não explica sozinho a causa. Viu um número desatualizado? Avise pelo botão do WhatsApp.</div>`;
 }
 
 // ---------- Banner da página inicial: "veja o que está acontecendo em Juiz de Fora" ----------
@@ -735,6 +784,7 @@ async function rota() {
     else if (pag === "quente") await pgQuente(arg);
     else if (pag === "obra") await pgPedidoObra(arg);
     else if (pag === "resumo") await pgResumo();
+    else if (pag === "rankings") pgRankings();
     else if (pag === "apoie") pgApoie();
     else if (pag === "sobre") { pgSobre(); if (window.sobrePrefeitura) await sobrePrefeitura(); }
     else if (pag === "camara") pgInicio();
