@@ -687,14 +687,16 @@ async function pgCombustivel(arg) {
   const M = C.meses, nomeV = id => (VER[id] || {}).apelido || "";
   const lt = v => v.toLocaleString("pt-BR", {maximumFractionDigits: 0}) + " litros";
   const mesSel = M.some(x => x.m === arg) ? arg : "";
-  const pagoTot = M.reduce((s, x) => s + (x.pago || 0), 0), litTot = M.reduce((s, x) => s + x.litros, 0);
+  const pagoTot = M.reduce((s, x) => s + (x.pago || 0), 0), ML = M.filter(x => x.em !== "reais" && x.preco_medio), litTot = M.reduce((s, x) => s + x.litros, 0);
+  const precoMed = ML.reduce((s, x) => s + x.pago, 0) / Math.max(1, ML.reduce((s, x) => s + x.litros, 0));
   const desde = M[M.length - 1].m, ate = M[0].m;
   let linhas;
   if (mesSel) {
     const x = M.find(y => y.m === mesSel);
-    linhas = x.por.filter(p => p.id).map(p => ({id: p.id, v: p.litros, sub: x.preco_medio ? "cerca de " + reaisBR(p.litros * x.preco_medio) : ""}));
+    linhas = x.em === "reais" ? x.por.filter(p => p.id).map(p => ({id: p.id, v: p.reais, rs: true, sub: ""}))
+      : x.por.filter(p => p.id).map(p => ({id: p.id, v: p.litros, sub: p.reais ? "cerca de " + reaisBR(p.reais) : ""}));
   } else {
-    linhas = Object.entries(C.por_vereador).map(([id, p]) => ({id: +id, v: p.litros / p.meses, sub: `${lt(p.litros)} em ${p.meses} ${p.meses > 1 ? "meses" : "mês"}${p.reais_est ? ", cerca de " + reaisCurto(p.reais_est) : ""}`}));
+    linhas = Object.entries(C.por_vereador).filter(([, p]) => p.meses).map(([id, p]) => ({id: +id, v: p.litros / p.meses, sub: `${lt(p.litros)} em ${p.meses} ${p.meses > 1 ? "meses" : "mês"}${p.reais_est ? `; cerca de ${reaisCurto(p.reais_est)} em ${p.meses_reais} ${p.meses_reais > 1 ? "meses" : "mês"}` : ""}`}));
   }
   linhas = linhas.filter(l => VER[l.id]).sort((a, b) => b.v - a.v);
   const mx = Math.max(...linhas.map(l => l.v), 1);
@@ -704,20 +706,20 @@ async function pgCombustivel(arg) {
     <p class="sub">Cada vereador usa um carro alugado pela Câmara, e a Câmara paga o combustível. Todo mês ela publica quantos litros cada carro abasteceu. Juntamos esses relatórios desde ${nomeMes(desde)}.</p>
     <div class="faixa-nums">
       <div><b>${reaisCurto(pagoTot)}</b><span>pagos em combustível de ${nomeMes(desde)} a ${nomeMes(ate)}</span></div>
-      <div><b>${Math.round(litTot).toLocaleString("pt-BR")}</b><span>litros no período, contando os carros da administração</span></div>
-      <div><b>${reaisBR(pagoTot / litTot)}</b><span>preço médio do litro pago pela Câmara</span></div>
+      <div><b>${Math.round(litTot).toLocaleString("pt-BR")}</b><span>litros nos meses publicados em litros, contando os carros da administração</span></div>
+      <div><b>${reaisBR(precoMed)}</b><span>preço médio do litro pago pela Câmara</span></div>
     </div>
     <label class="hero-sel" style="display:block;margin:14px 0"><span class="sr">Período</span>
       <select id="cb-mes"><option value="">Média mensal, todos os meses</option>${M.map(x => `<option value="${x.m}"${x.m === mesSel ? " selected" : ""}>${nomeMes(x.m)}</option>`).join("")}</select></label>
-    <h2>${mesSel ? "Litros em " + nomeMes(mesSel) : "Média de litros por mês"}</h2>
+    <h2>${mesSel ? (xMes.em === "reais" ? "Valor pago em " : "Litros em ") + nomeMes(mesSel) : "Média de litros por mês"}</h2>
     ${linhas.map((l, i) => { const v = VER[l.id]; return `
       <div class="tp-linha">
-        <div class="tp-tit"><b>${i + 1}. <a href="#/v/${l.id}">${esc(nomeV(l.id))}</a>${ehPresidente(v) ? ` <small class="sub">(presidente da Câmara)</small>` : ""}</b><span>${lt(l.v)}${mesSel ? "" : " por mês"}</span></div>
+        <div class="tp-tit"><b>${i + 1}. <a href="#/v/${l.id}">${esc(nomeV(l.id))}</a>${ehPresidente(v) ? ` <small class="sub">(presidente da Câmara)</small>` : ""}</b><span>${l.rs ? reaisBR(l.v) : lt(l.v) + (mesSel ? "" : " por mês")}</span></div>
         <span class="tp-barra"><i style="width:${(100 * l.v / mx).toFixed(1)}%"></i></span>
         ${l.sub ? `<small class="sub">${esc(l.sub)}</small>` : ""}
       </div>`; }).join("")}
     <p class="sub" style="margin-top:12px">${xMes ? `<a href="${C.relatorio.replace("{}", xMes.cod)}" target="_blank" rel="noopener">Abrir o relatório oficial de ${nomeMes(mesSel)}</a> · ` : ""}<a href="${C.fonte}" target="_blank" rel="noopener">Página de combustível no Portal da Transparência da Câmara</a></p>
-    <div class="info">Como ler: os litros são os que a própria Câmara publica para cada carro. O valor em reais é uma estimativa nossa: litros do vereador vezes o preço médio pago pela Câmara naquele mês. Usar o carro faz parte do mandato (visitar bairros, reuniões, eventos), e cada vereador tem uma rotina e uma área de atuação diferentes, então gastar mais combustível não é, sozinho, sinal de irregularidade. A média por mês considera só os meses em que o carro do vereador aparece no relatório. Os carros marcados como "Administração" ficam fora da comparação.</div>`;
+    <div class="info">Como ler: os litros são os que a própria Câmara publica para cada carro. O valor em reais é uma estimativa nossa: litros do vereador vezes o preço médio pago pela Câmara naquele mês. Usar o carro faz parte do mandato (visitar bairros, reuniões, eventos), e cada vereador tem uma rotina e uma área de atuação diferentes, então gastar mais combustível não é, sozinho, sinal de irregularidade. A média por mês considera só os meses em que o carro do vereador aparece no relatório. De fevereiro a maio de 2025 a Câmara publicou o valor em reais em vez dos litros; esses meses entram só no valor em reais. O relatório chamado "janeiro de 2025" soma vários meses de uma vez e por isso ficou de fora. Os carros marcados como "Administração" ficam fora da comparação.</div>`;
   document.getElementById("cb-mes").onchange = e => { location.hash = "#/combustivel" + (e.target.value ? "/" + e.target.value : ""); };
 }
 

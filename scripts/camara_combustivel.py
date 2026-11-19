@@ -31,6 +31,9 @@ INICIO = "2025-01"  # legislatura atual
 REVER = 2  # meses mais recentes sempre lidos de novo
 MESES = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
 LINHA = re.compile(r"Placa:\s*([A-Z0-9-]+)\s*-\s*(.+?)\s*-\s*Litros:\s*([\d.,]+)\s*-\s*Litros Pagos/CMJF:\s*([\d.,]+)")
+# fev a mai/2025 a Câmara publicou o valor em reais, não os litros
+VALOR = re.compile(r"Placa:\s*([A-Z0-9-]+)\s*-\s*(.+?)\s*-\s*Valor gasto:\s*([\d.,]+)\s*-\s*Valor Pago/CMJF:\s*([\d.,]+)")
+PERIODO = re.compile(r"(\d\d)/(\d\d)/(\d{4})\s*[àa]\s*(\d\d)/(\d\d)/(\d{4})")
 
 
 def sem_acento(s):
@@ -71,18 +74,26 @@ def ler(cod):
     if not r or r.content[:4] != b"%PDF":
         return None
     texto = "\n".join((p.extract_text() or "") for p in PdfReader(io.BytesIO(r.content)).pages)
+    per = PERIODO.search(texto)
+    if per and (per.group(2), per.group(3)) != (per.group(5), per.group(6)):
+        print(f"  relatório {cod} cobre {per.group(0)}: não é de um mês só, fica de fora", file=sys.stderr)
+        return {"consolidado": per.group(0), "carros": []}
     pago = None
     for ln in texto.splitlines():
         if ln.strip().lower().startswith("despesas com"):
             ns = [num(x) for x in re.findall(r"\d[\d.]*,\d\d", ln)]
             if len(ns) >= 7:
                 pago = ns[5]  # colunas: dotação, crédito, empenhado no mês, liquidado no ano, saldo, pago no mês, pago no ano
-            elif ns:
+                break
+            if ns:
                 pago = max(ns)
-            break
+                break
+    plano = re.sub(r"\s+", " ", texto)
     carros = []
-    for placa, quem, litros, pagos in LINHA.findall(re.sub(r"\s+", " ", texto)):
-        carros.append({"placa": placa, "quem": re.sub(r"\s+", " ", quem).strip(), "litros": round(num(pagos) or num(litros), 2)})
+    for placa, quem, litros, pagos in LINHA.findall(plano):
+        carros.append({"placa": placa, "quem": quem.strip(), "litros": round(num(pagos), 2), "abastecidos": round(num(litros), 2)})
+    for placa, quem, gasto, pg in VALOR.findall(plano):
+        carros.append({"placa": placa, "quem": quem.strip(), "reais": round(num(pg), 2)})
     return {"pago": pago, "carros": carros}
 
 
@@ -126,7 +137,9 @@ def main():
         if m in cache and i >= REVER and cache[m].get("cod") == cod:
             continue
         d = ler(cod)
-        if d and d["carros"]:
+        if d and d.get("consolidado"):
+            cache.pop(m, None)
+        elif d and d["carros"]:
             cache[m] = {"cod": cod, **d}
             print(f"  {m}: {len(d['carros'])} carros, pago {d['pago']}")
         time.sleep(1)
@@ -138,26 +151,35 @@ def main():
     por = {}
     for m in sorted(cache, reverse=True):
         c = cache[m]
-        lt = sum(x["litros"] for x in c["carros"])
-        preco = round(c["pago"] / lt, 2) if c.get("pago") and lt else None
+        if not c.get("carros"):
+            continue
+        em_litros = any("litros" in x for x in c["carros"])
+        lt = sum(x.get("litros", 0) for x in c["carros"])
+        rs = sum(x.get("reais", 0) for x in c["carros"])
+        pago = c.get("pago") or (rs or None)
+        preco = round(pago / lt, 2) if em_litros and pago and lt else None
         if preco and not (3 <= preco <= 12):
             preco = None  # valor fora do razoável: provável leitura errada ou pagamento de outro mês
         soma = {}
         for x in c["carros"]:
             vid = quem_e(x["quem"], VER)
             k = vid if vid is not None else ("adm" if "administra" in sem_acento(x["quem"]) else x["quem"])
-            soma[k] = round(soma.get(k, 0) + x["litros"], 2)
-        for k, l in soma.items():
+            a = soma.setdefault(k, [0.0, 0.0])
+            a[0] += x.get("litros", 0)
+            a[1] += x.get("reais", 0) or (x.get("litros", 0) * preco if preco else 0)
+        for k, (l, r) in soma.items():
             if isinstance(k, int):
-                p = por.setdefault(k, {"litros": 0, "meses": 0, "reais_est": 0.0})
-                p["litros"] = round(p["litros"] + l, 2)
-                p["meses"] += 1
-                if preco:
-                    p["reais_est"] = round(p["reais_est"] + l * preco, 2)
-        saida_meses.append({"m": m, "pago": c.get("pago"), "litros": round(lt, 2), "preco_medio": preco,
+                p = por.setdefault(k, {"litros": 0, "meses": 0, "reais_est": 0.0, "meses_reais": 0})
+                if em_litros:
+                    p["litros"] = round(p["litros"] + l, 2)
+                    p["meses"] += 1
+                if r:
+                    p["reais_est"] = round(p["reais_est"] + r, 2)
+                    p["meses_reais"] += 1
+        saida_meses.append({"m": m, "pago": pago, "em": "litros" if em_litros else "reais", "litros": round(lt, 2), "preco_medio": preco,
                             "cod": c["cod"], "por": [{"id": k if isinstance(k, int) else None,
                                                       "quem": "Administração" if k == "adm" else (k if isinstance(k, str) else ""),
-                                                      "litros": l} for k, l in sorted(soma.items(), key=lambda kv: -kv[1])]})
+                                                      "litros": round(l, 2), "reais": round(r, 2)} for k, (l, r) in sorted(soma.items(), key=lambda kv: -(kv[1][0] or kv[1][1]))]})
     sem = sorted({x["quem"] for mm in saida_meses for x in mm["por"] if x["id"] is None and x["quem"] != "Administração"})
     if sem:
         print("  sem vereador identificado:", sem, file=sys.stderr)
