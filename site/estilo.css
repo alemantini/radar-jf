@@ -63,7 +63,6 @@ nav.areas a.ativo svg{background:rgba(255,255,255,.2);color:#fff}
 #subnav.camara a.ativo{background:linear-gradient(135deg,#1b5aa8,var(--azul));color:#fff;box-shadow:0 4px 12px rgba(18,64,122,.3)}
 #subnav.prefeitura a.ativo{background:linear-gradient(135deg,#17905f,var(--verde));color:#fff;box-shadow:0 4px 12px rgba(15,107,75,.3)}
 #subnav a.ativo .sn-ic{background:rgba(255,255,255,.2);color:#fff}
-.sn-novo{position:absolute;top:-7px;right:-4px;background:var(--amarelo);color:#3d2c00;font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:1px 6px;line-height:1.5;box-shadow:0 1px 3px rgba(0,0,0,.18)}
 @media(max-width:560px){nav.areas{width:100%} nav.areas a{flex:1;justify-content:center;padding:8px 4px;font-size:15px} nav.areas a svg{display:none}}
 
 /* faixa da área */
@@ -552,8 +551,7 @@ mark{background:#ffe27a;color:inherit;border-radius:3px;padding:0 1px}
 .novos .nv-ic svg{width:22px;height:22px}
 .novos b{font-family:"Barlow Condensed",sans-serif;font-size:21px;line-height:1.1;color:var(--azul)}
 .novos small{font-size:14px;line-height:1.35;color:var(--apoio)}
-.novos .sn-novo{top:12px;right:12px}
-.faixa-nums a{transition:transform .15s,box-shadow .15s;border-top:3px solid #f5c518}
+.novos .faixa-nums a{transition:transform .15s,box-shadow .15s;border-top:3px solid #f5c518}
 .faixa-nums a:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(16,24,40,.1)}
 .escolhas .placa{transition:transform .15s,box-shadow .15s}
 .escolhas .placa:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(16,24,40,.2)}
@@ -638,3 +636,17 @@ mark{background:#ffe27a;color:inherit;border-radius:3px;padding:0 1px}
 .po-item{border-left:3px solid #b9cbe4;padding:4px 0 4px 10px;margin:8px 0}
 .po-item.obra{border-left-color:var(--verde)}
 .po-item p{margin:2px 0;font-size:15px}
+
+/* selo "novo 2026" (bolinha) */
+.selo-novo{position:absolute;top:-10px;right:-8px;z-index:2;width:34px;height:34px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:radial-gradient(circle at 35% 30%,#fff3a8,#f5c518 55%,#e0a800);color:#3d2c00;box-shadow:0 2px 6px rgba(0,0,0,.25),0 0 0 2px #fff;transform:rotate(-12deg);line-height:1;pointer-events:none}
+.selo-novo b{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.02em}
+.selo-novo small{font-size:9px;font-weight:800;margin-top:1px}
+#subnav{padding-top:14px}
+.novos .selo-novo{top:10px;right:10px;width:44px;height:44px}
+.novos .selo-novo b,.novos .selo-novo small{font-size:11px}
+.novos a.pref .nv-ic{background:linear-gradient(135deg,#17905f,var(--verde))}
+.novos a.pref b{color:var(--verde)}
+.novos a.pref:hover{box-shadow:0 8px 20px rgba(15,107,75,.14),inset 0 0 0 1px #b4d8c6}
+#subnav a:has(.selo-novo){padding-right:30px}
+#subnav .selo-novo{top:-12px;right:-6px}
