@@ -29286,5 +29286,1578 @@
 "id": 147088,
 "data": "2026-10-21",
 "num": "18.039"
+},
+"147196": {
+"tipo": "suplementar",
+"valor": 14242029.49,
+"para": [
+[
+"Rh",
+7950003.02,
+{
+"12": 7950003.02
+}
+],
+[
+"Rh",
+6292026.47,
+{
+"04": 6292026.47
+}
+]
+],
+"de": [],
+"fontes": [
+"Saldo do ano anterior (superávit financeiro)"
+],
+"id": 147196,
+"data": "2026-10-23",
+"num": "18.042"
+},
+"147206": {
+"tipo": "suplementar",
+"valor": 1376813.11,
+"para": [
+[
+"Secretaria de Saúde",
+1128583.14,
+{
+"10": 1128583.14
+}
+],
+[
+"Rh",
+41870.61,
+{
+"09": 21485.93,
+"13": 20384.68
+}
+],
+[
+"Secretaria de Licitações e Gestão de Contratos",
+206359.36,
+{
+"19": 206359.36
+}
+]
+],
+"de": [
+[
+"Secretaria de Saúde",
+1128583.14,
+{
+"10": 1128583.14
+}
+],
+[
+"Rh",
+41870.61,
+{
+"09": 20384.68,
+"13": 21485.93
+}
+],
+[
+"Secretaria de Licitações e Gestão de Contratos",
+206359.36,
+{
+"04": 206359.36
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 147206,
+"data": "2026-10-23",
+"num": "18.043"
+},
+"147241": {
+"tipo": "suplementar",
+"valor": 602817.0,
+"para": [
+[
+"Secretaria de Educação",
+602817.0,
+{
+"12": 602817.0
+}
+]
+],
+"de": [
+[
+"Secretaria de Educação",
+602817.0,
+{
+"12": 602817.0
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 147241,
+"data": "2026-10-24",
+"num": "18.044"
+},
+"147242": {
+"tipo": "suplementar",
+"valor": 2649.99,
+"para": [
+[
+"Fundação Cultural Alfredo Ferreira Lage",
+2649.99,
+{
+"13": 2649.99
+}
+]
+],
+"de": [],
+"fontes": [
+"Saldo do ano anterior (superávit financeiro)"
+],
+"id": 147242,
+"data": "2026-10-24",
+"num": "18.045"
+},
+"147289": {
+"tipo": "suplementar",
+"valor": 8164857.68,
+"para": [
+[
+"Secretaria de Saúde",
+168072.0,
+{
+"10": 168072.0
+}
+],
+[
+"Secretaria de Educação",
+6916785.68,
+{
+"12": 6916785.68
+}
+],
+[
+"Rh",
+1080000.0,
+{
+"09": 1080000.0
+}
+]
+],
+"de": [
+[
+"Secretaria de Obras",
+6916785.68,
+{
+"15": 6916785.68
+}
+],
+[
+"Secretaria de Saúde",
+168072.0,
+{
+"10": 168072.0
+}
+],
+[
+"Rh",
+1080000.0,
+{
+"15": 1080000.0
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 147289,
+"data": "2026-10-27",
+"num": "18.046"
+},
+"147291": {
+"tipo": "suplementar",
+"valor": 1136400.65,
+"para": [
+[
+"Secretaria de Governo",
+174893.3,
+{
+"04": 174893.3
+}
+],
+[
+"Secretaria de Educação",
+287.48,
+{
+"12": 287.48
+}
+],
+[
+"Secretaria de Segurança Urbana e Cidadania",
+64702.15,
+{
+"06": 64702.15
+}
+],
+[
+"Fundação Cultural Alfredo Ferreira Lage",
+896517.72,
+{
+"13": 896517.72
+}
+]
+],
+"de": [],
+"fontes": [
+"Saldo do ano anterior (superávit financeiro)"
+],
+"id": 147291,
+"data": "2026-10-27",
+"num": "18.047"
+},
+"147293": {
+"tipo": "extraordinario",
+"valor": 1484152.14,
+"para": [
+[
+"Secretaria de Assistência Social",
+1484152.14,
+{
+"08": 1484152.14
+}
+]
+],
+"de": [],
+"fontes": [
+"Arrecadação acima do previsto"
+],
+"id": 147293,
+"data": "2026-10-27",
+"num": "18.049"
+},
+"147405": {
+"tipo": "suplementar",
+"valor": 472616.32,
+"para": [
+[
+"Secretaria de Educação",
+472616.32,
+{
+"12": 472616.32
+}
+]
+],
+"de": [
+[
+"Secretaria de Educação",
+472616.32,
+{
+"12": 472616.32
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 147405,
+"data": "2026-10-28",
+"num": "18.052"
+},
+"147431": {
+"tipo": "suplementar",
+"valor": 20280678.36,
+"para": [
+[
+"Rh",
+384090.76,
+{
+"04": 384090.76
+}
+],
+[
+"Rh",
+172340.63,
+{
+"04": 172340.63
+}
+],
+[
+"Rh",
+351795.35,
+{
+"27": 351795.35
+}
+],
+[
+"Rh",
+1276900.03,
+{
+"04": 1276900.03
+}
+],
+[
+"Rh",
+1510067.39,
+{
+"04": 1510067.39
+}
+],
+[
+"Secretaria de Obras",
+861960.19,
+{
+"15": 861960.19
+}
+],
+[
+"Rh",
+1306164.65,
+{
+"15": 1306164.65
+}
+],
+[
+"Rh",
+5419081.68,
+{
+"10": 5419081.68
+}
+],
+[
+"Rh",
+1093389.71,
+{
+"08": 1093389.71
+}
+],
+[
+"Rh",
+1256155.32,
+{
+"26": 1256155.32
+}
+],
+[
+"Rh",
+1413311.11,
+{
+"06": 1413311.11
+}
+],
+[
+"Rh",
+240799.75,
+{
+"04": 240799.75
+}
+],
+[
+"Rh",
+60732.76,
+{
+"04": 60732.76
+}
+],
+[
+"Rh",
+2749.26,
+{
+"23": 2749.26
+}
+],
+[
+"Rh",
+109599.94,
+{
+"04": 109599.94
+}
+],
+[
+"Rh",
+384.0,
+{
+"14": 384.0
+}
+],
+[
+"Secretaria de Desenvolvimento Urbano com Participação Popular/rh",
+3035592.38,
+{
+"04": 3035592.38
+}
+],
+[
+"Secretaria de Licitações e Gestão de Contratos/rh",
+881783.26,
+{
+"04": 881783.26
+}
+],
+[
+"Secretaria Especial das Muheres/rh",
+81251.05,
+{
+"14": 81251.05
+}
+],
+[
+"Secretaria Especial da Igualdade Racial/rh",
+115480.0,
+{
+"14": 115480.0
+}
+],
+[
+"Secretaria do Bem-estar Animal/rh",
+554506.26,
+{
+"04": 554506.26
+}
+],
+[
+"Secretaria de Desenvolvimento Agrário/rh",
+152542.88,
+{
+"20": 152542.88
+}
+]
+],
+"de": [],
+"fontes": [
+"Saldo do ano anterior (superávit financeiro)"
+],
+"id": 147431,
+"data": "2026-10-29",
+"num": "18.053"
+},
+"147433": {
+"tipo": "suplementar",
+"valor": 36544332.0,
+"para": [
+[
+"Secretaria da Fazenda",
+242847.92,
+{
+"04": 242847.92
+}
+],
+[
+"Secretaria de Saúde",
+22853101.0,
+{
+"10": 22853101.0
+}
+],
+[
+"Rh",
+5944060.31,
+{
+"10": 5944060.31
+}
+],
+[
+"Rh",
+7504322.77,
+{
+"12": 7504322.77
+}
+]
+],
+"de": [
+[
+"Secretaria de Obras",
+242847.92,
+{
+"15": 242847.92
+}
+],
+[
+"Rh",
+28797161.31,
+{
+"10": 28797161.31
+}
+],
+[
+"Rh",
+7504322.77,
+{
+"12": 7504322.77
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 147433,
+"data": "2026-10-29",
+"num": "18.054"
+},
+"147437": {
+"tipo": "suplementar",
+"valor": 1740540.0,
+"para": [
+[
+"Rh",
+1160540.0,
+{
+"12": 1160540.0
+}
+],
+[
+"Rh",
+580000.0,
+{
+"15": 580000.0
+}
+]
+],
+"de": [
+[
+"Rh",
+1160540.0,
+{
+"12": 1160540.0
+}
+],
+[
+"Rh",
+580000.0,
+{
+"15": 580000.0
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 147437,
+"data": "2026-10-29",
+"num": "18.055"
+},
+"147438": {
+"tipo": "suplementar",
+"valor": 897644.74,
+"para": [
+[
+"Rh",
+3404.0,
+{
+"27": 43100.0,
+"04": 3404.0
+}
+],
+[
+"Rh",
+150568.84,
+{
+"04": 150568.84
+}
+],
+[
+"Rh",
+191611.33,
+{
+"23": 191611.33
+}
+],
+[
+"Rh",
+543.0,
+{
+"04": 543.0
+}
+],
+[
+"Rh",
+213121.57,
+{
+"14": 213121.57
+}
+],
+[
+"Secretaria de Meio Ambiente e Mudanças Climaticas/rh",
+295296.0,
+{
+"18": 295296.0
+}
+]
+],
+"de": [],
+"fontes": [
+"Saldo do ano anterior (superávit financeiro)"
+],
+"id": 147438,
+"data": "2026-10-29",
+"num": "18.056"
+},
+"147575": {
+"tipo": "suplementar",
+"valor": 2687975.25,
+"para": [
+[
+"Secretaria de Saúde",
+961975.25,
+{
+"10": 961975.25
+}
+],
+[
+"Departamento Municipal de Limpeza Urbana",
+1726000.0,
+{
+"11": 948000.0,
+"18": 778000.0
+}
+]
+],
+"de": [
+[
+"Secretaria de Saúde",
+961975.25,
+{
+"10": 961975.25
+}
+],
+[
+"Rh",
+724515.1,
+{
+"15": 724515.1
+}
+],
+[
+"Secretaria de Turismo",
+1001484.9,
+{
+"23": 1001484.9
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 147575,
+"data": "2026-11-04",
+"num": "18.058"
+},
+"147578": {
+"tipo": "suplementar",
+"valor": 8860.0,
+"para": [
+[
+"Fundo Municipal de Cultura",
+3860.0,
+{
+"13": 3860.0
+}
+],
+[
+"Secretaria de Desenvolvimento Sustentável e Inclusivo, da Inovação e Competitividade",
+5000.0,
+{
+"07": 5000.0
+}
+]
+],
+"de": [],
+"fontes": [
+"Saldo do ano anterior (superávit financeiro)"
+],
+"id": 147578,
+"data": "2026-11-05",
+"num": "18.059"
+},
+"147580": {
+"tipo": "extraordinario",
+"valor": 93796.12,
+"para": [
+[
+"Secretaria de Assistência Social",
+93796.12,
+{
+"08": 93796.12
+}
+]
+],
+"de": [],
+"fontes": [
+"Arrecadação acima do previsto"
+],
+"id": 147580,
+"data": "2026-11-05",
+"num": "18.061"
+},
+"147584": {
+"tipo": "suplementar",
+"valor": 2121302.4,
+"para": [
+[
+"Secretaria da Fazenda",
+2086365.4,
+{
+"11": 2086365.4
+}
+],
+[
+"Rh",
+494.66,
+{
+"10": 494.66
+}
+],
+[
+"Rh",
+34442.34,
+{
+"12": 34442.34
+}
+]
+],
+"de": [
+[
+"Secretaria da Fazenda",
+2086365.4,
+{
+"02": 2086365.4
+}
+],
+[
+"Rh",
+494.66,
+{
+"10": 494.66
+}
+],
+[
+"Rh",
+34442.34,
+{
+"12": 34442.34
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 147584,
+"data": "2026-11-05",
+"num": "18.062"
+},
+"147658": {
+"tipo": "suplementar",
+"valor": 2188318.4,
+"para": [
+[
+"Rh",
+157650.0,
+{
+"27": 157650.0
+}
+],
+[
+"Secretaria de Assistência Social",
+42818.47,
+{
+"08": 42818.47
+}
+],
+[
+"Rh",
+4655.82,
+{
+"06": 4655.82
+}
+],
+[
+"Departamento Municipal de Limpeza Urbana",
+1802000.0,
+{
+"15": 1802000.0
+}
+],
+[
+"Rh",
+181194.11,
+{
+"04": 181194.11
+}
+]
+],
+"de": [
+[
+"Secretaria de Assistência Social",
+42818.47,
+{
+"08": 42818.47
+}
+],
+[
+"Departamento Municipal de Limpeza Urbana",
+749000.0,
+{
+"15": 749000.0
+}
+],
+[
+"Rh",
+53000.0,
+{
+"15": 53000.0
+}
+],
+[
+"Secretaria de Turismo",
+1000000.0,
+{
+"23": 1000000.0
+}
+],
+[
+"Secretaria do Bem-estar Animal/rh",
+343499.93,
+{
+"04": 343499.93
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 147658,
+"data": "2026-11-06",
+"num": "18.063"
+},
+"147659": {
+"tipo": "suplementar",
+"valor": 15253.21,
+"para": [
+[
+"Secretaria de Assistência Social",
+15253.21,
+{
+"08": 15253.21
+}
+]
+],
+"de": [],
+"fontes": [
+"Saldo do ano anterior (superávit financeiro)"
+],
+"id": 147659,
+"data": "2026-11-06",
+"num": "18.064"
+},
+"147661": {
+"tipo": "suplementar",
+"valor": 509774.69,
+"para": [
+[
+"Secretaria de Educação",
+509774.69,
+{
+"12": 509774.69
+}
+]
+],
+"de": [],
+"fontes": [
+"Arrecadação acima do previsto"
+],
+"id": 147661,
+"data": "2026-11-06",
+"num": "18.065"
+},
+"147705": {
+"tipo": "suplementar",
+"valor": 107154.32,
+"para": [
+[
+"Secretaria de Esporte e Lazer",
+31064.6,
+{
+"27": 31064.6
+}
+],
+[
+"Secretaria da Fazenda",
+76089.72,
+{
+"11": 76089.72
+}
+]
+],
+"de": [],
+"fontes": [
+"Saldo do ano anterior (superávit financeiro)"
+],
+"id": 147705,
+"data": "2026-11-06",
+"num": "18.066"
+},
+"147706": {
+"tipo": "suplementar",
+"valor": 193340.95,
+"para": [
+[
+"Secretaria da Fazenda",
+193340.95,
+{
+"11": 193340.95
+}
+]
+],
+"de": [],
+"fontes": [
+"Arrecadação acima do previsto"
+],
+"id": 147706,
+"data": "2026-11-06",
+"num": "18.067"
+},
+"147712": {
+"tipo": "suplementar",
+"valor": 90781.3,
+"para": [
+[
+"Secretaria de Saúde",
+90781.3,
+{
+"10": 90781.3
+}
+]
+],
+"de": [
+[
+"Secretaria de Saúde",
+90781.3,
+{
+"10": 90781.3
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 147712,
+"data": "2026-11-07",
+"num": "18.068"
+},
+"147714": {
+"tipo": "extraordinario",
+"valor": 697344.0,
+"para": [
+[
+"Fundo Municipal Especial de Calamidade Publica",
+697344.0,
+{
+"06": 697344.0
+}
+]
+],
+"de": [],
+"fontes": [
+"Arrecadação acima do previsto"
+],
+"id": 147714,
+"data": "2026-11-07",
+"num": "18.069"
+},
+"147756": {
+"tipo": "suplementar",
+"valor": 3303698.03,
+"para": [
+[
+"Secretaria de Saúde",
+580795.73,
+{
+"10": 580795.73
+}
+],
+[
+"Rh",
+2722902.3,
+{
+"12": 2722902.3
+}
+]
+],
+"de": [
+[
+"Secretaria de Saúde",
+580795.73,
+{
+"10": 580795.73
+}
+],
+[
+"Rh",
+2722902.3,
+{
+"12": 2722902.3
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 147756,
+"data": "2026-11-09",
+"num": "18.070"
+},
+"147760": {
+"tipo": "suplementar",
+"valor": 830945.09,
+"para": [
+[
+"Secretaria de Saúde",
+830945.09,
+{
+"10": 830945.09
+}
+]
+],
+"de": [],
+"fontes": [
+"Saldo do ano anterior (superávit financeiro)"
+],
+"id": 147760,
+"data": "2026-11-10",
+"num": "18.071"
+},
+"147795": {
+"tipo": "suplementar",
+"valor": 10808365.7,
+"para": [],
+"de": [
+[
+"Rh",
+10808365.7,
+{
+"10": 10808365.7
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 147795,
+"data": "2026-11-10",
+"num": "18.072"
+},
+"147819": {
+"tipo": "suplementar",
+"valor": 1448272.3,
+"para": [
+[
+"Rh",
+1344899.3,
+{
+"10": 1344899.3
+}
+],
+[
+"Departamento Municipal de Limpeza Urbana",
+103373.0,
+{
+"11": 103373.0
+}
+]
+],
+"de": [
+[
+"Rh",
+1344899.3,
+{
+"10": 1344899.3
+}
+],
+[
+"Rh",
+103373.0,
+{
+"15": 103373.0
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 147819,
+"data": "2026-11-10",
+"num": "18.073"
+},
+"147820": {
+"tipo": "suplementar",
+"valor": 24927952.2,
+"para": [
+[
+"Secretaria da Fazenda",
+24503998.35,
+{
+"09": 24503998.35
+}
+],
+[
+"Secretaria de Assistência Social",
+323953.85,
+{
+"08": 323953.85
+}
+],
+[
+"Secretaria Especial de Direitos Humanos",
+100000.0,
+{
+"14": 100000.0
+}
+]
+],
+"de": [],
+"fontes": [
+"Saldo do ano anterior (superávit financeiro)"
+],
+"id": 147820,
+"data": "2026-11-11",
+"num": "18.074"
+},
+"147861": {
+"tipo": "suplementar",
+"valor": 522984.73,
+"para": [
+[
+"Secretaria de Saúde",
+162984.73,
+{
+"10": 162984.73
+}
+],
+[
+"Secretaria de Educação",
+360000.0,
+{
+"12": 360000.0
+}
+]
+],
+"de": [
+[
+"Secretaria de Saúde",
+162984.73,
+{
+"10": 162984.73
+}
+],
+[
+"Secretaria de Educação",
+360000.0,
+{
+"12": 360000.0
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 147861,
+"data": "2026-11-11",
+"num": "18.076"
+},
+"147890": {
+"tipo": "suplementar",
+"valor": 2640603.4,
+"para": [
+[
+"Secretaria da Fazenda",
+50301.0,
+{
+"19": 50301.0
+}
+],
+[
+"Secretaria de Saúde",
+55844.56,
+{
+"10": 55844.56
+}
+],
+[
+"Secretaria de Educação",
+840000.0,
+{
+"12": 840000.0
+}
+],
+[
+"Rh",
+1475000.0,
+{
+"09": 1135000.0,
+"15": 340000.0
+}
+],
+[
+"Rh",
+21000.0,
+{
+"09": 21000.0
+}
+],
+[
+"Secretaria de Turismo",
+60000.0,
+{
+"23": 60000.0
+}
+],
+[
+"Fundo Municipal Especial de Calamidade Publica",
+138457.84,
+{
+"06": 138457.84
+}
+]
+],
+"de": [
+[
+"Secretaria da Fazenda",
+50301.0,
+{
+"04": 50301.0
+}
+],
+[
+"Secretaria de Saúde",
+55844.56,
+{
+"10": 55844.56
+}
+],
+[
+"Secretaria de Educação",
+840000.0,
+{
+"12": 840000.0
+}
+],
+[
+"Rh",
+1475000.0,
+{
+"15": 1475000.0
+}
+],
+[
+"Rh",
+21000.0,
+{
+"09": 21000.0
+}
+],
+[
+"Secretaria de Turismo",
+60000.0,
+{
+"23": 60000.0
+}
+],
+[
+"Fundo Municipal Especial de Calamidade Publica",
+138457.84,
+{
+"06": 138457.84
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 147890,
+"data": "2026-11-12",
+"num": "18.078"
+},
+"147896": {
+"tipo": "suplementar",
+"valor": 126885.74,
+"para": [
+[
+"Secretaria da Fazenda",
+126885.74,
+{
+"04": 126885.74
+}
+]
+],
+"de": [
+[
+"Secretaria da Fazenda",
+126885.74,
+{
+"04": 126885.74
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 147896,
+"data": "2026-11-13",
+"num": "18.079"
+},
+"147947": {
+"tipo": "suplementar",
+"valor": 1613231.81,
+"para": [
+[
+"Rh",
+250000.0,
+{
+"15": 250000.0
+}
+],
+[
+"Rh",
+1214295.47,
+{
+"09": 1214295.47
+}
+],
+[
+"Fundo Municipal de Segurança Alimentar",
+148936.34,
+{
+"14": 148936.34
+}
+]
+],
+"de": [
+[
+"Rh",
+1214295.47,
+{
+"10": 1214295.47
+}
+],
+[
+"Rh",
+250000.0,
+{
+"15": 250000.0
+}
+],
+[
+"Fundo Municipal de Segurança Alimentar",
+148936.34,
+{
+"20": 148936.34
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 147947,
+"data": "2026-11-13",
+"num": "18.080"
+},
+"148005": {
+"tipo": "suplementar",
+"valor": 1871060.71,
+"para": [
+[
+"Departamento Municipal de Limpeza Urbana",
+1605569.0,
+{
+"15": 812921.0,
+"18": 792648.0
+}
+],
+[
+"Fundo Municipal de Segurança Alimentar",
+265491.71,
+{
+"14": 265491.71
+}
+]
+],
+"de": [
+[
+"Departamento Municipal de Limpeza Urbana",
+1210569.0,
+{
+"15": 1208068.9,
+"28": 2500.1
+}
+],
+[
+"Rh",
+395000.0,
+{
+"15": 395000.0
+}
+],
+[
+"Fundo Municipal de Segurança Alimentar",
+265491.71,
+{
+"20": 265491.71
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 148005,
+"data": "2026-11-17",
+"num": "18.082"
+},
+"148045": {
+"tipo": "suplementar",
+"valor": 21206.58,
+"para": [
+[
+"Fundação Museu Mariano Procópio",
+21206.58,
+{
+"13": 21206.58
+}
+]
+],
+"de": [
+[
+"Fundação Museu Mariano Procópio",
+21206.58,
+{
+"13": 21206.58
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 148045,
+"data": "2026-11-17",
+"num": "18.083"
+},
+"148096": {
+"tipo": "suplementar",
+"valor": 1839559.48,
+"para": [
+[
+"Rh",
+128813.36,
+{
+"10": 128813.36
+}
+],
+[
+"Rh",
+8904.0,
+{
+"12": 8904.0
+}
+],
+[
+"Departamento Municipal de Limpeza Urbana",
+1560973.0,
+{
+"15": 1560973.0
+}
+],
+[
+"Câmara Municipal de Juiz de Fora",
+20000.0,
+{
+"01": 20000.0
+}
+],
+[
+"Rh",
+29000.0,
+{
+"04": 29000.0
+}
+],
+[
+"Fundo Municipal Especial de Calamidade Publica",
+91869.12,
+{
+"06": 91869.12
+}
+]
+],
+"de": [
+[
+"Rh",
+29000.0,
+{
+"27": 29000.0
+}
+],
+[
+"Rh",
+128813.36,
+{
+"10": 128813.36
+}
+],
+[
+"Rh",
+8904.0,
+{
+"12": 8904.0
+}
+],
+[
+"Departamento Municipal de Limpeza Urbana",
+1560973.0,
+{
+"11": 431757.25,
+"15": 1129215.75
+}
+],
+[
+"Câmara Municipal de Juiz de Fora",
+20000.0,
+{
+"01": 20000.0
+}
+],
+[
+"Fundo Municipal Especial de Calamidade Publica",
+91869.12,
+{
+"06": 91869.12
+}
+]
+],
+"fontes": [
+"Cancelamento de outras dotações"
+],
+"id": 148096,
+"data": "2026-11-18",
+"num": "18.084"
+},
+"148107": {
+"tipo": "suplementar",
+"valor": 2000000.0,
+"para": [
+[
+"Secretaria da Fazenda",
+2000000.0,
+{
+"15": 2000000.0
+}
+]
+],
+"de": [],
+"fontes": [
+"Saldo do ano anterior (superávit financeiro)"
+],
+"id": 148107,
+"data": "2026-11-19",
+"num": "18.086"
 }
 }

@@ -466,41 +466,6 @@
 {
 "n": 5,
 "fase": "2ª Discussão",
-"proposicao": "Projeto de Lei 81/2025",
-"ementa": "Dispõe sobre a fixação de placas informativas nas unidades públicas e privadas de saúde do município de Juiz de Fora, versando sobre a Entrega Legal, instituída pela Lei Federal n°13.509, de 22/11/2017.",
-"autoria": "Vereadora Roberta Lopes",
-"quorum": "Maioria simples",
-"obs": "VISTA Vereadoras Cida Oliveira, Kátia Franco e Laiz Perrut. SOBRESTADO Vereadora Cida Oliveira. RETIRADO TEMPORARIAMENTE pela Autora",
-"vista": true,
-"temas": [
-"Saúde"
-]
-},
-{
-"n": 6,
-"fase": "2ª Discussão",
-"proposicao": "Projeto de Lei 3/2026",
-"ementa": "Dispõe sobre a divulgação pública da agenda institucional dos compromissos oficiais do Chefe do Poder Executivo do Município de Juiz de Fora",
-"autoria": "Vereadora Roberta Lopes",
-"quorum": "Maioria simples",
-"obs": "-",
-"vista": false,
-"temas": []
-},
-{
-"n": 7,
-"fase": "2ª Discussão",
-"proposicao": "Projeto de Lei 253/2026",
-"ementa": "Patrimônio Cultural de Natureza Imaterial a entidade que menciona",
-"autoria": "Vereador Dr. Marcelo Condé",
-"quorum": "Maioria simples",
-"obs": "-",
-"vista": false,
-"temas": []
-},
-{
-"n": 8,
-"fase": "2ª Discussão",
 "proposicao": "Mensagem do Executivo (Projeto de Lei Complementar) 4736/2026",
 "ementa": "Dispõe sobre normas para instituição de condomínios de lotes no âmbito do Município de Juiz de Fora, e dá outras providências.",
 "autoria": "Executivo",
@@ -510,7 +475,18 @@
 "temas": []
 },
 {
-"n": 9,
+"n": 6,
+"fase": "2ª Discussão",
+"proposicao": "Projeto de Lei 253/2026",
+"ementa": "Patrimônio Cultural de Natureza Imaterial a entidade que menciona (Supermercado Carioca).",
+"autoria": "Vereador Dr. Marcelo Condé",
+"quorum": "Maioria simples",
+"obs": "-",
+"vista": false,
+"temas": []
+},
+{
+"n": 7,
 "fase": "2ª Discussão",
 "proposicao": "Projeto de Lei 184/2026",
 "ementa": "Altera o art. 9º e acrescenta os arts. 9°A; 9°B; 9°C; 9°D; 9°E; 9°F á Lei nº 14.364 de 25 de janeiro de 2022, que institui o \"Abrace um Campo\" para captação de parcerias para a implantação, reforma e manutenção de campos públicos de futebol amador, e dá outras providências\".",
@@ -521,13 +497,64 @@
 "temas": []
 },
 {
+"n": 8,
+"fase": "2ª Discussão",
+"proposicao": "Projeto de Lei 79/2025",
+"ementa": "Dispõe sobre a reposição de conteúdo pedagógico na educação básica do Município de Juiz de Fora em caso de suspensão de aulas e dá outras providências.",
+"autoria": "Vereadora Roberta Lopes",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereadora Cida Oliveira. Retirado Temporariamente pela Autora",
+"vista": true,
+"temas": [
+"Educação"
+]
+},
+{
+"n": 9,
+"fase": "2ª Discussão",
+"proposicao": "Projeto de Lei 81/2025",
+"ementa": "Dispõe sobre a fixação de placas informativas nas unidades públicas e privadas de saúde do município de Juiz de Fora, versando sobre a Entrega Legal, instituída pela Lei Federal n°13.509, de 22/11/2017.",
+"autoria": "Vereadora Roberta Lopes",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereadoras Cida Oliveira, Kátia Franco e Laiz Perrut. SOBRESTADO Vereadora Cida Oliveira. Retirado Temporariamente pela Autora",
+"vista": true,
+"temas": [
+"Saúde"
+]
+},
+{
 "n": 10,
+"fase": "2ª Discussão",
+"proposicao": "Projeto de Lei 195/2025",
+"ementa": "Institui o Programa Municipal de Vigilância e Monitoramento da Rede Municipal de Ensino.",
+"autoria": "Vereadora Roberta Lopes",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereadora Cida Oliveira. Retirado Temporariamente pela Autora",
+"vista": true,
+"temas": [
+"Educação",
+"Segurança"
+]
+},
+{
+"n": 11,
+"fase": "2ª Discussão",
+"proposicao": "Projeto de Lei 3/2026",
+"ementa": "Dispõe sobre a divulgação pública da agenda institucional dos compromissos oficiais do Chefe do Poder Executivo do Município de Juiz de Fora",
+"autoria": "Vereadora Roberta Lopes",
+"quorum": "Maioria simples",
+"obs": "-",
+"vista": false,
+"temas": []
+},
+{
+"n": 12,
 "fase": "1ª Discussão",
 "proposicao": "Projeto de Lei 84/2026",
 "ementa": "Dispõe sobre garantias aos trabalhadores vinculados a contratos de prestação de serviços terceirizados no âmbito do Município de Juiz de Fora e dá outras providências.",
 "autoria": "Vereador Sargento Mello Casal",
 "quorum": "Maioria simples",
-"obs": "VISTA Vereadores Sargento Mello Casal e Laiz Perrut. USARAM DA PALAVRA Vereadores Sargento Mello Casal e Laiz Perrut. 11 Apreciação Preliminar. Art",
+"obs": "VISTA Vereadores Sargento Mello Casal e Laiz Perrut. USARAM DA PALAVRA Vereadores Sargento Mello Casal e Laiz Perrut. 13 Apreciação Preliminar. Art",
 "vista": true,
 "temas": [
 "Trabalho"
@@ -540,12 +567,23 @@
 "ementa": "Institui o Programa Municipal Casas Ancestrais e dá outras providências.",
 "autoria": "Vereadora Laiz Perrut",
 "quorum": "Maioria simples",
-"obs": "VISTA Vereadora Roberta Lopes. USOU DA PALAVRA Vereadora Laiz Perrut",
+"obs": "VISTA Vereadora Roberta Lopes. USOU DA PALAVRA Vereadora Laiz Perrut. 14 Apreciação Preliminar. Art",
 "vista": true,
 "temas": []
 },
 {
-"n": 12,
+"n": 94,
+"fase": "Regimento Interno",
+"proposicao": "Projeto de Lei 283/2025",
+"ementa": "Determina a realização de exames toxicológicos em agentes públicos municipais no âmbito da administração pública no Município de Juiz de Fora e dá outras providências.",
+"autoria": "Vereadora Roberta Lopes",
+"quorum": "Maioria simples",
+"obs": "LEITURA DOS PARECERES. Retirado Temporariamente pela Autora",
+"vista": false,
+"temas": []
+},
+{
+"n": 15,
 "fase": "Veto Total",
 "proposicao": "Projeto de Lei 255/2026",
 "ementa": "Altera o § 2º do art. 17 da Lei nº 14.158, de 18 de janeiro de 2021.",
