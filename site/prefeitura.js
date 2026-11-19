@@ -405,6 +405,7 @@ async function rotaPrefeitura(p) {
   if (sub === "hospitais") return pgHospitais(a);
   if (sub === "creditos") return pgCreditos(a);
   if (sub === "aditivos") return pgAditivos(a);
+  if (sub === "curiosas") return pgCuriosas();
   return pgPrefInicio();
 }
 
@@ -1083,3 +1084,40 @@ async function pgAditivos(aba) {
     <p class="sub fonte-linha">Fonte: extratos de termos aditivos publicados no Diário Oficial do Município de ${dataBR(D.desde)} a ${dataBR(D.ate)}. O Radar lê o resumo de cada extrato; o valor nem sempre aparece no resumo. Quem aluga imóvel para a Prefeitura como pessoa física aparece sem nome. Um aditivo é legal na maioria dos casos: a página mostra o que merece uma pergunta, não acusa ninguém.</p>`;
 }
 
+
+// ---------- Coisas curiosas (lista curada à mão; cada número conferido nos empenhos do Portal da Transparência) ----------
+// Para atualizar: confira os empenhos de novo antes de mudar qualquer valor.
+const CURIOSAS = {
+  dados_ate: "2026-11-06",
+  itens: [
+    {t: "Bonés para os agentes de trânsito", v: "R$ 134.277,80", ic: "pessoas",
+     d: "Um único empenho de março de 2026, já pago, com a descrição \"boné branco (agentes)\". Em agosto há mais R$ 458 em bonés pretos para os técnicos.",
+     q: "A descrição publicada fala só em bonés. Quantos foram comprados e por qual preço? O empenho inclui outras peças de uniforme?",
+     emp: "2026NE00089, de 06/03/2026", org: "Secretaria de Transporte e Trânsito", forn: "Suporte Ind. e Com. de Artigos Militares Ltda.", busca: ["2026", "Suporte Ind e com de Art Militares"]},
+    {t: "Kits lanche para os servidores do Demlurb", v: "R$ 3,77 milhões pagos", ic: "predios",
+     d: "Pagos de janeiro de 2025 até novembro de 2026: R$ 1,94 milhão em 2025 e R$ 1,83 milhão em 2026. Parte disso, cerca de R$ 1,1 milhão, é de lanches de anos anteriores que só foram pagos depois (\"despesa de exercício anterior\"). Há ainda R$ 8,4 mil em lanches durante a calamidade das chuvas.",
+     q: "Quantos kits são entregues por mês e a que preço? O serviço foi contratado por pregão eletrônico de 2023.",
+     emp: "13 empenhos em 2025 e 2026 (por exemplo, 2025NE00058 e 2026NE00014)", org: "Demlurb", forn: "Padre Café Restaurante Ltda. ME", busca: ["2026", "Padre Cafe Restaurante"]},
+    {t: "Fantasia do Zé Gotinha", v: "R$ 5.000,00", ic: "coracao",
+     d: "Empenho de outubro de 2026 para uma fantasia do Zé Gotinha, o personagem das campanhas de vacinação, feita de espuma, fibra de vidro e lycra. Ainda não foi paga.",
+     q: "Curiosidade pequena, mas mostra que até uma fantasia aparece nos gastos públicos.",
+     emp: "2026NE04707, de 20/10/2026", org: "Secretaria de Saúde", forn: "Criativa Produtos Ltda.", busca: ["2026", "Criativa Produtos"]},
+    {t: "Drones contra a dengue", v: "R$ 587 mil reservados", ic: "alerta",
+     d: "Seis empenhos em 2026 para mapear focos do mosquito e aplicar larvicida com drones. Já foram pagos R$ 342 mil, incluindo R$ 149 mil de serviços de 2025. O contrato começou em agosto de 2025.",
+     q: "Quantas áreas foram mapeadas e qual foi o resultado no número de casos?",
+     emp: "6 empenhos em 2026 (por exemplo, 2026NE00712 e 2026NE04027)", org: "Secretaria de Saúde", forn: "Andrones Soluções Aéreas Ltda.", busca: ["2026", "Andrones Solucoes Aereas"]},
+  ],
+};
+function pgCuriosas() {
+  app.innerHTML = `
+    <h1>Coisas curiosas</h1>
+    <p class="sub">Gastos pequenos ou inusitados da Prefeitura que chamam a atenção. Não são irregularidades: são curiosidades que mostram como o dinheiro é usado no dia a dia. Cada número foi conferido nos empenhos do Portal da Transparência (dados até ${dataBR(CURIOSAS.dados_ate)}).</p>
+    ${CURIOSAS.itens.map(x => `<div class="alerta-card">
+      <div class="ac-topo"><span class="ac-tipo">${ic(x.ic)} ${esc(x.org)}</span><span class="ac-valor">${esc(x.v)}</span></div>
+      <b class="ac-nome">${esc(x.t)}</b>
+      <p>${esc(x.d)}</p>
+      <p class="cu-perg"><b>Vale perguntar:</b> ${esc(x.q)}</p>
+      <p><small class="sub">Empenho: ${esc(x.emp)} · Fornecedor: ${esc(x.forn)} · <a href="#/prefeitura/busca/${x.busca[0]}/${encodeURIComponent(x.busca[1])}">ver os lançamentos na busca de gastos ›</a></small></p>
+    </div>`).join("")}
+    <div class="info">"Reservado" (empenhado) é o dinheiro separado para a despesa; "pago" é o que já saiu do caixa. Viu algo curioso nos gastos? Mande pelo botão do WhatsApp que a gente confere e pode entrar aqui.</div>`;
+}
