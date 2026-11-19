@@ -1,20 +1,26 @@
-import subprocess, json, re, unicodedata
-subprocess.run(["bash","tools/versao_anterior.sh"],check=False)
-def sa(s): return unicodedata.normalize("NFKD",s or "").encode("ascii","ignore").decode().upper()
-for ano in (2025,2026):
-    B=json.load(open(f"/tmp/anterior/dados/prefeitura/empenhos_{ano}.json")); ix={c:i for i,c in enumerate(B["campos"])}
-    E=B["empenhos"]; cr=lambda e: B["credores"][e[ix["credor"]]]; sec=lambda e: B["secretarias"][e[ix["secretaria"]]]
-    def dump(titulo, filtro):
-        nums={(e[ix["numero"]],e[ix["secretaria"]],e[ix["credor"]]) for e in E if filtro(e)}
-        print(f"\n##### {ano} {titulo}: {len(nums)} empenhos")
-        te=tp=0
-        for k in sorted(nums):
-            rows=[e for e in E if (e[ix["numero"]],e[ix["secretaria"]],e[ix["credor"]])==k]
-            emp=sum(e[ix["empenhado"]] for e in rows); pg=sum(e[ix["pago"]] for e in rows); te+=emp; tp+=pg
-            print(f"  == {k[0]} | {sec(rows[0])[:30]} | {cr(rows[0])[1][:40]} {cr(rows[0])[0]} | emp {emp:,.2f} pago {pg:,.2f} | linhas {len(rows)}")
-            for e in rows: print(f"       {e[ix['data']]} {B['elementos'][e[ix['elemento']]][:30]} emp={e[ix['empenhado']]} pago={e[ix['pago']]} | {str(e[ix['historico']])[:260]}")
-        print(f"  TOTAL emp {te:,.2f} pago {tp:,.2f}")
-    dump("BONES", lambda e: re.search(r"\bBONE", sa(str(e[ix["historico"]]))) and "TRANSPORTE" in sa(sec(e)))
-    dump("KIT LANCHE DEMLURB", lambda e: re.search(r"KITS? ?LANCHE", sa(str(e[ix["historico"]]))) and "LIMPEZA" in sa(sec(e)))
-    dump("ZE GOTINHA", lambda e: "GOTINHA" in sa(str(e[ix["historico"]])))
-    dump("DRONES ANDRONES", lambda e: "ANDRONES" in sa(cr(e)[1]))
+import re, requests, io, json
+from pypdf import PdfReader
+UA={"User-Agent":"RadarJF/1.0 (robo de transparencia; codigo aberto em https://github.com/alemantini/radar-jf)"}
+B="https://www.camarajf.mg.gov.br/transparencia/"
+r=requests.get(B,headers=UA,timeout=60); r.encoding="utf-8"; h=r.text
+print("CNPJ",set(re.findall(r"\d{2}\.\d{3}\.\d{3}/\d{4}-\d{2}",h)))
+links=re.findall(r'<a[^>]+href="([^"#]+)"[^>]*>(.*?)</a>',h,re.S)
+KW=re.compile(r"loca|alug|im[oó]v|contrat|cess|patrim",re.I)
+alvo=[]
+for u,t in links:
+    t=re.sub(r"<[^>]+>|\s+"," ",t).strip()
+    if KW.search(t+u): print("LINK",t[:80],"|",u); alvo.append(requests.compat.urljoin(B,u))
+for u in dict.fromkeys(alvo):
+    if not u.startswith("https://www.camarajf"): continue
+    try: x=requests.get(u,headers=UA,timeout=60)
+    except Exception as e: print("ERR",u,e); continue
+    print("=====",u,x.status_code,x.headers.get("content-type"),len(x.content))
+    if x.content[:4]==b"%PDF":
+        p=PdfReader(io.BytesIO(x.content)); print("pags",len(p.pages)," texto:",(p.pages[0].extract_text() or "")[:800])
+    else:
+        x.encoding="utf-8"; t=re.sub(r"(?s)<script.*?</script>|<style.*?</style>","",x.text)
+        t=re.sub(r"<[^>]+>"," ",t); t=re.sub(r"\s+"," ",t)
+        i=max(0,t.lower().find("loca")-300); print(t[i:i+1500])
+        for u2,t2 in re.findall(r'<a[^>]+href="([^"#]+)"[^>]*>(.*?)</a>',x.text,re.S):
+            t2=re.sub(r"<[^>]+>|\s+"," ",t2).strip()
+            if re.search(r"\.pdf|loca|alug|im[oó]v|contrato\.php|cod=",u2+t2,re.I): print("   ->",t2[:70],"|",u2)
