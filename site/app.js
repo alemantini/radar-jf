@@ -601,9 +601,9 @@ function pgSobre() {
 // ---------- rotas ----------
 const SELO_NOVO = `<span class="selo-novo" aria-label="novo em 2026"><b>novo</b><small>2026</small></span>`;
 // itens recém-lançados ganham o selo "novo 2026" no menu (tirar daqui depois de algumas semanas)
-const NOVOS = new Set(["#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
+const NOVOS = new Set(["#/imoveis", "#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
 const SUBNAV = {
-  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/obra", "O pedido virou obra?", "predios"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/atas", "Atas", "lupa"], ["#/combustivel", "Combustível", "carro"]],
+  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/obra", "O pedido virou obra?", "predios"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/atas", "Atas", "lupa"], ["#/combustivel", "Combustível", "carro"], ["#/imoveis", "Imóveis alugados", "predios"]],
   prefeitura: [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/chuvas", "Dinheiro das chuvas", "alerta"], ["#/prefeitura/emprestimos", "Empréstimos", "dinheiro"], ["#/prefeitura/hospitais", "Hospitais", "coracao"], ["#/prefeitura/creditos", "Orçamento que muda", "repete"], ["#/prefeitura/aditivos", "Aditivos de contratos", "jornal"], ["#/prefeitura/curiosas", "Coisas curiosas", "lupa"], ["#/prefeitura/lupa", "Na lupa", "lupa"], ["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/iptu", "Calculadora do IPTU", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura/comissionados", "Cargos de confiança", "pessoas"], ["#/prefeitura/supersalarios", "Supersalários", "dinheiro"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
 };
 const SELO = {
@@ -728,6 +728,62 @@ async function pgCombustivel(arg) {
   document.getElementById("cb-mes").onchange = e => { location.hash = "#/combustivel" + (e.target.value ? "/" + e.target.value : ""); };
 }
 
+// ---------- Imóveis alugados pela Câmara (lista curada; cada valor conferido nos documentos oficiais da Câmara) ----------
+// Para atualizar: confira os extratos de contratos e os relatórios de empenhos antes de mudar qualquer valor.
+const IMOVEIS_CAMARA = {
+  conferido: "2026-11-19",
+  relatorio: "https://www.camarajf.mg.gov.br/relatorio.php?cod_relatorio=",
+  contratos: "https://www.camarajf.mg.gov.br/transparencia/extratoDeContratos.php",
+  imoveis: [
+    {nome: "Prédio do INSS: 1º e 2º andares", end: "Rua Marechal Deodoro, 722, Centro", area: "cerca de 800 m²",
+     uso: "Centro administrativo da Câmara (setores administrativos)", dono: "Instituto Nacional do Seguro Social (INSS)",
+     aluguel: 18470.99, condominio: 12000, vig: "16/07/2025 a 16/01/2028 (30 meses, 3º termo aditivo ao contrato 01/2020)",
+     desde: 2015,
+     nota: "Alugado desde julho de 2015. O empenho de julho de 2025 citava aluguel mensal de R$ 18.977,07; o de junho de 2026 reserva 12 parcelas de R$ 18.470,99. O condomínio é estimado em R$ 12.000 por mês.",
+     docs: [["Empenho de julho de 2025", 21636], ["Empenho de junho de 2026", 23328]]},
+    {nome: "Prédio do INSS: térreo e 5º andar", end: "Rua Marechal Deodoro, 722, Centro", area: "",
+     uso: "Setores administrativos da Câmara; no térreo funciona o Serviço de Defesa do Consumidor (Sedecon), cuja conta de luz é paga pela Câmara", dono: "Instituto Nacional do Seguro Social (INSS)",
+     aluguel: 9788.29, condominio: 5000, vig: "15/09/2026 a 15/03/2029 (30 meses, 3º termo aditivo ao contrato 01/2021)",
+     desde: 2021,
+     nota: "Alugado desde setembro de 2021. Na renovação de setembro de 2026 os valores caíram: de março a setembro de 2026 a Câmara reservou R$ 97.882,90 de aluguel e R$ 61.600 de condomínio para seis meses (cerca de R$ 16,3 mil e R$ 10,3 mil por mês); no novo período são R$ 9.788,29 de aluguel e R$ 5.000 de condomínio por mês. Os documentos não dizem o motivo da redução.",
+     docs: [["Empenho de janeiro de 2026", 22521], ["Empenho de setembro de 2026 (renovação)", 23902]]},
+  ],
+  outros: [
+    {t: "Vagas de estacionamento para os carros dos vereadores", v: "R$ 71.196,00 por 12 meses", q: "Jamaica Veículos Ltda., contrato 1011/2025, de 15/12/2025 a 14/12/2026. A Câmara aluga vagas desde 2012."},
+    {t: "Espaço em torre de transmissão para a TV Câmara", v: "R$ 132.090,84 (contrato 1063/2026)", q: "JF Sistema de Comunicação Ltda., contrato de 22/10/2026 a 21/10/2031, para antenas e equipamentos da transmissão."},
+  ],
+};
+function pgImoveis() {
+  const I = IMOVEIS_CAMARA;
+  const brl = v => "R$ " + v.toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  const mes = I.imoveis.reduce((s, x) => s + x.aluguel + x.condominio, 0);
+  app.innerHTML = `
+    <h1>Imóveis alugados pela Câmara</h1>
+    <p class="sub">O Plenário e os gabinetes ficam no Palácio Barbosa Lima e no anexo Ignácio Halfeld. Os setores administrativos ficam em quatro andares alugados do INSS, no prédio da Rua Marechal Deodoro, 722. Os valores abaixo foram conferidos nos extratos de contratos e nos relatórios de empenhos publicados pela Câmara (conferido em ${dataBR(I.conferido)}).</p>
+    <div class="faixa-nums">
+      <div><b>${brl(mes)}</b><span>por mês hoje, somando aluguel e condomínio dos quatro andares</span></div>
+      <div><b>${brl(mes * 12)}</b><span>por ano, no valor atual</span></div>
+      <div><b>desde 2015</b><span>a Câmara aluga andares no prédio do INSS</span></div>
+    </div>
+    ${I.imoveis.map(x => `<div class="alerta-card">
+      <div class="ac-topo"><span class="ac-tipo">${esc(x.end)}${x.area ? " · " + esc(x.area) : ""}</span><span class="ac-valor">${brl(x.aluguel + x.condominio)}/mês</span></div>
+      <b class="ac-nome">${esc(x.nome)}</b>
+      <div class="nb-conta">
+        <div><small>Aluguel por mês</small><b>${brl(x.aluguel)}</b></div>
+        <div><small>Condomínio por mês</small><b>${brl(x.condominio)}</b></div>
+        <div><small>Contrato vale até</small><b>${esc(x.vig.split(" (")[0].split(" a ")[1])}</b></div>
+      </div>
+      <p><b>Uso:</b> ${esc(x.uso)}. <b>Dono:</b> ${esc(x.dono)}.</p>
+      <p><small class="sub">Vigência: ${esc(x.vig)}.</small></p>
+      <p>${esc(x.nota)}</p>
+      <p><small class="sub">Documentos oficiais: ${x.docs.map(([t, c]) => `<a href="${I.relatorio}${c}" target="_blank" rel="noopener">${esc(t)}</a>`).join(" · ")}</small></p>
+    </div>`).join("")}
+    <h2>Outros aluguéis de espaço</h2>
+    ${I.outros.map(o => `<div class="tp-linha"><div class="tp-tit"><b>${esc(o.t)}</b><span>${esc(o.v)}</span></div><small class="sub">${esc(o.q)}</small></div>`).join("")}
+    <p class="sub" style="margin-top:12px"><a href="${I.contratos}" target="_blank" rel="noopener">Ver todos os extratos de contratos no Portal da Transparência da Câmara</a></p>
+    <div class="info"><b>Como ler:</b> "empenho" é o dinheiro reservado para pagar a despesa; o condomínio é estimado e pode variar. Os empenhos registram o aluguel como dispensa de licitação. Alugar não é irregular: a pergunta que fica é se compensa alugar por tantos anos ou ter um prédio próprio, e por que o valor do térreo e 5º andar caiu na renovação de 2026.</div>`;
+}
+
 // ---------- Juiz de Fora nos rankings (lista curada à mão, cada item com a fonte) ----------
 // Para atualizar: troque os números e o ano quando sair edição nova. Mostrar pontos fortes e fracos, sem escolher lado.
 const RANK_JF = [
@@ -814,7 +870,7 @@ async function rota() {
   const h = location.hash.replace(/^#\/?/, "");
   const partes = h.split("/").map(decodeURIComponent);
   const pag = partes[0], arg = partes.slice(1).join("/");
-  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende", "quente", "obra", "combustivel"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
+  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende", "quente", "obra", "combustivel", "imoveis"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
   document.querySelectorAll("nav.areas a").forEach(a => a.classList.toggle("ativo", a.dataset.area === area));
   const sub = document.getElementById("subnav");
   const atual = "#/" + h;
@@ -836,6 +892,7 @@ async function rota() {
     else if (pag === "quente") await pgQuente(arg);
     else if (pag === "obra") await pgPedidoObra(arg);
     else if (pag === "combustivel") await pgCombustivel(arg);
+    else if (pag === "imoveis") pgImoveis();
     else if (pag === "resumo") await pgResumo();
     else if (pag === "rankings") pgRankings();
     else if (pag === "apoie") pgApoie();
