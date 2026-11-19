@@ -598,7 +598,8 @@ function pgSobre() {
 }
 
 // ---------- rotas ----------
-// itens recém-lançados ganham o selo "novo" no menu (tirar daqui depois de algumas semanas)
+const SELO_NOVO = `<span class="selo-novo" aria-label="novo em 2026"><b>novo</b><small>2026</small></span>`;
+// itens recém-lançados ganham o selo "novo 2026" no menu (tirar daqui depois de algumas semanas)
 const NOVOS = new Set(["#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
 const SUBNAV = {
   camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/obra", "O pedido virou obra?", "predios"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/atas", "Atas", "lupa"]],
@@ -646,9 +647,12 @@ function pgEscolha() {
     <div id="instalar-app"></div>
     <p class="sec-t">Novidades no Radar</p>
     <div class="novos">
-      <a href="#/quente"><span class="nv-ic">${ic("alerta")}</span><b>Assunto quente do mês</b><small>O que mais vereadores levaram às reuniões, mês a mês.</small><span class="sn-novo">novo</span></a>
-      <a href="#/defende"><span class="nv-ic">${ic("fala")}</span><b>Quem defende o quê</b><small>Os assuntos que cada vereador mais leva para a tribuna.</small><span class="sn-novo">novo</span></a>
-      <a href="#/placar/tribuna"><span class="nv-ic">${ic("placar")}</span><b>Quem mais fala</b><small>Em quantas reuniões cada vereador falou, contado nas atas.</small><span class="sn-novo">novo</span></a>
+      <a href="#/quente"><span class="nv-ic">${ic("alerta")}</span><b>Assunto quente do mês</b><small>O que mais vereadores levaram às reuniões, mês a mês.</small>${SELO_NOVO}</a>
+      <a href="#/defende"><span class="nv-ic">${ic("fala")}</span><b>Quem defende o quê</b><small>Os assuntos que cada vereador mais leva para a tribuna.</small>${SELO_NOVO}</a>
+      <a href="#/placar/tribuna"><span class="nv-ic">${ic("placar")}</span><b>Quem mais fala</b><small>Em quantas reuniões cada vereador falou, contado nas atas.</small>${SELO_NOVO}</a>
+      <a href="#/obra"><span class="nv-ic">${ic("predios")}</span><b>O pedido virou obra?</b><small>Os pedidos dos vereadores para a sua rua e as obras da Prefeitura.</small>${SELO_NOVO}</a>
+      <a href="#/prefeitura/chuvas" class="pref"><span class="nv-ic">${ic("alerta")}</span><b>Dinheiro das chuvas</b><small>Quanto foi reservado e pago desde a emergência de dezembro.</small>${SELO_NOVO}</a>
+      <a href="#/prefeitura/creditos" class="pref"><span class="nv-ic">${ic("repete")}</span><b>Orçamento que muda</b><small>De onde saiu e para onde foi o dinheiro mexido por decreto.</small>${SELO_NOVO}</a>
     </div>
     <p class="sec-t">Escolha por onde começar</p>
     <div class="escolhas">
@@ -714,7 +718,7 @@ async function rota() {
   const sub = document.getElementById("subnav");
   const atual = "#/" + h;
   sub.className = area;
-  sub.innerHTML = (SUBNAV[area] || []).map(([href, t, i]) => `<a href="${href}" class="${atual === href || (atual.startsWith(href + "/") && href !== "#/prefeitura") || (href === "#/prefeitura" && /^#\/prefeitura\/(ano|s)\b/.test(atual)) || (href === "#/camara" && (atual.startsWith("#/v/") || atual.startsWith("#/grupo"))) ? "ativo" : ""}"><span class="sn-ic">${ic(i)}</span><span class="sn-tx">${t}</span>${NOVOS.has(href) ? '<span class="sn-novo">novo</span>' : ""}</a>`).join("");
+  sub.innerHTML = (SUBNAV[area] || []).map(([href, t, i]) => `<a href="${href}" class="${atual === href || (atual.startsWith(href + "/") && href !== "#/prefeitura") || (href === "#/prefeitura" && /^#\/prefeitura\/(ano|s)\b/.test(atual)) || (href === "#/camara" && (atual.startsWith("#/v/") || atual.startsWith("#/grupo"))) ? "ativo" : ""}"><span class="sn-ic">${ic(i)}</span><span class="sn-tx">${t}</span>${NOVOS.has(href) ? SELO_NOVO : ""}</a>`).join("");
   document.getElementById("selo").innerHTML = SELO[area] ? SELO[area]() : "";
   const at = sub.querySelector("a.ativo"); if (at) sub.scrollLeft = at.offsetLeft - 16;
   setasSubnav();
