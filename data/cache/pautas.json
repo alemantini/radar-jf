@@ -568,10 +568,23 @@
 "ementa": "Dispõe sobre garantias aos trabalhadores vinculados a contratos de prestação de serviços terceirizados no âmbito do Município de Juiz de Fora e dá outras providências.",
 "autoria": "Vereador Sargento Mello Casal",
 "quorum": "Maioria simples",
-"obs": "VISTA Vereadores Sargento Mello Casal e Laiz Perrut. USARAM DA PALAVRA Vereadores Sargento Mello Casal e Laiz Perrut. 14 Apreciação Preliminar. Art",
+"obs": "VISTA Vereadores Sargento Mello Casal e Laiz Perrut. USARAM DA PALAVRA Vereadores Sargento Mello Casal e Laiz Perrut",
 "vista": true,
 "temas": [
 "Trabalho"
+]
+},
+{
+"n": 14,
+"fase": "1ª Discussão",
+"proposicao": "Projeto de Lei 185/2026",
+"ementa": "Dispõe sobre denominação de Logradouro Público (Dr. Lúcio Alberto Mattos Guilhon).",
+"autoria": "Vereador Marlon Siqueira",
+"quorum": "Maioria absoluta com a presença de 2/3 dos Membros",
+"obs": "LEITURA DOS PARECERES. Rejeitado Parecer Preliminar. 15 Apreciação Preliminar. Art",
+"vista": false,
+"temas": [
+"Homenagens"
 ]
 },
 {
@@ -581,7 +594,7 @@
 "ementa": "Institui o Programa Municipal Casas Ancestrais e dá outras providências.",
 "autoria": "Vereadora Laiz Perrut",
 "quorum": "Maioria simples",
-"obs": "VISTA Vereadora Roberta Lopes. USOU DA PALAVRA Vereadora Laiz Perrut. 15 Apreciação Preliminar. Art",
+"obs": "VISTA Vereadora Roberta Lopes. USOU DA PALAVRA Vereadora Laiz Perrut. 16 Apreciação Preliminar. Art",
 "vista": true,
 "temas": []
 },
@@ -597,7 +610,7 @@
 "temas": []
 },
 {
-"n": 16,
+"n": 17,
 "fase": "Veto Total",
 "proposicao": "Projeto de Lei 233/2026",
 "ementa": "Autoriza o Poder Executivo, no âmbito da sua competência e discricionariedade, a isentar de aplicação e inserção de cobrança do Estacionamento Rotativo Pago e da Área Azul a via pública que menciona.",
@@ -608,7 +621,7 @@
 "temas": []
 },
 {
-"n": 17,
+"n": 18,
 "fase": "Veto Total",
 "proposicao": "Projeto de Lei 255/2026",
 "ementa": "Altera o § 2º do art. 17 da Lei nº 14.158, de 18 de janeiro de 2021.",
@@ -660,6 +673,19 @@
 "vista": false,
 "temas": [
 "Segurança"
+]
+},
+{
+"n": 4,
+"fase": "Veto Parcial",
+"proposicao": "Projeto de Lei 50/2025",
+"ementa": "Institui diretrizes de responsabilidade social nas contratações públicas municipais, com previsão de cláusula social para adoção da escala 5x2 nos contratos de prestação de serviços terceirizados com dedicação de mão de obra, e dá outras providências.",
+"autoria": "Vereadora Cida Oliveira",
+"quorum": "Maioria absoluta",
+"obs": "VISTA Vereadora Letícia Delgado",
+"vista": true,
+"temas": [
+"Trabalho"
 ]
 }
 ]
