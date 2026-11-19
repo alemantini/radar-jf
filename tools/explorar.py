@@ -1,12 +1,17 @@
-import re, requests
+import re, requests, json
 UA={"User-Agent":"RadarJF/1.0 (robo de transparencia; codigo aberto em https://github.com/alemantini/radar-jf)"}
 B="https://www.camarajf.mg.gov.br/transparencia/"
-for pg in ["extratoDeContratos.php","index.php"]:
-    r=requests.get(B+pg,headers=UA,timeout=60); r.encoding="utf-8"; h=r.text
-    print("=====",pg)
-    for m in re.finditer(r'(?is)<(form|select|button|input|a)[^>]*(onclick|action|name|id|href)=[^>]*>', h):
-        s=m.group(0)
-        if re.search(r"relat|gera|emit|contrat|termo|cess|loca|ct=|cod",s,re.I): print("  ",re.sub(r"\s+"," ",s)[:260])
-    for s in re.findall(r"(?s)<script[^>]*>(.*?)</script>",h):
-        if re.search(r"relat|contrat|gera",s,re.I): print("--SCRIPT--",re.sub(r"\s+"," ",s)[:1500])
-    for t in re.findall(r"(?i)termo[^<]{0,80}",h)[:20]: print("  TXT",t)
+D=None
+for dti,dtf in [("01/01/2010","19/11/2026"),("2010-01-01","2026-11-19")]:
+    r=requests.get(B+"exportardata.php",params={"tpr":"CONT","tpo":"JSON","dti":dti,"dtf":dtf},headers=UA,timeout=120)
+    print("TRY",dti,r.status_code,len(r.content),r.text[:300])
+    try:
+        D=r.json()
+        if D: break
+    except Exception as e: print("nojson",e)
+if D:
+    print("N",len(D)); print("CHAVES",list(D[0].keys())); print(json.dumps(D[0],ensure_ascii=False)[:800])
+    KW=re.compile(r"loca[cç][aã]o de im|alug|im[oó]vel|loca[cç][aã]o.*(sala|pr[eé]dio|galp|garag|espa[cç]o)|cess",re.I)
+    for x in D:
+        s=json.dumps(x,ensure_ascii=False)
+        if KW.search(s): print("ALUG",s[:900])
