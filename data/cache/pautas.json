@@ -499,6 +499,20 @@
 {
 "n": 8,
 "fase": "2ª Discussão",
+"proposicao": "Projeto de Lei 227/2026",
+"ementa": "Dispõe sobre a atualização monetária anual do valor do aporte das entidades mantenedoras ao Plano de Assistência à Saúde (PAS-JF) dos servidores da Administração Direta e Indireta do Município de Juiz de Fora.",
+"autoria": "Vereador Sargento Mello Casal",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereador Sargento Mello Casal",
+"vista": true,
+"temas": [
+"Saúde",
+"Trabalho"
+]
+},
+{
+"n": 9,
+"fase": "2ª Discussão",
 "proposicao": "Projeto de Lei 79/2025",
 "ementa": "Dispõe sobre a reposição de conteúdo pedagógico na educação básica do Município de Juiz de Fora em caso de suspensão de aulas e dá outras providências.",
 "autoria": "Vereadora Roberta Lopes",
@@ -510,7 +524,7 @@
 ]
 },
 {
-"n": 9,
+"n": 10,
 "fase": "2ª Discussão",
 "proposicao": "Projeto de Lei 81/2025",
 "ementa": "Dispõe sobre a fixação de placas informativas nas unidades públicas e privadas de saúde do município de Juiz de Fora, versando sobre a Entrega Legal, instituída pela Lei Federal n°13.509, de 22/11/2017.",
@@ -521,17 +535,6 @@
 "temas": [
 "Saúde"
 ]
-},
-{
-"n": 10,
-"fase": "2ª Discussão",
-"proposicao": "Projeto de Lei 3/2026",
-"ementa": "Dispõe sobre a divulgação pública da agenda institucional dos compromissos oficiais do Chefe do Poder Executivo do Município de Juiz de Fora.",
-"autoria": "Vereadora Roberta Lopes",
-"quorum": "Maioria simples",
-"obs": "-",
-"vista": false,
-"temas": []
 },
 {
 "n": 11,
@@ -549,12 +552,23 @@
 },
 {
 "n": 12,
+"fase": "2ª Discussão",
+"proposicao": "Projeto de Lei 3/2026",
+"ementa": "Dispõe sobre a divulgação pública da agenda institucional dos compromissos oficiais do Chefe do Poder Executivo do Município de Juiz de Fora.",
+"autoria": "Vereadora Roberta Lopes",
+"quorum": "Maioria simples",
+"obs": "-",
+"vista": false,
+"temas": []
+},
+{
+"n": 13,
 "fase": "1ª Discussão",
 "proposicao": "Projeto de Lei 84/2026",
 "ementa": "Dispõe sobre garantias aos trabalhadores vinculados a contratos de prestação de serviços terceirizados no âmbito do Município de Juiz de Fora e dá outras providências.",
 "autoria": "Vereador Sargento Mello Casal",
 "quorum": "Maioria simples",
-"obs": "VISTA Vereadores Sargento Mello Casal e Laiz Perrut. USARAM DA PALAVRA Vereadores Sargento Mello Casal e Laiz Perrut. 13 Apreciação Preliminar. Art",
+"obs": "VISTA Vereadores Sargento Mello Casal e Laiz Perrut. USARAM DA PALAVRA Vereadores Sargento Mello Casal e Laiz Perrut. 14 Apreciação Preliminar. Art",
 "vista": true,
 "temas": [
 "Trabalho"
@@ -567,7 +581,7 @@
 "ementa": "Institui o Programa Municipal Casas Ancestrais e dá outras providências.",
 "autoria": "Vereadora Laiz Perrut",
 "quorum": "Maioria simples",
-"obs": "VISTA Vereadora Roberta Lopes. USOU DA PALAVRA Vereadora Laiz Perrut. 14 Apreciação Preliminar. Art",
+"obs": "VISTA Vereadora Roberta Lopes. USOU DA PALAVRA Vereadora Laiz Perrut. 15 Apreciação Preliminar. Art",
 "vista": true,
 "temas": []
 },
@@ -583,7 +597,18 @@
 "temas": []
 },
 {
-"n": 15,
+"n": 16,
+"fase": "Veto Total",
+"proposicao": "Projeto de Lei 233/2026",
+"ementa": "Autoriza o Poder Executivo, no âmbito da sua competência e discricionariedade, a isentar de aplicação e inserção de cobrança do Estacionamento Rotativo Pago e da Área Azul a via pública que menciona.",
+"autoria": "Vereador Juraci Scheffer",
+"quorum": "Maioria absoluta",
+"obs": "",
+"vista": false,
+"temas": []
+},
+{
+"n": 17,
 "fase": "Veto Total",
 "proposicao": "Projeto de Lei 255/2026",
 "ementa": "Altera o § 2º do art. 17 da Lei nº 14.158, de 18 de janeiro de 2021.",
@@ -592,6 +617,50 @@
 "obs": "LEITURA DOS PARECERES",
 "vista": false,
 "temas": []
+}
+]
+},
+{
+"data": "2026-11-23",
+"cod": "5185",
+"nome": "5ª Reunião Ordinária - 11º Período",
+"hora": "17:30",
+"url": "https://www.camarajf.mg.gov.br/sal/ordemdodia.php?cod=5185",
+"itens": [
+{
+"n": 1,
+"fase": "1ª Discussão",
+"proposicao": "Projeto de Lei 12/2024",
+"ementa": "\"Dispõe sobre as sanções administrativas aplicadas pelo Município de Juiz de Fora às pessoas que forem flagradas em áreas e logradouros públicos fazendo uso de drogas ilícitas em desacordo com determinação legal ou regulamentar, e dá outras providências.\"",
+"autoria": "Vereador Sargento Mello Casal",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereadoras Laiz Perrut, Cida Oliveira e Letícia Delgado. SOBRESTADO Vereadora Letícia Delgado USARAM DA PALAVRA Vereadores Sargento Mello Casal e Letícia Delgado",
+"vista": true,
+"temas": []
+},
+{
+"n": 2,
+"fase": "1ª Discussão",
+"proposicao": "Projeto de Lei 224/2026",
+"ementa": "Estabelece diretrizes para o acolhimento informativo e a facilitação de assistência jurídica administrativa aos agentes públicos que sofrerem violência ou desacato no exercício da função pública no Município de Juiz de Fora, e dá outras providências.",
+"autoria": "Vereador Dr. Marcelo Condé",
+"quorum": "Maioria simples",
+"obs": "LEITURA DOS PARECERES",
+"vista": false,
+"temas": []
+},
+{
+"n": 3,
+"fase": "1ª Discussão",
+"proposicao": "Projeto de Lei 269/2026",
+"ementa": "Institui a Lei Gabriel Stambassi no Município de Juiz de Fora, com a finalidade de promover a segurança, a acessibilidade e a inclusão das pessoas autistas, neurodivergentes e com deficiência no trânsito e nos espaços públicos municipais.",
+"autoria": "Vereador Dr. Antônio Aguiar",
+"quorum": "Maioria simples",
+"obs": "LEITURA DOS PARECERES",
+"vista": false,
+"temas": [
+"Segurança"
+]
 }
 ]
 }
