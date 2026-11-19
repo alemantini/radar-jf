@@ -15,3 +15,6 @@ jobs:
         with: {python-version: "3.12"}
       - run: pip install requests pypdf
       - run: python -u tools/explorar.py
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
