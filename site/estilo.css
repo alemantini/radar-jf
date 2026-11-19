@@ -650,3 +650,18 @@ mark{background:#ffe27a;color:inherit;border-radius:3px;padding:0 1px}
 .novos a.pref:hover{box-shadow:0 8px 20px rgba(15,107,75,.14),inset 0 0 0 1px #b4d8c6}
 #subnav a:has(.selo-novo){padding-right:30px}
 #subnav .selo-novo{top:-12px;right:-6px}
+/* JF nos rankings */
+.rk-lista{display:grid;gap:12px;margin:14px 0}
+.rk{display:flex;gap:14px;border:2px solid var(--linha);border-left-width:6px;border-radius:var(--raio);background:#fff;padding:14px}
+.rk.rk-bom{border-left-color:#16924a}.rk.rk-meio{border-left-color:#e0a800}.rk.rk-ruim{border-left-color:#d52b1e}
+.rk-pos{flex:none;width:110px;text-align:center}
+.rk-pos b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:38px;line-height:1}
+.rk-pos small{display:block;font-size:12px;color:var(--apoio);margin-top:4px}
+.rk-tx{flex:1;min-width:0}
+.rk-tx h2{margin:0 0 4px;font-size:21px}
+.rk-ano{display:inline-block;font-size:13px;font-family:"Barlow",sans-serif;background:var(--linha);border-radius:99px;padding:1px 8px;vertical-align:middle}
+.rk-tx p{margin:4px 0}
+.rk-extra{font-weight:700}
+.rk-fraco{color:#8a2a1a}
+.rk-fonte{font-size:13px;color:var(--apoio)}
+@media (max-width:520px){.rk{flex-direction:column;gap:6px}.rk-pos{width:auto;text-align:left;display:flex;align-items:baseline;justify-content:flex-start;gap:8px}.rk-pos small{margin:0}}
