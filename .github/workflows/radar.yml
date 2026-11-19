@@ -153,6 +153,10 @@ jobs:
         continue-on-error: true
         run: python scripts/prefeitura_aditivos.py || cp /tmp/anterior/dados/prefeitura/aditivos.json site/dados/prefeitura/ || true
 
+      - name: Prefeitura, números que não batem (descrição x valor do empenho)
+        continue-on-error: true
+        run: python scripts/prefeitura_numeros.py || cp /tmp/anterior/dados/prefeitura/numeros.json site/dados/prefeitura/ || true
+
       - name: Câmara x Prefeitura, o pedido virou obra?
         continue-on-error: true
         run: python scripts/pedido_obra.py || cp /tmp/anterior/dados/pedido_obra.json site/dados/ || true
