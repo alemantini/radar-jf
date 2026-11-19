@@ -525,6 +525,17 @@
 {
 "n": 10,
 "fase": "2ª Discussão",
+"proposicao": "Projeto de Lei 3/2026",
+"ementa": "Dispõe sobre a divulgação pública da agenda institucional dos compromissos oficiais do Chefe do Poder Executivo do Município de Juiz de Fora.",
+"autoria": "Vereadora Roberta Lopes",
+"quorum": "Maioria simples",
+"obs": "-",
+"vista": false,
+"temas": []
+},
+{
+"n": 11,
+"fase": "2ª Discussão",
 "proposicao": "Projeto de Lei 195/2025",
 "ementa": "Institui o Programa Municipal de Vigilância e Monitoramento da Rede Municipal de Ensino.",
 "autoria": "Vereadora Roberta Lopes",
@@ -535,17 +546,6 @@
 "Educação",
 "Segurança"
 ]
-},
-{
-"n": 11,
-"fase": "2ª Discussão",
-"proposicao": "Projeto de Lei 3/2026",
-"ementa": "Dispõe sobre a divulgação pública da agenda institucional dos compromissos oficiais do Chefe do Poder Executivo do Município de Juiz de Fora",
-"autoria": "Vereadora Roberta Lopes",
-"quorum": "Maioria simples",
-"obs": "-",
-"vista": false,
-"temas": []
 },
 {
 "n": 12,
