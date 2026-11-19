@@ -7,6 +7,7 @@ const TIPOS = {REQ: "Requerimento", IND: "Indicação", PEDIF: "Pedido de Inform
 
 // ícones simples (traço), usados nos botões
 const ICONE = {
+  carro: '<path d="M5 16V11l2-5h10l2 5v5M3 16h18M7 16v2M17 16v2M7 12.5h.01M17 12.5h.01"/>',
   coracao: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
   alerta: '<path d="M12 3 2 20h20zM12 10v4M12 17h.01"/>',
   placar: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
@@ -600,9 +601,9 @@ function pgSobre() {
 // ---------- rotas ----------
 const SELO_NOVO = `<span class="selo-novo" aria-label="novo em 2026"><b>novo</b><small>2026</small></span>`;
 // itens recém-lançados ganham o selo "novo 2026" no menu (tirar daqui depois de algumas semanas)
-const NOVOS = new Set(["#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
+const NOVOS = new Set(["#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
 const SUBNAV = {
-  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/obra", "O pedido virou obra?", "predios"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/atas", "Atas", "lupa"]],
+  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/obra", "O pedido virou obra?", "predios"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/atas", "Atas", "lupa"], ["#/combustivel", "Combustível", "carro"]],
   prefeitura: [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/chuvas", "Dinheiro das chuvas", "alerta"], ["#/prefeitura/emprestimos", "Empréstimos", "dinheiro"], ["#/prefeitura/hospitais", "Hospitais", "coracao"], ["#/prefeitura/creditos", "Orçamento que muda", "repete"], ["#/prefeitura/aditivos", "Aditivos de contratos", "jornal"], ["#/prefeitura/lupa", "Na lupa", "lupa"], ["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/iptu", "Calculadora do IPTU", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura/comissionados", "Cargos de confiança", "pessoas"], ["#/prefeitura/supersalarios", "Supersalários", "dinheiro"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
 };
 const SELO = {
@@ -653,6 +654,7 @@ function pgEscolha() {
       <a href="#/obra"><span class="nv-ic">${ic("predios")}</span><b>O pedido virou obra?</b><small>Os pedidos dos vereadores para a sua rua e as obras da Prefeitura.</small>${SELO_NOVO}</a>
       <a href="#/prefeitura/chuvas" class="pref"><span class="nv-ic">${ic("alerta")}</span><b>Dinheiro das chuvas</b><small>Quanto foi reservado e pago desde a emergência de dezembro.</small>${SELO_NOVO}</a>
       <a href="#/prefeitura/creditos" class="pref"><span class="nv-ic">${ic("repete")}</span><b>Orçamento que muda</b><small>De onde saiu e para onde foi o dinheiro mexido por decreto.</small>${SELO_NOVO}</a>
+      <a href="#/combustivel"><span class="nv-ic">${ic("carro")}</span><b>Combustível dos vereadores</b><small>Quantos litros o carro de cada vereador abasteceu, mês a mês.</small>${SELO_NOVO}</a>
       <a href="#/rankings"><span class="nv-ic">${ic("placar")}</span><b>JF nos rankings</b><small>IDH, progresso social, saneamento, competitividade e mais.</small>${SELO_NOVO}</a>
     </div>
     <p class="sec-t">Escolha por onde começar</p>
@@ -674,6 +676,49 @@ function pgEscolha() {
   document.getElementById("hero-busca").onsubmit = e => { e.preventDefault(); const q = document.getElementById("hb").value.trim(); location.hash = "#/busca" + (q ? "/" + encodeURIComponent(q) : ""); };
   if (window.prefReceitas) prefReceitas().then(R => { const x = R && impostometro(R); const el = document.getElementById("fx-imp"); if (el) el.textContent = x ? reaisCurto(x.total) : "ver"; });
   fetch("dados/prefeitura/alertas.json").then(r => r.ok ? r.json() : null).catch(() => null).then(A => { const el = document.getElementById("ba-n"); if (el && A) el.textContent = fmt(A.alertas.length) + " sinais"; });
+}
+
+// ---------- Combustível dos carros dos vereadores (relatórios mensais da Câmara) ----------
+async function pgCombustivel(arg) {
+  await carregarResumo();
+  app.innerHTML = `<h1>Combustível dos vereadores</h1><p class="carregando">Carregando…</p>`;
+  const C = await fetch("dados/combustivel.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  if (!C || !(C.meses || []).length) { app.innerHTML = `<h1>Combustível dos vereadores</h1><div class="info">Os dados de combustível ainda estão sendo preparados.</div>`; return; }
+  const M = C.meses, nomeV = id => (VER[id] || {}).apelido || "";
+  const lt = v => v.toLocaleString("pt-BR", {maximumFractionDigits: 0}) + " litros";
+  const mesSel = M.some(x => x.m === arg) ? arg : "";
+  const pagoTot = M.reduce((s, x) => s + (x.pago || 0), 0), litTot = M.reduce((s, x) => s + x.litros, 0);
+  const desde = M[M.length - 1].m, ate = M[0].m;
+  let linhas;
+  if (mesSel) {
+    const x = M.find(y => y.m === mesSel);
+    linhas = x.por.filter(p => p.id).map(p => ({id: p.id, v: p.litros, sub: x.preco_medio ? "cerca de " + reaisBR(p.litros * x.preco_medio) : ""}));
+  } else {
+    linhas = Object.entries(C.por_vereador).map(([id, p]) => ({id: +id, v: p.litros / p.meses, sub: `${lt(p.litros)} em ${p.meses} ${p.meses > 1 ? "meses" : "mês"}${p.reais_est ? ", cerca de " + reaisCurto(p.reais_est) : ""}`}));
+  }
+  linhas = linhas.filter(l => VER[l.id]).sort((a, b) => b.v - a.v);
+  const mx = Math.max(...linhas.map(l => l.v), 1);
+  const xMes = mesSel ? M.find(y => y.m === mesSel) : null;
+  app.innerHTML = `
+    <h1>Combustível dos vereadores</h1>
+    <p class="sub">Cada vereador usa um carro alugado pela Câmara, e a Câmara paga o combustível. Todo mês ela publica quantos litros cada carro abasteceu. Juntamos esses relatórios desde ${nomeMes(desde)}.</p>
+    <div class="faixa-nums">
+      <div><b>${reaisCurto(pagoTot)}</b><span>pagos em combustível de ${nomeMes(desde)} a ${nomeMes(ate)}</span></div>
+      <div><b>${Math.round(litTot).toLocaleString("pt-BR")}</b><span>litros no período, contando os carros da administração</span></div>
+      <div><b>${reaisBR(pagoTot / litTot)}</b><span>preço médio do litro pago pela Câmara</span></div>
+    </div>
+    <label class="hero-sel" style="display:block;margin:14px 0"><span class="sr">Período</span>
+      <select id="cb-mes"><option value="">Média mensal, todos os meses</option>${M.map(x => `<option value="${x.m}"${x.m === mesSel ? " selected" : ""}>${nomeMes(x.m)}</option>`).join("")}</select></label>
+    <h2>${mesSel ? "Litros em " + nomeMes(mesSel) : "Média de litros por mês"}</h2>
+    ${linhas.map((l, i) => { const v = VER[l.id]; return `
+      <div class="tp-linha">
+        <div class="tp-tit"><b>${i + 1}. <a href="#/v/${l.id}">${esc(nomeV(l.id))}</a>${ehPresidente(v) ? ` <small class="sub">(presidente da Câmara)</small>` : ""}</b><span>${lt(l.v)}${mesSel ? "" : " por mês"}</span></div>
+        <span class="tp-barra"><i style="width:${(100 * l.v / mx).toFixed(1)}%"></i></span>
+        ${l.sub ? `<small class="sub">${esc(l.sub)}</small>` : ""}
+      </div>`; }).join("")}
+    <p class="sub" style="margin-top:12px">${xMes ? `<a href="${C.relatorio.replace("{}", xMes.cod)}" target="_blank" rel="noopener">Abrir o relatório oficial de ${nomeMes(mesSel)}</a> · ` : ""}<a href="${C.fonte}" target="_blank" rel="noopener">Página de combustível no Portal da Transparência da Câmara</a></p>
+    <div class="info">Como ler: os litros são os que a própria Câmara publica para cada carro. O valor em reais é uma estimativa nossa: litros do vereador vezes o preço médio pago pela Câmara naquele mês. Usar o carro faz parte do mandato (visitar bairros, reuniões, eventos), e cada vereador tem uma rotina e uma área de atuação diferentes, então gastar mais combustível não é, sozinho, sinal de irregularidade. A média por mês considera só os meses em que o carro do vereador aparece no relatório. Os carros marcados como "Administração" ficam fora da comparação.</div>`;
+  document.getElementById("cb-mes").onchange = e => { location.hash = "#/combustivel" + (e.target.value ? "/" + e.target.value : ""); };
 }
 
 // ---------- Juiz de Fora nos rankings (lista curada à mão, cada item com a fonte) ----------
@@ -762,7 +807,7 @@ async function rota() {
   const h = location.hash.replace(/^#\/?/, "");
   const partes = h.split("/").map(decodeURIComponent);
   const pag = partes[0], arg = partes.slice(1).join("/");
-  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende", "quente", "obra"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
+  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende", "quente", "obra", "combustivel"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
   document.querySelectorAll("nav.areas a").forEach(a => a.classList.toggle("ativo", a.dataset.area === area));
   const sub = document.getElementById("subnav");
   const atual = "#/" + h;
@@ -783,6 +828,7 @@ async function rota() {
     else if (pag === "defende") await pgDefende(arg);
     else if (pag === "quente") await pgQuente(arg);
     else if (pag === "obra") await pgPedidoObra(arg);
+    else if (pag === "combustivel") await pgCombustivel(arg);
     else if (pag === "resumo") await pgResumo();
     else if (pag === "rankings") pgRankings();
     else if (pag === "apoie") pgApoie();

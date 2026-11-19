@@ -42,7 +42,7 @@ jobs:
           python-version: "3.12"
 
       - name: Instalar dependências
-        run: pip install requests beautifulsoup4 pillow
+        run: pip install requests beautifulsoup4 pillow pypdf
 
       - name: Coletar dados na Câmara (se vier incompleto, para aqui e não publica)
         run: python scripts/coletar.py
@@ -124,6 +124,15 @@ jobs:
       - name: Reaproveitar custo dos gabinetes publicado, se a coleta falhar
         if: steps.gabinetes.outcome != 'success'
         run: cp /tmp/anterior/dados/gabinetes.json site/dados/ || echo "sem versão anterior"
+
+      - name: Câmara, combustível dos carros dos vereadores
+        id: combustivel
+        continue-on-error: true
+        run: python scripts/camara_combustivel.py
+
+      - name: Reaproveitar combustível publicado, se a coleta falhar
+        if: steps.combustivel.outcome != 'success'
+        run: cp /tmp/anterior/dados/combustivel.json site/dados/ || echo "sem versão anterior"
 
       - name: Eleição 2024 (TSE, gerado pelo workflow TSE)
         run: |
