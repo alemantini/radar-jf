@@ -591,7 +591,7 @@ function pgSobre() {
       <li>A data de cada proposta é a primeira data de tramitação registrada no sistema. ${RESUMO.sem_data ? `Ainda faltam as datas de ${fmt(RESUMO.sem_data)} propostas, que o robô busca aos poucos para não sobrecarregar o site da Câmara.` : ""}</li>
     </ul>
     <h2>O que este site ainda não mostra</h2>
-    <p>Presença dos vereadores nas reuniões e como cada um votou. A Câmara de Juiz de Fora não publica esses registros de forma que possam ser baixados (as atas aparecem na lista, mas o texto não abre). Sem dado oficial, o site não mostra número nenhum, e falta de registro não é tratada como falta do vereador.</p>
+    <p>Presença dos vereadores em todas as reuniões e como cada um votou em todos os projetos. Algumas votações de destaque aparecem na aba <a href="#/votacoes">Como votaram</a>, montadas à mão e com a fonte de cada informação. A Câmara de Juiz de Fora não publica esses registros de forma que possam ser baixados (as atas aparecem na lista, mas o texto não abre). Sem dado oficial, o site não mostra número nenhum, e falta de registro não é tratada como falta do vereador.</p>
     <h2>Privacidade</h2>
     <p>O site não usa cookies e não pede cadastro. Para saber quantas pessoas visitam cada página, usamos o <a href="https://www.goatcounter.com" target="_blank" rel="noopener">GoatCounter</a>, um contador aberto que não guarda dados pessoais nem identifica quem visita.</p>
     <h2>Achou um erro?</h2>
@@ -601,9 +601,9 @@ function pgSobre() {
 // ---------- rotas ----------
 const SELO_NOVO = `<span class="selo-novo" aria-label="novo em 2026"><b>novo</b><small>2026</small></span>`;
 // itens recém-lançados ganham o selo "novo 2026" no menu (tirar daqui depois de algumas semanas)
-const NOVOS = new Set(["#/diarias", "#/prefeitura/alugueis", "#/imoveis", "#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
+const NOVOS = new Set(["#/votacoes", "#/diarias", "#/prefeitura/alugueis", "#/imoveis", "#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
 const SUBNAV = {
-  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/obra", "O pedido virou obra?", "predios"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/atas", "Atas", "lupa"], ["#/combustivel", "Combustível", "carro"], ["#/diarias", "Diárias de viagem", "pin"], ["#/imoveis", "Imóveis alugados", "predios"]],
+  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/obra", "O pedido virou obra?", "predios"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/votacoes", "Como votaram", "balanca"], ["#/atas", "Atas", "lupa"], ["#/combustivel", "Combustível", "carro"], ["#/diarias", "Diárias de viagem", "pin"], ["#/imoveis", "Imóveis alugados", "predios"]],
   prefeitura: [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/chuvas", "Dinheiro das chuvas", "alerta"], ["#/prefeitura/emprestimos", "Empréstimos", "dinheiro"], ["#/prefeitura/hospitais", "Hospitais", "coracao"], ["#/prefeitura/creditos", "Orçamento que muda", "repete"], ["#/prefeitura/aditivos", "Aditivos de contratos", "jornal"], ["#/prefeitura/curiosas", "Coisas curiosas", "lupa"], ["#/prefeitura/alugueis", "Imóveis alugados", "predios"], ["#/prefeitura/lupa", "Na lupa", "lupa"], ["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/iptu", "Calculadora do IPTU", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura/comissionados", "Cargos de confiança", "pessoas"], ["#/prefeitura/supersalarios", "Supersalários", "dinheiro"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
 };
 const SELO = {
@@ -933,7 +933,7 @@ async function rota() {
   const h = location.hash.replace(/^#\/?/, "");
   const partes = h.split("/").map(decodeURIComponent);
   const pag = partes[0], arg = partes.slice(1).join("/");
-  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende", "quente", "obra", "combustivel", "imoveis", "diarias"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
+  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende", "votacoes", "quente", "obra", "combustivel", "imoveis", "diarias"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
   document.querySelectorAll("nav.areas a").forEach(a => a.classList.toggle("ativo", a.dataset.area === area));
   const sub = document.getElementById("subnav");
   const atual = "#/" + h;
@@ -952,6 +952,7 @@ async function rota() {
     else if (pag === "agenda") await pgAgenda();
     else if (pag === "atas") await pgAtas(arg);
     else if (pag === "defende") await pgDefende(arg);
+    else if (pag === "votacoes") pgVotacoes(arg);
     else if (pag === "quente") await pgQuente(arg);
     else if (pag === "obra") await pgPedidoObra(arg);
     else if (pag === "combustivel") await pgCombustivel(arg);
@@ -1478,4 +1479,104 @@ async function pgPedidoObra(arg) {
   let tm;
   document.getElementById("po-q").oninput = e => { clearTimeout(tm); tm = setTimeout(() => { desenha(e.target.value); history.replaceState(null, "", "#/obra" + (e.target.value.trim() ? "/" + encodeURIComponent(e.target.value.trim()) : "")); }, 250); };
   desenha(arg || "");
+}
+
+// ---------- Como votaram: votações de destaque, montadas à mão e conferidas nome por nome ----------
+// Cada votação guarda só o que tem fonte: placar (com a fonte), adiamentos (atas oficiais) e pareceres (documentos oficiais).
+// "ausentes" = ausência confirmada pela fonte; "sem_registro" = não aparece no placar, sem confirmação do motivo.
+const VOTACOES = [{
+  slug: "vigilancia-escolas",
+  titulo: "Vigilante armado e câmera dentro da sala de aula",
+  pl: "Projeto de Lei nº 195/2025",
+  ementa: "Institui o Programa Municipal de Vigilância e Monitoramento da Rede Municipal de Ensino",
+  autoria: "Roberta Lopes (PL)",
+  data: "2026-11-19",
+  resultado: "Rejeitado por 11 votos a 4",
+  previa: [
+    "pelo menos um vigilante com arma de fogo em cada escola municipal, durante o período escolar",
+    "câmeras na entrada, nos pátios e dentro das salas de aula, com imagens guardadas por no mínimo 60 dias",
+    "plano de emergência em cada escola, treinamentos mensais e simulações surpresa a cada seis meses",
+  ],
+  docs: [
+    ["Texto do projeto", "https://www.camarajf.mg.gov.br/sal/mostrapfs.php?n=148913"],
+    ["Parecer jurídico da Câmara", "https://www.camarajf.mg.gov.br/sal/mostrapft.php?n=284037"],
+  ],
+  sim: [44, 24, 13, 42],
+  nao: [25, 4, 27, 28, 29, 31, 40, 14, 37, 32, 43],
+  ausentes: [
+    {id: 3, nota: "Ausente na reunião, segundo a reportagem."},
+    {id: 41, nota: "Ausente na reunião, segundo a reportagem."},
+    {id: 30, nota: "Ausente na reunião, segundo a reportagem."},
+    {id: 39, nota: "Ausente na reunião, segundo a reportagem."},
+  ],
+  sem_registro: [
+    {id: 38, nota: "Votou na mesma reunião, contra o pedido de retirada de pauta, mas não aparece no placar do projeto."},
+    {id: 22, nota: "Não aparece em nenhuma votação da reunião na reportagem."},
+    {id: 35, nota: "Não aparece em nenhuma votação da reunião na reportagem."},
+    {id: 10, nota: "Presidente da Câmara. Não aparece no placar."},
+  ],
+  fonte_placar: ["Tribuna de Minas, 19/11/2026", "https://tribunademinas.com.br/noticias/politica/19-11-2026/camara-de-juiz-de-fora-rejeita-projeto-que-previa-vigilancia-armada-nas-escolas.html"],
+  aviso: "A Câmara ainda não publicou a ata da reunião de 19/11/2026. O placar abaixo vem da reportagem da Tribuna de Minas. Quando a ata oficial sair, conferimos nome por nome e corrigimos o que for preciso.",
+  // pedidos de vista e sobrestamento registrados nas atas oficiais (cod = número da ata no sistema da Câmara)
+  adiamentos: [
+    ["2026-07-13", 5533, "pedido de vista de Cida Oliveira"],
+    ["2026-08-19", 5541, "pedido de vista de Juraci Scheffer"],
+    ["2026-08-21", 5543, "pedido de vista de Laiz Perrut"],
+    ["2026-08-24", 5546, "pedido de vista de Letícia Delgado"],
+    ["2026-08-26", 5548, "pedido de sobrestamento de Cida Oliveira"],
+    ["2026-08-31", 5551, "pedido de vista de João Wagner Antoniol"],
+    ["2026-09-21", 5556, "pedido de vista de Yuri Fófano"],
+    ["2026-09-24", 5561, "pedido de vista de Kátia Franco"],
+    ["2026-09-28", 5564, "pedido de vista de Marlon Siqueira"],
+    ["2026-09-30", 5566, "pedido de vista de Pardal"],
+    ["2026-10-16", 5571, "pedido de vista de Fiote (Pardal pediu que algum vereador pedisse vista)"],
+  ],
+  adiamentos_nota: "Em 17 e 18/11/2026 a votação foi adiada de novo, com manifestação do Sindicato dos Professores no Plenário. Na segunda vez, o adiamento foi pedido pela própria autora (Tribuna de Minas).",
+  pareceres: [
+    ["Diretoria Jurídica da Câmara", "Projeto legal e constitucional com ajustes. Aponta vício de iniciativa na parte do vigilante armado; na parte das câmeras, não vê problema.", "https://www.camarajf.mg.gov.br/sal/mostrapft.php?n=284037"],
+    ["Juraci Scheffer, Comissão de Finanças (20/08/2025)", "Liberou o projeto para o Plenário, sem opinar sobre o mérito.", "https://www.camarajf.mg.gov.br/sal/mostrapft.php?n=285890"],
+    ["Cida Oliveira, Comissão de Educação (05/09/2025)", "Pediu informações à Secretaria de Educação antes de opinar.", "https://www.camarajf.mg.gov.br/sal/mostrapft.php?n=286897"],
+    ["Cida Oliveira, Comissão de Educação (25/09/2025)", "Apontou incompatibilidade com a Constituição, a LDB, o ECA e a LGPD.", "https://www.camarajf.mg.gov.br/sal/mostrapft.php?n=288059"],
+    ["Laiz Perrut, Comissão de Educação (30/09/2025)", "Contrária no mérito: para ela, o projeto não melhora o ambiente escolar nem reduz a violência.", "https://www.camarajf.mg.gov.br/sal/mostrapft.php?n=288246"],
+    ["Juraci Scheffer, Comissão de Segurança Pública (06/10/2025)", "Liberou o projeto para o Plenário, sem opinar sobre o mérito.", "https://www.camarajf.mg.gov.br/sal/mostrapft.php?n=288729"],
+  ],
+}];
+
+function pgVotacoes(arg) {
+  const V = VOTACOES.find(x => x.slug === arg) || VOTACOES[0];
+  const nome = id => VER[id] ? `${esc(VER[id].apelido)} <small>(${esc(VER[id].partido || "")})</small>` : "vereador " + id;
+  const pessoa = (id, tipo, nota) => {
+    const v = VER[id] || {id, apelido: "?"};
+    const rot = {sim: "SIM", nao: "NÃO", aus: "AUSENTE", sr: "NÃO CONSTA"}[tipo];
+    return `<a class="vt-p vt-${tipo}" href="#/v/${id}">${avatar(v)}<span class="vt-n"><b>${nome(id)}</b>${nota ? `<small>${esc(nota)}</small>` : ""}</span><span class="vt-sel">${rot}</span></a>`;
+  };
+  const grupo = (tit, cls, lista) => lista.length ? `<section class="vt-grupo vt-g-${cls}"><h2>${tit} <span>${lista.length}</span></h2>${lista.join("")}</section>` : "";
+  const todos = [...V.sim.map(id => [id, "sim"]), ...V.nao.map(id => [id, "nao"]), ...V.ausentes.map(x => [x.id, "aus"]), ...V.sem_registro.map(x => [x.id, "sr"])];
+  app.innerHTML = `
+    <h1>Como votaram: ${esc(V.titulo)}</h1>
+    <p class="sub">${esc(V.pl)}, de ${esc(V.autoria)}: ${esc(V.ementa)}. Votado em ${dataBR(V.data)}. <b>${esc(V.resultado)}.</b></p>
+    <div class="info cb-aviso"><b>Ainda sem ata oficial.</b> ${esc(V.aviso)}</div>
+    <div class="vt-placar">
+      <div class="vt-c-sim"><b>${V.sim.length}</b><span>a favor</span></div>
+      <div class="vt-c-nao"><b>${V.nao.length}</b><span>contra</span></div>
+      <div class="vt-c-aus"><b>${V.ausentes.length}</b><span>ausentes</span></div>
+      <div class="vt-c-sr"><b>${V.sem_registro.length}</b><span>não constam no placar</span></div>
+    </div>
+    <div class="vt-plenario" aria-label="Os ${todos.length} vereadores, um quadrado para cada">${todos.map(([id, t]) => `<a href="#/v/${id}" class="vt-q vt-${t}" title="${esc((VER[id] || {}).apelido || "")}"></a>`).join("")}</div>
+    <p class="sub"><small>Cada quadrado é um vereador. Azul: a favor. Cinza escuro: contra. Vermelho: ausente. Amarelo: não aparece no placar.</small></p>
+    ${grupo("Ausentes", "aus", V.ausentes.map(x => pessoa(x.id, "aus", x.nota)))}
+    ${grupo("Não constam no placar", "sr", V.sem_registro.map(x => pessoa(x.id, "sr", x.nota)))}
+    ${grupo("Votaram a favor", "sim", V.sim.map(id => pessoa(id, "sim")))}
+    ${grupo("Votaram contra", "nao", V.nao.map(id => pessoa(id, "nao")))}
+    <div class="info"><b>Ausente e "não consta" são coisas diferentes.</b> Ausente é quem a reportagem registrou como fora da reunião. "Não consta" é quem não aparece no placar, sem confirmação do motivo: pode ter saído do Plenário, estar presidindo a reunião ou ter faltado. A falta de registro não é tratada como falta do vereador.</div>
+    <h2>O que o projeto previa</h2>
+    <ul>${V.previa.map(p => `<li>${esc(p)}</li>`).join("")}</ul>
+    <p class="sub">${V.docs.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener">${esc(t)}</a>`).join(" · ")}</p>
+    <h2>Antes da votação: os adiamentos</h2>
+    <p class="sub">Entre julho e outubro de 2026, o projeto entrou na pauta e foi adiado ${V.adiamentos.length} vezes. Pedido de vista é um direito do vereador: adia a votação para ele estudar o projeto. Tudo abaixo está nas atas oficiais.</p>
+    ${V.adiamentos.map(([d, cod, t]) => `<div class="tp-linha"><div class="tp-tit"><b>${dataBR(d)}</b><span>${esc(t)}</span></div><small class="sub"><a href="https://www.camarajf.mg.gov.br/sal/ata.php?cod=${cod}" target="_blank" rel="noopener">ata oficial</a></small></div>`).join("")}
+    <p class="sub" style="margin-top:10px">${esc(V.adiamentos_nota)}</p>
+    <h2>O que disseram as comissões</h2>
+    ${V.pareceres.map(([q, t, u]) => `<div class="tp-linha"><div class="tp-tit"><b>${esc(q)}</b></div><small class="sub">${esc(t)} <a href="${u}" target="_blank" rel="noopener">parecer oficial</a></small></div>`).join("")}
+    <p class="sub" style="margin-top:14px"><small>Fonte do placar: <a href="${V.fonte_placar[1]}" target="_blank" rel="noopener">${esc(V.fonte_placar[0])}</a>. Adiamentos: atas oficiais da Câmara. Pareceres: sistema oficial da Câmara.</small></p>`;
 }
