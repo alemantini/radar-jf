@@ -211,24 +211,36 @@ def main():
     for m in sorted(cache, reverse=True):
         for g in cache[m]["regs"]:
             cit = citados(g["motivo"], VER)
-            for c in cit:
-                if c["id"] is None:
-                    sem_id.add(c["nome"])
             dm = re.search(r"(\d\d)/(\d\d)/(20\d\d)", g["data"])
             viagens.append({
                 "m": m, "n": g["n"], "data": f"{dm.group(3)}-{dm.group(2)}-{dm.group(1)}" if dm else "",
-                "destino": destino(g["local"]), "cargo": cargo(g["quem"]), "motorista": "motorista" in sa(g["quem"]),
+                "destino": "" if "(" in g["local"] else destino(g["local"]), "cargo": cargo(g["quem"]), "motorista": "motorista" in sa(g["quem"]),
                 "valor": g["valor"], "cancelado": g["cancelado"], "diarias": g["diarias"][:80],
                 "motivo": g["motivo"][:400], "vereadores": cit, "cod": cache[m]["cod"],
             })
-            if not g["cancelado"] and g["valor"]:
-                for c in cit:
-                    if c["id"]:
-                        p = por_ver.setdefault(str(c["id"]), {"viagens": 0, "valor": 0.0, "destinos": {}})
-                        p["viagens"] += 1
-                        p["valor"] = round(p["valor"] + g["valor"], 2)
-                        dest = destino(g["local"])
-                        p["destinos"][dest] = p["destinos"].get(dest, 0) + 1
+    # a mesma diária (mesmo número) pode aparecer em dois relatórios, por exemplo paga num mês e
+    # cancelada no seguinte: fica uma só; se algum relatório diz cancelada, conta como cancelada
+    por_n = {}
+    for v in viagens:
+        # mesmo número, mesma data de viagem e mesmo cargo = mesma diária (há números repetidos em viagens diferentes)
+        por_n.setdefault((v["n"], v["data"], v["cargo"].lower()), []).append(v)
+    unicas, repetidas = [], 0
+    for n, vs in por_n.items():
+        base = next((v for v in vs if v["valor"]), vs[0])
+        if len(vs) > 1:
+            repetidas += 1
+            base = dict(base, cancelado=any(v["cancelado"] for v in vs), meses=sorted({v["m"] for v in vs}))
+        unicas.append(base)
+    viagens = sorted(unicas, key=lambda v: (v["m"], v["data"]), reverse=True)
+    if repetidas:
+        print(f"  {repetidas} diárias aparecem em mais de um relatório (contadas uma vez)")
+    for v in viagens:
+        if not v["cancelado"] and v["valor"]:
+            for c in v["vereadores"]:
+                p = por_ver.setdefault(str(c["id"]), {"viagens": 0, "valor": 0.0, "destinos": {}})
+                p["viagens"] += 1
+                p["valor"] = round(p["valor"] + v["valor"], 2)
+                p["destinos"][v["destino"]] = p["destinos"].get(v["destino"], 0) + 1
     if sem_id:
         print("  vereadores citados sem identificação:", sorted(sem_id), file=sys.stderr)
     SAIDA.parent.mkdir(parents=True, exist_ok=True)
