@@ -407,6 +407,8 @@ async function rotaPrefeitura(p) {
   if (sub === "aditivos") return pgAditivos(a);
   if (sub === "curiosas") return pgCuriosas();
   if (sub === "alugueis") return pgAlugueisPJF();
+  if (sub === "previdencia") return pgPrevidencia();
+  if (sub === "obras") return pgObrasPrevistas();
   return pgPrefInicio();
 }
 
@@ -1193,4 +1195,88 @@ function pgAlugueisPJF() {
       </div>`).join("")}
     <div class="info"><b>Lei da placa:</b> desde setembro de 2026, uma lei municipal proposta pela vereadora Roberta Lopes e sancionada pela prefeita obriga os imóveis alugados pela Prefeitura a exibir na entrada o valor mensal do aluguel, o dono ou a imobiliária, a vigência do contrato e o que funciona no local. <a href="https://www.acessa.com/cidade/2026/09/340757-juiz-de-fora-passa-a-exigir-valor-da-locacao-na-porta-de-predios-publicos.html" target="_blank" rel="noopener">Notícia no Acessa.com</a>. Passou por um desses prédios? Veja se a placa está lá.</div>
     <div class="info"><b>Como ler:</b> os valores são o que foi pago em 2026 até ${dataBR(A.dados_ate)}, e alguns incluem parcelas atrasadas de 2025. Alugar imóvel para serviço público é permitido e muitas vezes necessário, como quando a Defesa Civil interdita uma escola. Alguns empenhos de aluguel aparecem no Portal sem o nome do locador e ficaram fora desta lista. Desde 18/11/2026 o site da Prefeitura recusa o acesso do nosso robô, por isso os dados param em ${dataBR(A.dados_ate)}.</div>`;
+}
+
+// ---------- Previdência dos servidores (JFPREV): multas, juros e parcelamentos (conferido nos empenhos) ----------
+const PREV_JF = {
+  dados_ate: "2026-11-06",
+  memorando: {multa: 6163166.22, juros: 4889345.97},
+  atraso26: [
+    {t: "Multa pelo atraso no repasse do Imposto de Renda de setembro a dezembro e do 13º de 2025", v: 1812652.48, emp: "2026NE00717"},
+    {t: "Correção pelo mesmo atraso", v: 184901.72, emp: "2026NE00718"},
+    {t: "Multa pelo atraso no repasse do Imposto de Renda de junho de 2026", v: 196429.57, emp: "2026NE01042"},
+  ],
+  parcel: {p2025: 18181910.60, p2026: 43493784.90},
+};
+function pgPrevidencia() {
+  const P = PREV_JF, brl = v => "R$ " + v.toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  const mem = P.memorando.multa + P.memorando.juros, a26 = P.atraso26.reduce((s, x) => s + x.v, 0);
+  app.innerHTML = `
+    <h1>A conta da previdência dos servidores</h1>
+    <p class="sub">O JFPREV é o instituto que paga as aposentadorias e pensões dos servidores municipais. A Prefeitura precisa repassar a ele, todo mês, a sua contribuição e o Imposto de Renda descontado dos aposentados. Quando o repasse atrasa ou fica abaixo do devido, vêm multa, juros e parcelamento. Todos os números abaixo foram conferidos nas notas de empenho do Portal da Transparência (dados até ${dataBR(P.dados_ate)}).</p>
+    <div class="faixa-nums">
+      <div><b>${reaisCurto(mem + a26)}</b><span>pagos ao JFPREV só em multas, juros e correção desde 2025</span></div>
+      <div><b>${reaisCurto(P.parcel.p2025 + P.parcel.p2026)}</b><span>pagos em parcelas de dívidas antigas com o JFPREV em 2025 e 2026</span></div>
+      <div><b>R$ 135 milhões</b><span>em débitos parcelados em 60 meses no fim de 2025</span></div>
+    </div>
+    <div class="alerta-card">
+      <div class="ac-topo"><span class="ac-tipo">${ic("alerta")} Secretaria de Recursos Humanos · março de 2025</span><span class="ac-valor">${brl(mem)}</span></div>
+      <b class="ac-nome">Multas e juros pagos ao JFPREV em 2025</b>
+      <p>Quatro empenhos de março de 2025, citando o Memorando 3180/2025, foram feitos "para pagamento de multa" e "para pagamento de juros" ao JFPREV. Todos já foram pagos.</p>
+      <div class="nb-conta">
+        <div><small>Multas (2025NE00125 e 2025NE00128)</small><b>${brl(P.memorando.multa)}</b></div>
+        <div><small>Juros (2025NE00126 e 2025NE00129)</small><b>${brl(P.memorando.juros)}</b></div>
+        <div><small>Total</small><b>${brl(mem)}</b></div>
+      </div>
+      <p class="cu-perg"><b>Vale perguntar:</b> as notas não dizem a que se referem as multas. De quais meses eram os repasses e por que atrasaram? O que diz o Memorando 3180/2025?</p>
+      <p><small class="sub"><a href="#/prefeitura/busca/2025/Juiz%20de%20Fora%20Previdencia">Ver os lançamentos de 2025 na busca de gastos ›</a></small></p>
+    </div>
+    <div class="alerta-card">
+      <div class="ac-topo"><span class="ac-tipo">${ic("alerta")} Secretaria da Fazenda · 2026</span><span class="ac-valor">${brl(a26)}</span></div>
+      <b class="ac-nome">Em 2026, multas com o motivo escrito: atraso</b>
+      <p>Nestas notas a própria Prefeitura escreveu o motivo: atraso no repasse do Imposto de Renda retido dos aposentados e pensionistas, que pertence ao JFPREV.</p>
+      ${P.atraso26.map(x => `<div class="tp-linha"><div class="tp-tit"><b>${esc(x.t)}</b><span>${brl(x.v)}</span></div><small class="sub">Empenho ${esc(x.emp)}, já pago</small></div>`).join("")}
+      <p class="cu-perg"><b>Vale perguntar:</b> mesmo depois do parcelamento de dezembro de 2025, o repasse de junho de 2026 também atrasou. Os repasses de 2026 estão em dia agora?</p>
+      <p><small class="sub"><a href="#/prefeitura/busca/2026/Juiz%20de%20Fora%20Previdencia">Ver os lançamentos de 2026 na busca de gastos ›</a></small></p>
+    </div>
+    <h2>Os parcelamentos</h2>
+    <p>A Prefeitura já pagava um parcelamento antigo de débitos com o JFPREV, que as próprias notas explicam como "devido a repasses de recursos insuficientes": a parcela principal é de ${brl(1637079.23)} por mês, mais juros e correção. Em dezembro de 2025 a Câmara aprovou um novo parcelamento, ratificado pela Lei 15.267/2025, com quatro termos (0862, 0865, 0866 e 0867/2025).</p>
+    <div class="nb-conta">
+      <div><small>Pago em parcelamentos em 2025</small><b>${brl(P.parcel.p2025)}</b></div>
+      <div><small>Pago em parcelamentos em 2026 (até ${dataBR(P.dados_ate)})</small><b>${brl(P.parcel.p2026)}</b></div>
+    </div>
+    <p>Segundo o diretor-presidente do JFPREV, em entrevista à Tribuna de Minas, o novo parcelamento soma cerca de R$ 135 milhões, em 60 parcelas de cerca de R$ 2,25 milhões corrigidas pelo IPCA mais juros. Entram nele a contribuição suplementar de maio a agosto de 2025 (R$ 61 milhões), o aporte para o déficit de junho a agosto de 2025 (R$ 12,4 milhões), o Imposto de Renda dos aposentados não repassado de junho a dezembro de 2024 e de maio a agosto de 2025 (R$ 52,7 milhões) e repasses de 2022 e 2023 previstos na Lei da Transação (R$ 8,8 milhões). <a href="https://tribunademinas.com.br/noticias/politica/12-12-2025/jfprev-explica-deficit-atuarial-e-debitos-que-serao-parcelados-pela-prefeitura.html" target="_blank" rel="noopener">Matéria da Tribuna de Minas</a>.</p>
+    <div class="info"><b>Na Câmara:</b> em outubro de 2025 o plenário aprovou o Pedido de Informação 309/2025, que pede à Prefeitura os empenhos e pagamentos das contribuições ao JFPREV de 2022 a 2025, mês a mês e por secretaria, citando atrasos sobretudo na Educação e na Saúde. <a href="https://www.camarajf.mg.gov.br/sal/mostrapfs.php?n=153758" target="_blank" rel="noopener">Ver o pedido</a>.</div>
+    <div class="info"><b>Como ler:</b> multa, juros e correção são dinheiro público que sai da Prefeitura e entra no próprio instituto de previdência do Município; não é dinheiro que some, mas é dinheiro que poderia ir para outras áreas se os repasses estivessem em dia. Os parcelamentos pagam dívidas reconhecidas e são legais. A Prefeitura pode explicar cada caso. Desde 18/11/2026 o site da Prefeitura recusa o acesso do nosso robô, por isso os dados param em ${dataBR(P.dados_ate)}.</div>`;
+}
+
+// ---------- Investimentos: previsto x feito (Siconfi, RREO Anexo 1, linha Investimentos) ----------
+const OBRAS_PREV = {
+  anos: [
+    {ano: "2024", ini: 235.06, atu: 419.07, emp: 272.85, liq: 247.26, pago: 243.64, obs: "ano fechado"},
+    {ano: "2025", ini: 408.02, atu: 590.73, emp: 301.76, liq: 283.49, pago: 278.87, obs: "ano fechado"},
+    {ano: "2026", ini: 734.15, atu: 784.39, emp: 419.21, liq: 159.57, pago: 155.92, obs: "só até agosto"},
+  ],
+};
+function pgObrasPrevistas() {
+  const M = v => "R$ " + v.toLocaleString("pt-BR", {minimumFractionDigits: 1, maximumFractionDigits: 1}) + " mi";
+  const pc = (a, b) => Math.round(100 * a / b) + "%";
+  const A = OBRAS_PREV.anos, a25 = A[1];
+  app.innerHTML = `
+    <h1>Obras e investimentos: previsto x feito</h1>
+    <p class="sub">"Investimentos" é a parte do orçamento para obras, reformas, compra de equipamentos e veículos. Comparamos o que a Prefeitura previu no orçamento com o que de fato foi feito, pelos relatórios oficiais que ela mesma envia ao Tesouro Nacional (Siconfi, Relatório Resumido da Execução Orçamentária).</p>
+    <div class="faixa-nums">
+      <div><b>${pc(a25.liq, a25.atu)}</b><span>do orçamento de investimentos de 2025 virou obra ou compra entregue (liquidada)</span></div>
+      <div><b>${M(a25.atu - a25.liq)}</b><span>previstos para investimentos em 2025 que não foram executados no ano</span></div>
+      <div><b>${M(A[2].ini)}</b><span>previstos para 2026, quase o dobro de 2025</span></div>
+    </div>
+    ${A.map(x => `<div class="alerta-card">
+      <div class="ac-topo"><span class="ac-tipo">${x.ano} · ${x.obs}</span><span class="ac-valor">${pc(x.liq, x.atu)} feito</span></div>
+      <div class="tp-linha"><div class="tp-tit"><b>Previsto (orçamento atualizado)</b><span>${M(x.atu)}</span></div><span class="tp-barra"><i style="width:100%"></i></span></div>
+      <div class="tp-linha"><div class="tp-tit"><b>Contratado (empenhado)</b><span>${M(x.emp)}</span></div><span class="tp-barra"><i style="width:${(100 * x.emp / x.atu).toFixed(1)}%"></i></span></div>
+      <div class="tp-linha"><div class="tp-tit"><b>Entregue (liquidado)</b><span>${M(x.liq)}</span></div><span class="tp-barra"><i style="width:${(100 * x.liq / x.atu).toFixed(1)}%"></i></span></div>
+      <small class="sub">Orçamento aprovado no início do ano: ${M(x.ini)} · pago: ${M(x.pago)}</small>
+    </div>`).join("")}
+    <p class="cu-perg"><b>Vale perguntar:</b> quais obras previstas em 2025 ficaram para depois? Com só ${pc(A[2].liq, A[2].atu)} entregue até agosto, o orçamento de ${M(A[2].ini)} para 2026 é realista?</p>
+    <div class="info"><b>Como ler:</b> o orçamento costuma crescer durante o ano com créditos adicionais, e o que não é feito em um ano pode virar "resto a pagar" no seguinte; no fim de 2025 o saldo total de restos a pagar da Prefeitura (todas as despesas) era de R$ 40,6 milhões. Obra que atrasa nem sempre é culpa da Prefeitura: há licitações que fracassam, chuvas e recursos de convênio que demoram. 2026 tem só até agosto (o relatório de setembro e outubro ainda não foi publicado). Fonte: <a href="https://siconfi.tesouro.gov.br/" target="_blank" rel="noopener">Siconfi, Tesouro Nacional</a>, RREO, Anexo 1, linha Investimentos.</div>`;
 }
