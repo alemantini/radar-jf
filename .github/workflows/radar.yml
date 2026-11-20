@@ -42,7 +42,7 @@ jobs:
           python-version: "3.12"
 
       - name: Instalar dependências
-        run: pip install requests beautifulsoup4 pillow pypdf
+        run: pip install requests beautifulsoup4 pillow pypdf pdfplumber
 
       - name: Coletar dados na Câmara (se vier incompleto, para aqui e não publica)
         run: python scripts/coletar.py
@@ -133,6 +133,15 @@ jobs:
       - name: Reaproveitar combustível publicado, se a coleta falhar
         if: steps.combustivel.outcome != 'success'
         run: cp /tmp/anterior/dados/combustivel.json site/dados/ || echo "sem versão anterior"
+
+      - name: Câmara, diárias de viagem
+        id: diarias
+        continue-on-error: true
+        run: python scripts/camara_diarias.py
+
+      - name: Reaproveitar diárias publicadas, se a coleta falhar
+        if: steps.diarias.outcome != 'success'
+        run: cp /tmp/anterior/dados/diarias.json site/dados/ || echo "sem versão anterior"
 
       - name: Eleição 2024 (TSE, gerado pelo workflow TSE)
         run: |
