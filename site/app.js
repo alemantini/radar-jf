@@ -740,17 +740,19 @@ const IMOVEIS_CAMARA = {
      aluguel: 18470.99, condominio: 12000, vig: "16/07/2025 a 16/01/2028 (30 meses, 3º termo aditivo ao contrato 01/2020)",
      desde: 2015,
      nota: "Alugado desde julho de 2015. O empenho de julho de 2025 citava aluguel mensal de R$ 18.977,07; o de junho de 2026 reserva 12 parcelas de R$ 18.470,99. O condomínio é estimado em R$ 12.000 por mês.",
-     docs: [["Empenho de julho de 2025", 21636], ["Empenho de junho de 2026", 23328]]},
+     docs: [["1º termo aditivo, 2023 a 2025 (PDF)", "https://www.camarajf.mg.gov.br/transparencia/mostraAnexo.php?t=TERMO%20ADITIVO&cod=88"], ["Empenho de julho de 2025 (3º aditivo, 2025 a 2028)", "https://www.camarajf.mg.gov.br/relatorio.php?cod_relatorio=21636"], ["Empenho de junho de 2026", "https://www.camarajf.mg.gov.br/relatorio.php?cod_relatorio=23328"]],
+     falta: "Os contratos originais de 2015 e 2020 e o 3º termo aditivo (2025 a 2028) não estão anexados no portal; o 3º aditivo só aparece nos empenhos."},
     {nome: "Prédio do INSS: térreo e 5º andar", end: "Rua Marechal Deodoro, 722, Centro", area: "",
      uso: "Setores administrativos da Câmara; no térreo funciona o Serviço de Defesa do Consumidor (Sedecon), cuja conta de luz é paga pela Câmara", dono: "Instituto Nacional do Seguro Social (INSS)",
      aluguel: 9788.29, condominio: 5000, vig: "15/09/2026 a 15/03/2029 (30 meses, 3º termo aditivo ao contrato 01/2021)",
      desde: 2021,
      nota: "Alugado desde setembro de 2021. Na renovação de setembro de 2026 os valores caíram: de março a setembro de 2026 a Câmara reservou R$ 97.882,90 de aluguel e R$ 61.600 de condomínio para seis meses (cerca de R$ 16,3 mil e R$ 10,3 mil por mês); no novo período são R$ 9.788,29 de aluguel e R$ 5.000 de condomínio por mês. Os documentos não dizem o motivo da redução.",
-     docs: [["Empenho de janeiro de 2026", 22521], ["Empenho de setembro de 2026 (renovação)", 23902]]},
+     docs: [["Empenho de janeiro de 2026 (prorrogação 2024 a 2026)", "https://www.camarajf.mg.gov.br/relatorio.php?cod_relatorio=22521"], ["Empenho de setembro de 2026 (3º aditivo, 2026 a 2029)", "https://www.camarajf.mg.gov.br/relatorio.php?cod_relatorio=23902"]],
+     falta: "O contrato 01/2021 não tem PDF anexado no portal, e as prorrogações de 2024 e de 2026 não aparecem na lista de contratos; só se sabe delas pelos empenhos."},
   ],
   outros: [
-    {t: "Vagas de estacionamento para os carros dos vereadores", v: "R$ 71.196,00 por 12 meses", q: "Jamaica Veículos Ltda., contrato 1011/2025, de 15/12/2025 a 14/12/2026. A Câmara aluga vagas desde 2012."},
-    {t: "Espaço em torre de transmissão para a TV Câmara", v: "R$ 132.090,84 (contrato 1063/2026)", q: "JF Sistema de Comunicação Ltda., contrato de 22/10/2026 a 21/10/2031, para antenas e equipamentos da transmissão."},
+    {t: "Vagas de estacionamento para os carros dos vereadores", v: "R$ 71.196,00 por 12 meses", q: "Jamaica Veículos Ltda., contrato 1011/2025, de 15/12/2025 a 14/12/2026 (sem PDF no portal). A Câmara aluga vagas desde 2012.", docs: [["4º aditivo do contrato 733/2021 (PDF)", "https://www.camarajf.mg.gov.br/transparencia/mostraAnexo.php?t=TERMO%20ADITIVO&cod=128"], ["5º aditivo (PDF)", "https://www.camarajf.mg.gov.br/transparencia/mostraAnexo.php?t=TERMO%20ADITIVO&cod=177"]]},
+    {t: "Espaço em torre de transmissão para a TV Câmara", v: "R$ 132.090,84 (contrato 1063/2026)", q: "JF Sistema de Comunicação Ltda., contrato de 22/10/2026 a 21/10/2031, para antenas e equipamentos da transmissão. Antes valia o contrato 741/2021 e seus aditivos.", docs: [["Contrato 1063/2026 (PDF)", "https://www.camarajf.mg.gov.br/transparencia/mostraAnexo.php?t=CONTRATO&cod=311"], ["8º aditivo do contrato 741/2021 (PDF)", "https://www.camarajf.mg.gov.br/transparencia/mostraAnexo.php?t=TERMO%20ADITIVO&cod=248"]]},
   ],
 };
 function pgImoveis() {
@@ -776,12 +778,13 @@ function pgImoveis() {
       <p><b>Uso:</b> ${esc(x.uso)}. <b>Dono:</b> ${esc(x.dono)}.</p>
       <p><small class="sub">Vigência: ${esc(x.vig)}.</small></p>
       <p>${esc(x.nota)}</p>
-      <p><small class="sub">Documentos oficiais: ${x.docs.map(([t, c]) => `<a href="${I.relatorio}${c}" target="_blank" rel="noopener">${esc(t)}</a>`).join(" · ")}</small></p>
+      <p><small class="sub">Documentos oficiais: ${x.docs.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener">${esc(t)}</a>`).join(" · ")}</small></p>
+      ${x.falta ? `<p class="cu-perg"><b>Falta no portal:</b> ${esc(x.falta)}</p>` : ""}
     </div>`).join("")}
     <h2>Outros aluguéis de espaço</h2>
-    ${I.outros.map(o => `<div class="tp-linha"><div class="tp-tit"><b>${esc(o.t)}</b><span>${esc(o.v)}</span></div><small class="sub">${esc(o.q)}</small></div>`).join("")}
+    ${I.outros.map(o => `<div class="tp-linha"><div class="tp-tit"><b>${esc(o.t)}</b><span>${esc(o.v)}</span></div><small class="sub">${esc(o.q)}${o.docs ? " · " + o.docs.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener">${esc(t)}</a>`).join(" · ") : ""}</small></div>`).join("")}
     <p class="sub" style="margin-top:12px"><a href="${I.contratos}" target="_blank" rel="noopener">Ver todos os extratos de contratos no Portal da Transparência da Câmara</a></p>
-    <div class="info"><b>Como ler:</b> "empenho" é o dinheiro reservado para pagar a despesa; o condomínio é estimado e pode variar. Os empenhos registram o aluguel como dispensa de licitação. Alugar não é irregular: a pergunta que fica é se compensa alugar por tantos anos ou ter um prédio próprio, e por que o valor do térreo e 5º andar caiu na renovação de 2026.</div>`;
+    <div class="info"><b>Como ler:</b> "empenho" é o dinheiro reservado para pagar a despesa; o condomínio é estimado e pode variar. Os empenhos registram o aluguel como dispensa de licitação. Alugar não é irregular: a pergunta que fica é se compensa alugar por tantos anos ou ter um prédio próprio, e por que o valor do térreo e 5º andar caiu na renovação de 2026. Pela Lei de Acesso à Informação, os contratos e termos aditivos deveriam estar publicados por inteiro no portal da Câmara.</div>`;
 }
 
 // ---------- Juiz de Fora nos rankings (lista curada à mão, cada item com a fonte) ----------
