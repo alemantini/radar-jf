@@ -195,7 +195,7 @@ jobs:
         continue-on-error: true
         run: python scripts/destaques.py || cp /tmp/anterior/dados/destaques.json site/dados/ || true
 
-      - name: Consertar acentos quebrados nos textos (ex.: AQUISIÃ§Ã£O vira AQUISIÇÃO)
+      - name: Consertar acentos quebrados nos textos da Prefeitura
         run: python scripts/conserta_textos.py site/dados
 
       - name: Páginas fixas para o Google e imagens de compartilhamento
