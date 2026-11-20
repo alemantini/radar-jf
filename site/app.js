@@ -601,9 +601,9 @@ function pgSobre() {
 // ---------- rotas ----------
 const SELO_NOVO = `<span class="selo-novo" aria-label="novo em 2026"><b>novo</b><small>2026</small></span>`;
 // itens recém-lançados ganham o selo "novo 2026" no menu (tirar daqui depois de algumas semanas)
-const NOVOS = new Set(["#/prefeitura/alugueis", "#/imoveis", "#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
+const NOVOS = new Set(["#/diarias", "#/prefeitura/alugueis", "#/imoveis", "#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
 const SUBNAV = {
-  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/obra", "O pedido virou obra?", "predios"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/atas", "Atas", "lupa"], ["#/combustivel", "Combustível", "carro"], ["#/imoveis", "Imóveis alugados", "predios"]],
+  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/obra", "O pedido virou obra?", "predios"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/atas", "Atas", "lupa"], ["#/combustivel", "Combustível", "carro"], ["#/diarias", "Diárias de viagem", "pin"], ["#/imoveis", "Imóveis alugados", "predios"]],
   prefeitura: [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/chuvas", "Dinheiro das chuvas", "alerta"], ["#/prefeitura/emprestimos", "Empréstimos", "dinheiro"], ["#/prefeitura/hospitais", "Hospitais", "coracao"], ["#/prefeitura/creditos", "Orçamento que muda", "repete"], ["#/prefeitura/aditivos", "Aditivos de contratos", "jornal"], ["#/prefeitura/curiosas", "Coisas curiosas", "lupa"], ["#/prefeitura/alugueis", "Imóveis alugados", "predios"], ["#/prefeitura/lupa", "Na lupa", "lupa"], ["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/iptu", "Calculadora do IPTU", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura/comissionados", "Cargos de confiança", "pessoas"], ["#/prefeitura/supersalarios", "Supersalários", "dinheiro"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
 };
 const SELO = {
@@ -787,6 +787,51 @@ function pgImoveis() {
     <div class="info"><b>Como ler:</b> "empenho" é o dinheiro reservado para pagar a despesa; o condomínio é estimado e pode variar. Os empenhos registram o aluguel como dispensa de licitação. Alugar não é irregular: a pergunta que fica é se compensa alugar por tantos anos ou ter um prédio próprio, e por que o valor do térreo e 5º andar caiu na renovação de 2026. Pela Lei de Acesso à Informação, os contratos e termos aditivos deveriam estar publicados por inteiro no portal da Câmara.</div>`;
 }
 
+// ---------- Diárias de viagem pagas pela Câmara (relatórios mensais da Diretoria Administrativa) ----------
+async function pgDiarias(arg) {
+  await carregarResumo();
+  app.innerHTML = `<h1>Diárias de viagem</h1><p class="carregando">Carregando…</p>`;
+  const D = await fetch("dados/diarias.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  if (!D || !(D.viagens || []).length) { app.innerHTML = `<h1>Diárias de viagem</h1><div class="info">Os dados de diárias ainda estão sendo preparados.</div>`; return; }
+  const brl = v => "R$ " + v.toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  const V = D.viagens, ok = V.filter(v => !v.cancelado && v.valor);
+  const anos = [...new Set(V.map(v => v.m.slice(0, 4)))].sort().reverse();
+  const porAno = a => ok.filter(v => v.m.startsWith(a));
+  const semValor = V.filter(v => !v.cancelado && v.valor == null);
+  const ranking = Object.entries(D.por_vereador).filter(([id]) => VER[id]).sort((a, b) => b[1].valor - a[1].valor);
+  const mx = Math.max(...ranking.map(([, p]) => p.valor), 1);
+  const dest = {};
+  ok.forEach(v => { dest[v.destino] = (dest[v.destino] || 0) + 1; });
+  const destTop = Object.entries(dest).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const sel = VER[arg] ? +arg : null;
+  const lista = (sel ? V.filter(v => v.vereadores.some(c => c.id === sel)) : V);
+  const linhaV = v => `<div class="tp-linha">
+      <div class="tp-tit"><b>${dataBR(v.data || v.m + "-01")} · ${esc(v.destino || "destino não informado")}</b><span>${v.cancelado ? "cancelada" : v.valor == null ? "valor não publicado" : brl(v.valor)}</span></div>
+      <small class="sub">${esc(v.cargo)} · diária nº ${esc(v.n)} · ${esc(v.diarias)}${v.vereadores.length ? " · ligada a: " + v.vereadores.map(c => `<a href="#/v/${c.id}">${esc((VER[c.id] || {}).apelido || c.nome)}</a>`).join(", ") : ""}</small>
+      <small class="sub" style="display:block">${esc(v.motivo.split(". A presente")[0].slice(0, 260))} · <a href="${D.relatorio.replace("{}", v.cod)}" target="_blank" rel="noopener">relatório oficial</a></small>
+    </div>`;
+  app.innerHTML = `
+    <h1>Diárias de viagem</h1>
+    <p class="sub">Quando um servidor ou motorista da Câmara viaja a serviço, recebe uma diária para alimentação e hospedagem. A Câmara publica todo mês a lista, com o motivo, o destino e o valor. <b>Os vereadores não recebem diária</b>: muitas viagens são de motoristas que levam ou buscam um vereador, e ele aparece citado no motivo.</p>
+    <div class="faixa-nums">
+      ${anos.map(a => `<div><b>${brl(porAno(a).reduce((s, v) => s + v.valor, 0))}</b><span>em ${porAno(a).length} ${porAno(a).length === 1 ? "diária" : "diárias"} em ${a}${a === anos[0] ? " (até " + nomeMes(V.filter(v => v.m.startsWith(a)).map(v => v.m).sort().pop()) + ")" : ""}</span></div>`).join("")}
+      <div><b>${destTop.length ? esc(destTop[0][0]) : ""}</b><span>destino mais comum (${destTop.length ? destTop[0][1] : 0} diárias)</span></div>
+    </div>
+    <h2>Viagens ligadas a cada vereador</h2>
+    <p class="sub">Soma das diárias de motoristas e servidores em viagens cujo motivo cita o vereador. Toque no nome para ver as viagens.</p>
+    ${ranking.map(([id, p]) => `<div class="tp-linha">
+        <div class="tp-tit"><b><a href="#/diarias/${id}">${esc(VER[id].apelido)}</a></b><span>${brl(p.valor)}</span></div>
+        <span class="tp-barra"><i style="width:${(100 * p.valor / mx).toFixed(1)}%"></i></span>
+        <small class="sub">${p.viagens} ${p.viagens > 1 ? "diárias" : "diária"} · ${Object.entries(p.destinos).sort((a, b) => b[1] - a[1]).map(([d, n]) => `${esc(d)} (${n})`).join(", ")}</small>
+      </div>`).join("")}
+    <h2>Destinos mais comuns</h2>
+    <p>${destTop.map(([d, n]) => `<span class="chip">${esc(d)} · ${n}</span>`).join(" ")}</p>
+    <h2>${sel ? `Viagens ligadas a ${esc(VER[sel].apelido)} <small><a href="#/diarias">(ver todas)</a></small>` : "Todas as diárias, da mais recente para a mais antiga"}</h2>
+    ${lista.map(linhaV).join("")}
+    ${semValor.length ? `<div class="info"><b>Valor não publicado:</b> ${semValor.length} diárias aparecem nos relatórios oficiais sem o valor (por exemplo, as de ${nomeMes(semValor[0].m)}). Não entram nas somas.</div>` : ""}
+    <div class="info"><b>Como ler:</b> os dados vêm dos relatórios mensais de diárias publicados pela Diretoria Administrativa da Câmara, desde janeiro de 2025. Mostramos o cargo de quem recebeu, não o nome do servidor. Uma viagem pode gerar mais de uma diária (motorista e servidor). Passagens aéreas e outras despesas de viagem não aparecem nesses relatórios. Viajar a serviço é permitido por lei (Lei Municipal 13.657/2018); a pergunta é se cada viagem tem motivo público claro. <a href="${D.fonte}" target="_blank" rel="noopener">Página de diárias no Portal da Transparência da Câmara</a>.</div>`;
+}
+
 // ---------- Juiz de Fora nos rankings (lista curada à mão, cada item com a fonte) ----------
 // Para atualizar: troque os números e o ano quando sair edição nova. Mostrar pontos fortes e fracos, sem escolher lado.
 const RANK_JF = [
@@ -873,7 +918,7 @@ async function rota() {
   const h = location.hash.replace(/^#\/?/, "");
   const partes = h.split("/").map(decodeURIComponent);
   const pag = partes[0], arg = partes.slice(1).join("/");
-  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende", "quente", "obra", "combustivel", "imoveis"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
+  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende", "quente", "obra", "combustivel", "imoveis", "diarias"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
   document.querySelectorAll("nav.areas a").forEach(a => a.classList.toggle("ativo", a.dataset.area === area));
   const sub = document.getElementById("subnav");
   const atual = "#/" + h;
@@ -895,6 +940,7 @@ async function rota() {
     else if (pag === "quente") await pgQuente(arg);
     else if (pag === "obra") await pgPedidoObra(arg);
     else if (pag === "combustivel") await pgCombustivel(arg);
+    else if (pag === "diarias") await pgDiarias(arg);
     else if (pag === "imoveis") pgImoveis();
     else if (pag === "resumo") await pgResumo();
     else if (pag === "rankings") pgRankings();
