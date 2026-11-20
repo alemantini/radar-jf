@@ -1093,6 +1093,11 @@ async function pgAditivos(aba) {
 const CURIOSAS = {
   dados_ate: "2026-11-06",
   itens: [
+    {t: "Vigilância eletrônica do prédio do novo HPS, sem licitação", v: "valor não publicado", ic: "alerta",
+     d: "A Prefeitura contratou sem licitação, por emergência (art. 75, inciso VIII, da Lei 14.133/2021), segurança eletrônica para a área do novo Hospital de Pronto Socorro, o antigo Hospital Regional: câmeras termográficas, videomonitoramento inteligente, central de monitoramento 24 horas e integração com a Guarda Municipal. O ato foi firmado em 12/11/2026 e publicado no Diário Oficial em 14/11. A vigilância do prédio era feita pelo Estado, que encerrou o contrato da empresa de segurança em setembro, segundo a Tribuna de Minas.",
+     q: "Qual é o valor e o prazo do contrato? O ato publicado não informa. Se o Estado saiu em setembro, por que a contratação só saiu em novembro, e por emergência?",
+     emp: "Dispensa 105/2026, processo eletrônico 9.918/2026", org: "Secretaria de Saúde", forn: "Torre Segurança Eletrônica e Monitoramento Ltda.",
+     link: ["https://www.pjf.mg.gov.br/e_atos/e_atos_vis.php?id=147915", "ver o ato no Diário Oficial ›"]},
     {t: "Bonés para os agentes de trânsito", v: "R$ 134.277,80", ic: "pessoas",
      d: "Um único empenho de março de 2026, já pago, com a descrição \"boné branco (agentes)\". Em agosto há mais R$ 458 em bonés pretos para os técnicos.",
      q: "A descrição publicada fala só em bonés. Quantos foram comprados e por qual preço? O empenho inclui outras peças de uniforme?",
@@ -1114,13 +1119,13 @@ const CURIOSAS = {
 function pgCuriosas() {
   app.innerHTML = `
     <h1>Coisas curiosas</h1>
-    <p class="sub">Gastos pequenos ou inusitados da Prefeitura que chamam a atenção. Não são irregularidades: são curiosidades que mostram como o dinheiro é usado no dia a dia. Cada número foi conferido nos empenhos do Portal da Transparência (dados até ${dataBR(CURIOSAS.dados_ate)}).</p>
+    <p class="sub">Gastos e contratações da Prefeitura que chamam a atenção. Não são irregularidades: são curiosidades que mostram como o dinheiro é usado no dia a dia. Cada informação foi conferida nos empenhos do Portal da Transparência (dados até ${dataBR(CURIOSAS.dados_ate)}) ou no Diário Oficial.</p>
     ${CURIOSAS.itens.map(x => `<div class="alerta-card">
       <div class="ac-topo"><span class="ac-tipo">${ic(x.ic)} ${esc(x.org)}</span><span class="ac-valor">${esc(x.v)}</span></div>
       <b class="ac-nome">${esc(x.t)}</b>
       <p>${esc(x.d)}</p>
       <p class="cu-perg"><b>Vale perguntar:</b> ${esc(x.q)}</p>
-      <p><small class="sub">Empenho: ${esc(x.emp)} · Fornecedor: ${esc(x.forn)} · <a href="#/prefeitura/busca/${x.busca[0]}/${encodeURIComponent(x.busca[1])}">ver os lançamentos na busca de gastos ›</a></small></p>
+      <p><small class="sub">${x.link ? "Documento" : "Empenho"}: ${esc(x.emp)} · ${x.link ? "Contratada" : "Fornecedor"}: ${esc(x.forn)} · ${x.link ? `<a href="${esc(x.link[0])}" target="_blank" rel="noopener">${esc(x.link[1])}</a>` : `<a href="#/prefeitura/busca/${x.busca[0]}/${encodeURIComponent(x.busca[1])}">ver os lançamentos na busca de gastos ›</a>`}</small></p>
     </div>`).join("")}
     <div class="info">"Reservado" (empenhado) é o dinheiro separado para a despesa; "pago" é o que já saiu do caixa. Viu algo curioso nos gastos? Mande pelo botão do WhatsApp que a gente confere e pode entrar aqui.</div>`;
 }
