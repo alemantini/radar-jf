@@ -406,6 +406,7 @@ async function rotaPrefeitura(p) {
   if (sub === "creditos") return pgCreditos(a);
   if (sub === "aditivos") return pgAditivos(a);
   if (sub === "curiosas") return pgCuriosas();
+  if (sub === "alugueis") return pgAlugueisPJF();
   return pgPrefInicio();
 }
 
@@ -1120,4 +1121,76 @@ function pgCuriosas() {
       <p><small class="sub">Empenho: ${esc(x.emp)} · Fornecedor: ${esc(x.forn)} · <a href="#/prefeitura/busca/${x.busca[0]}/${encodeURIComponent(x.busca[1])}">ver os lançamentos na busca de gastos ›</a></small></p>
     </div>`).join("")}
     <div class="info">"Reservado" (empenhado) é o dinheiro separado para a despesa; "pago" é o que já saiu do caixa. Viu algo curioso nos gastos? Mande pelo botão do WhatsApp que a gente confere e pode entrar aqui.</div>`;
+}
+
+// ---------- Imóveis alugados pela Prefeitura (lista curada; valores conferidos nos empenhos do Portal da Transparência) ----------
+// pago = pago em 2026 até a data dos dados, nos empenhos de aluguel daquele locador. Para atualizar, conferir de novo.
+const ALUGUEIS_PJF = {
+  dados_ate: "2026-11-06",
+  hps: {mensal: 217460.73, mensal_antes: 208810.14, pago_2026: 1896592.44, atrasado_2025: 626430.42, locador: "Cotresa S/A", doc: "21.557.889/0001-82"},
+  lista: [
+    ["Esdeva (Associação Propagadora Esdeva)", "Av. Barão do Rio Branco, 3.520, Passos", "Secretaria de Turismo (endereço que a própria secretaria usa nos editais; o valor inclui parcelas de 2025 pagas em 2026)", 480000.00],
+    ["Instituto Educacional Allan Kardec", "Rua Almirante Barroso, 155, Paineiras", "Escola Municipal Nilo Camilo Ayupe", 249329.22],
+    ["Ribeiro & Arrabal Negócios Imobiliários", "dois imóveis", "CRAS Sul (Ipiranga) e Centro POP, para a população em situação de rua", 235304.92],
+    ["Pattaya Gestão Imobiliária", "Rua Marechal Deodoro, 230, salas", "Plano de saúde dos servidores (PAS) e Cursos Populares para Concursos (CPC)", 180609.45],
+    ["Aldeias Infantis SOS Brasil", "Av. Juiz de Fora, 667, Grama", "Escola Municipal Georg Rodenbach", 176096.50],
+    ["Asa Gestão Patrimonial", "Rua Espírito Santo, 521, Centro", "Escolas Santa Catarina Labouré e Murilo Mendes, depois que a Defesa Civil interditou os prédios", 164000.00],
+    ["Pirâmide Imobiliária", "Av. Brasil, 560, Centro", "Arquivo Histórico da Prefeitura e outros setores (inclui R$ 137,6 mil do aluguel de setembro a dezembro de 2025, pago em 2026, e IPTU)", 254209.54],
+    ["Universal Imóveis", "dois imóveis, um na Rua Marechal Floriano Peixoto, 768/778", "CREAS Norte e CAPS II Leste", 112400.00],
+    ["Dex Participações", "Costa Carvalho", "CRAS Sudeste", 101379.05],
+    ["Dinda e Netos Sociedade Imobiliária", "Rua Gilberto de Alencar, 26, Centro", "CAPS III AD (álcool e drogas)", 95200.00],
+    ["Farias Empresarial", "Rua Marechal Deodoro, 57, 2º e 3º andares", "Escola Municipal Adenilde Petrina Bispo (Santa Cândida)", 88220.00],
+    ["Conselho Central Diocesano (SSVP)", "Rua Paulo Garcia, 627, Benfica", "Escola Municipal Maria das Dores Lizardo", 78146.40],
+    ["B2M Participações", "Rua Carlos Chagas, 57, São Mateus", "CAPS IJ (atendimento psicossocial infantojuvenil)", 73728.00],
+    ["S Caetano Construtora", "Rua Dom Pedro II, 222, Mariano Procópio", "CAEE Centro (atendimento educacional especializado)", 64838.87],
+    ["Cap Participações", "Linhares", "CRAS Leste", 56640.00],
+    ["Líder Negócios Imobiliários", "Av. Presidente Itamar Franco, 982, Centro", "Farmácia Central (abastecimento de medicamentos)", 56600.35],
+    ["Martins Oliveira Imobiliária", "Rua Marília, 303, Benfica", "Casa de Leitura Delfina Fonseca Lima", 38414.85],
+    ["Almar Imóveis", "Rua Porto das Flores, 276, Santa Luzia", "Secretaria de Desenvolvimento Urbano (Sedupp)", 32320.72],
+    ["Fábrica de Tecidos São João Evangelista", "Rua Coronel Assis, 15, Floresta", "Escola Municipal Carolina de Assis", 31726.26],
+    ["Igreja Batista do Ipiranga", "Rua Capitão Antônio Carias, 36, Ipiranga", "Anexo da Escola Municipal Jardim de Alá", 28574.70],
+    ["Mitra Arquidiocesana de Juiz de Fora", "Rua Raulina Magalhães, 40, Grajaú", "Escola Municipal Antônio Faustino", 27166.67],
+    ["Centauro Administração de Imóveis", "Rua Abílio Gomes, 33, Francisco Bernardino", "Regional Nordeste de fiscalização da Sedupp", 26408.82],
+    ["DDJ Participações", "Linhares", "CRAS Leste (parcelas de 2025 pagas em 2026)", 21328.00],
+    ["Instituto Jesus", "Rua Inácio Gama, 813, Nossa Senhora de Lourdes", "UBS do bairro de Lourdes", 17618.65],
+    ["R. A. Arbex Gestão Imobiliária", "Av. Sete de Setembro, 768, Costa Carvalho", "Secretaria de Segurança Pública", 11269.54],
+    ["HGD Empreendimentos Imobiliários", "Av. Barão do Rio Branco, 2.390, salas 1801 a 1808", "JFPREV (previdência dos servidores)", 10000.00],
+    ["Construtora Vankur", "Rua José Lourenço Kelmer, 1.300, sala 203, São Pedro", "Sedupp", 6000.00],
+    ["Big Ben Administração de Imóveis", "Av. Presidente Itamar Franco, 996, Centro", "Procon (Agência de Proteção e Defesa do Consumidor)", 3000.00],
+  ],
+};
+function pgAlugueisPJF() {
+  const A = ALUGUEIS_PJF, H = A.hps;
+  const brl = v => "R$ " + v.toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  const tot = A.lista.reduce((s, x) => s + x[3], 0) + H.pago_2026 + H.atrasado_2025;
+  const mx = Math.max(...A.lista.map(x => x[3]));
+  app.innerHTML = `
+    <h1>Imóveis alugados pela Prefeitura</h1>
+    <p class="sub">Prédios e salas que a Prefeitura aluga para escolas, postos de saúde, CRAS, CAPS e secretarias, com o valor pago em 2026 (até ${dataBR(A.dados_ate)}). Cada valor foi conferido nos empenhos do Portal da Transparência. Não inclui o aluguel social pago às famílias.</p>
+    <div class="faixa-nums">
+      <div><b>${reaisCurto(tot)}</b><span>pagos em aluguel de imóveis em 2026 nos imóveis desta lista</span></div>
+      <div><b>${A.lista.length + 1}</b><span>locadores diferentes</span></div>
+      <div><b>${brl(H.mensal)}</b><span>é o aluguel de um único prédio: o do HPS</span></div>
+    </div>
+    <div class="alerta-card">
+      <div class="ac-topo"><span class="ac-tipo">Secretaria de Saúde · dispensa de licitação 125/2022</span><span class="ac-valor">${brl(H.mensal)}/mês</span></div>
+      <b class="ac-nome">Hospital de Pronto Socorro (HPS) Dr. Mozart Geraldo Teixeira</b>
+      <p>O prédio onde funcionam o HPS e o Departamento de Internação Domiciliar é alugado da empresa ${esc(H.locador)} (CNPJ ${esc(H.doc)}). Desde agosto de 2026, com o reajuste feito na prorrogação do contrato, o aluguel é de ${brl(H.mensal)} por mês (antes eram ${brl(H.mensal_antes)}), cerca de ${reaisCurto(H.mensal * 12)} por ano. É, de longe, o maior aluguel da Prefeitura.</p>
+      <div class="nb-conta">
+        <div><small>Aluguéis de 2026 já pagos</small><b>${brl(H.pago_2026)}</b></div>
+        <div><small>Três parcelas de 2025 pagas só em 2026</small><b>${brl(H.atrasado_2025)}</b></div>
+        <div><small>Total pago em 2026</small><b>${brl(H.pago_2026 + H.atrasado_2025)}</b></div>
+      </div>
+      <p class="cu-perg"><b>Vale perguntar:</b> há quantos anos o HPS funciona em prédio alugado? Quanto custaria ter um prédio próprio? Por que parcelas de 2025 só foram pagas em 2026?</p>
+      <p><small class="sub"><a href="#/prefeitura/busca/2026/Cotresa">Ver os pagamentos à Cotresa na busca de gastos ›</a></small></p>
+    </div>
+    <h2>Os outros imóveis alugados</h2>
+    ${A.lista.slice().sort((a, b) => b[3] - a[3]).map(([loc, end, uso, v]) => `
+      <div class="tp-linha">
+        <div class="tp-tit"><b>${esc(uso)}</b><span>${brl(v)}</span></div>
+        <span class="tp-barra"><i style="width:${(100 * v / mx).toFixed(1)}%"></i></span>
+        <small class="sub">${esc(end)} · locador: <a href="#/prefeitura/busca/2026/${encodeURIComponent(loc.split(" (")[0])}">${esc(loc)}</a></small>
+      </div>`).join("")}
+    <div class="info"><b>Lei da placa:</b> desde setembro de 2026, uma lei municipal proposta pela vereadora Roberta Lopes e sancionada pela prefeita obriga os imóveis alugados pela Prefeitura a exibir na entrada o valor mensal do aluguel, o dono ou a imobiliária, a vigência do contrato e o que funciona no local. <a href="https://www.acessa.com/cidade/2026/09/340757-juiz-de-fora-passa-a-exigir-valor-da-locacao-na-porta-de-predios-publicos.html" target="_blank" rel="noopener">Notícia no Acessa.com</a>. Passou por um desses prédios? Veja se a placa está lá.</div>
+    <div class="info"><b>Como ler:</b> os valores são o que foi pago em 2026 até ${dataBR(A.dados_ate)}, e alguns incluem parcelas atrasadas de 2025. Alugar imóvel para serviço público é permitido e muitas vezes necessário, como quando a Defesa Civil interdita uma escola. Alguns empenhos de aluguel aparecem no Portal sem o nome do locador e ficaram fora desta lista. Desde 18/11/2026 o site da Prefeitura recusa o acesso do nosso robô, por isso os dados param em ${dataBR(A.dados_ate)}.</div>`;
 }
