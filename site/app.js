@@ -1,4 +1,37 @@
 "use strict";
+// ---------- E-mail: no computador, mailto: só funciona com programa de e-mail instalado. Mostramos opções. ----------
+function abrirEmail(para, assunto, corpo) {
+  assunto = assunto || ""; corpo = corpo || "";
+  const q = (k, v) => v ? `&${k}=${encodeURIComponent(v)}` : "";
+  const gmail = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(para)}${q("su", assunto)}${q("body", corpo)}`;
+  const outlook = `https://outlook.live.com/mail/0/deeplink/compose?to=${encodeURIComponent(para)}${q("subject", assunto)}${q("body", corpo)}`;
+  const app = `mailto:${para}?${q("subject", assunto).slice(1)}${q("body", corpo)}`;
+  let d = document.getElementById("dlg-email");
+  if (!d) { d = document.createElement("dialog"); d.id = "dlg-email"; document.body.appendChild(d); }
+  const e = t => String(t).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+  d.innerHTML = `<form method="dialog" class="dlg-email">
+    <b>Enviar e-mail para</b>
+    <div class="de-end"><span>${e(para)}</span><button type="button" class="btn-sec de-copiar">Copiar</button></div>
+    ${assunto ? `<small>Assunto: ${e(assunto)}</small>` : ""}
+    <a class="btn-sec" href="${e(gmail)}" target="_blank" rel="noopener">Abrir no Gmail</a>
+    <a class="btn-sec" href="${e(outlook)}" target="_blank" rel="noopener">Abrir no Outlook / Hotmail</a>
+    <a class="btn-sec" href="${e(app)}">Usar o aplicativo de e-mail do aparelho</a>
+    <button class="de-fechar" value="x">Fechar</button>
+  </form>`;
+  d.querySelector(".de-copiar").onclick = ev => {
+    const b = ev.target, ok = () => { b.textContent = "Copiado!"; };
+    if (navigator.clipboard) navigator.clipboard.writeText(para).then(ok, () => prompt("Copie o e-mail:", para)); else prompt("Copie o e-mail:", para);
+  };
+  d.querySelectorAll("a").forEach(a => a.addEventListener("click", () => setTimeout(() => d.close(), 300)));
+  if (d.showModal) d.showModal(); else location.href = app;
+}
+document.addEventListener("click", ev => {
+  const a = ev.target.closest && ev.target.closest('a[href^="mailto:"]');
+  if (!a || a.closest("#dlg-email")) return;
+  ev.preventDefault();
+  const u = new URL(a.href);
+  abrirEmail(decodeURIComponent(u.pathname), u.searchParams.get("subject") || "", u.searchParams.get("body") || "");
+});
 const FONTE = id => `https://www.camarajf.mg.gov.br/sal/proposicaon.php?num=${id}`;
 const BUSCA_CAMARA = "https://www.camarajf.mg.gov.br/sal/buscapropos.php";
 const ORDEM = ["pedidos", "cobrancas", "homenagens", "leis", "outros"];
@@ -188,7 +221,7 @@ function painelCobrar(r, ps) {
       box.querySelector(".b-email").style.display = v.email_gabinete ? "" : "none";
     };
     sel.onchange = atualiza; atualiza();
-    box.querySelector(".b-email").onclick = () => { const v = atual(); location.href = `mailto:${v.email_gabinete}?subject=${encodeURIComponent("Pedido repetido: " + r.r)}&body=${encodeURIComponent(txt.value)}`; };
+    box.querySelector(".b-email").onclick = () => { const v = atual(); abrirEmail(v.email_gabinete, "Pedido repetido: " + r.r, txt.value); };
     box.querySelector(".b-zap").onclick = () => window.open(`https://wa.me/?text=${encodeURIComponent(txt.value)}`, "_blank", "noopener");
     box.querySelector(".b-copiar").onclick = async e => { try { await navigator.clipboard.writeText(txt.value); e.target.textContent = "Mensagem copiada"; } catch (_) { txt.select(); } };
   });
