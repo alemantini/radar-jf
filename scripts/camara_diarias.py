@@ -26,9 +26,10 @@ UA = {"User-Agent": "RadarJF/1.0 (robo de transparencia; codigo aberto em https:
 CACHE = RAIZ / "data" / "cache" / "diarias.json"
 SAIDA = RAIZ / "site" / "dados" / "diarias.json"
 INICIO = "2025-01"
+VERSAO = 2  # muda quando a leitura do PDF muda, para reler tudo
 REVER = 2
 MESES = ["janeiro", "fevereiro", "marco", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
-NUMERO = re.compile(r"^\s*(\d{1,3})\s*/\s*(20\d\d)\s*$")
+NUMERO = re.compile(r"^\s*(\d{1,3})(?:\s*/\s*(20\d\d))?\s*$")  # "42/2026" ou só "65"
 STOP = {"dr", "de", "da", "do", "dos", "das", "e", "para", "ate", "no", "na", "ao", "que", "com", "em", "a", "o", "ate", "junto", "sr", "sra"}
 
 
@@ -72,7 +73,7 @@ def valor(s):
     return float(m.group(1).replace(".", "").replace(",", ".")), False
 
 
-def ler(cod):
+def ler(cod, ano):
     import pdfplumber
     r = get(B + "relatorio.php", params={"cod_relatorio": cod})
     if not r or r.content[:4] != b"%PDF":
@@ -89,7 +90,7 @@ def ler(cod):
                     m = NUMERO.match(num)
                     if m:
                         v, canc = valor(val)
-                        regs.append({"n": f"{int(m.group(1))}/{m.group(2)}", "data": data, "motivo": motivo, "local": local,
+                        regs.append({"n": f"{int(m.group(1))}/{m.group(2) or ano}", "data": data, "motivo": motivo, "local": local,
                                      "quem": quem, "valor": v, "cancelado": canc, "diarias": dias})
                     elif regs and any([data, motivo, dias]):
                         # continuação da linha anterior (a tabela quebrou de página)
@@ -119,7 +120,7 @@ def vereadores():
 
 def citados(motivo, VER):
     """Vereadores citados no motivo, no formato 'vereador(a) Fulano de Tal'."""
-    t = sa(motivo)
+    t = sa(motivo).replace("thiago", "tiago")
     achados = []
     for m in re.finditer(r"vereador(?:a|es|as)?\s+((?:dr\.?\s+)?[a-z]+(?:\s+(?:da |de |do )?[a-z]+){0,2})", t):
         nome = m.group(1)
@@ -136,6 +137,8 @@ def citados(motivo, VER):
                     break
             if vid:
                 break
+        if vid is None and (len(toks) < 2 or {"camara", "municipal", "juiz", "fora"} & set(toks)):
+            continue
         achados.append({"id": vid, "nome": " ".join(w.capitalize() for w in toks[:3])})
     vistos, out = set(), []
     for a in achados:
@@ -146,11 +149,24 @@ def citados(motivo, VER):
     return out
 
 
+UFS = r"(MG|RJ|SP|DF|ES|BA|GO|PR|SC|RS)"
+
+
+def destino(s):
+    s = re.sub(r"([a-zà-ú])([A-ZÀ-Ú])", r"\1 \2", s or "")
+    s = re.sub(r"\s*[-–]\s*" + UFS + r"\b\.?", "", s)
+    s = re.sub(r"\s*/\s*" + UFS + r"\b\.?", "", s)
+    s = limpa(s).strip(" .-–")
+    pal = [w.lower() if w.lower() in ("de", "do", "da", "dos", "das") else w[:1].upper() + w[1:].lower() for w in s.split()]
+    return " ".join(pal)
+
+
 def cargo(quem):
     m = re.search(r"\(([^)]+)\)", quem)
     c = limpa(m.group(1)) if m else ""
     c = c.rstrip(". ")
-    return c[:1].upper() + c[1:].lower() if c.isupper() else c
+    c = c[:1].upper() + c[1:].lower() if c.isupper() else c
+    return c or "Servidor(a)"
 
 
 def main():
@@ -166,11 +182,11 @@ def main():
     if not meses and not cache:
         sys.exit("sem lista de relatórios de diárias")
     for i, (m, cod) in enumerate(meses):
-        if m in cache and i >= REVER and cache[m].get("cod") == cod:
+        if m in cache and i >= REVER and cache[m].get("cod") == cod and cache[m].get("v") == VERSAO:
             continue
-        d = ler(cod)
+        d = ler(cod, m[:4])
         if d is not None:
-            cache[m] = {"cod": cod, "regs": d}
+            cache[m] = {"cod": cod, "v": VERSAO, "regs": d}
             print(f"  {m}: {len(d)} diárias")
         time.sleep(1)
     CACHE.parent.mkdir(parents=True, exist_ok=True)
@@ -187,7 +203,7 @@ def main():
             dm = re.search(r"(\d\d)/(\d\d)/(20\d\d)", g["data"])
             viagens.append({
                 "m": m, "n": g["n"], "data": f"{dm.group(3)}-{dm.group(2)}-{dm.group(1)}" if dm else "",
-                "destino": g["local"].rstrip(". "), "cargo": cargo(g["quem"]), "motorista": "motorista" in sa(g["quem"]),
+                "destino": destino(g["local"]), "cargo": cargo(g["quem"]), "motorista": "motorista" in sa(g["quem"]),
                 "valor": g["valor"], "cancelado": g["cancelado"], "diarias": g["diarias"][:80],
                 "motivo": g["motivo"][:400], "vereadores": cit, "cod": cache[m]["cod"],
             })
@@ -197,7 +213,7 @@ def main():
                         p = por_ver.setdefault(str(c["id"]), {"viagens": 0, "valor": 0.0, "destinos": {}})
                         p["viagens"] += 1
                         p["valor"] = round(p["valor"] + g["valor"], 2)
-                        dest = g["local"].rstrip(". ")
+                        dest = destino(g["local"])
                         p["destinos"][dest] = p["destinos"].get(dest, 0) + 1
     if sem_id:
         print("  vereadores citados sem identificação:", sorted(sem_id), file=sys.stderr)
