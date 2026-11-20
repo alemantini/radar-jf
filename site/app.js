@@ -803,6 +803,12 @@ async function pgDiarias(arg) {
   const dest = {};
   ok.forEach(v => { dest[v.destino] = (dest[v.destino] || 0) + 1; });
   const destTop = Object.entries(dest).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const maior = ok.slice().sort((a, b) => b.valor - a.valor)[0];
+  const empate = maior ? ok.filter(v => v.valor === maior.valor).length - 1 : 0;
+  const maiorVer = ok.filter(v => v.vereadores.length).sort((a, b) => b.valor - a.valor)[0];
+  const freq = {};
+  ok.forEach(v => { freq[v.valor] = (freq[v.valor] || 0) + 1; });
+  const comum = +Object.entries(freq).sort((a, b) => b[1] - a[1])[0][0];
   const sel = VER[arg] ? +arg : null;
   const lista = (sel ? V.filter(v => v.vereadores.some(c => c.id === sel)) : V);
   const linhaV = v => `<div class="tp-linha">
@@ -817,6 +823,15 @@ async function pgDiarias(arg) {
       ${anos.map(a => `<div><b>${brl(porAno(a).reduce((s, v) => s + v.valor, 0))}</b><span>em ${porAno(a).length} ${porAno(a).length === 1 ? "diária" : "diárias"} em ${a}${a === anos[0] ? " (até " + nomeMes(V.filter(v => v.m.startsWith(a)).map(v => v.m).sort().pop()) + ")" : ""}</span></div>`).join("")}
       <div><b>${destTop.length ? esc(destTop[0][0]) : ""}</b><span>destino mais comum (${destTop.length ? destTop[0][1] : 0} diárias)</span></div>
     </div>
+    ${maior ? `<div class="alerta-card">
+      <div class="ac-topo"><span class="ac-tipo">A maior diária desde 2025${empate ? " (empatada)" : ""} · ${dataBR(maior.data || maior.m + "-01")}</span><span class="ac-valor">${brl(maior.valor)}</span></div>
+      <b class="ac-nome">${esc(maior.destino)}${maior.vereadores.length ? " com " + maior.vereadores.map(c => esc((VER[c.id] || {}).apelido || c.nome)).join(" e ") : ""}</b>
+      <p>${esc(maior.motivo.split(". A presente")[0].slice(0, 300))}.</p>
+      <p><small class="sub">Recebeu: ${esc(maior.cargo)} · ${esc(maior.diarias)} · diária nº ${esc(maior.n)}${maior.vereadores.length ? " · " + maior.vereadores.map(c => `<a href="#/diarias/${c.id}">ver as viagens de ${esc((VER[c.id] || {}).apelido || c.nome)}</a>`).join(" · ") : ""} · <a href="${D.relatorio.replace("{}", maior.cod)}" target="_blank" rel="noopener">relatório oficial</a></small></p>
+      ${empate ? `<p><small class="sub">Há mais ${empate} ${empate > 1 ? "diárias" : "diária"} com o mesmo valor: ${ok.filter(v => v.valor === maior.valor && v !== maior).map(v => `${esc(v.cargo)} (${nomeMes(v.m)})`).join(", ")}.</small></p>` : ""}
+      ${maiorVer && maiorVer !== maior ? `<p><b>A maior ligada a um vereador:</b> ${brl(maiorVer.valor)} em ${nomeMes(maiorVer.m)}, ${esc(maiorVer.diarias.split(",")[0])}, para o ${esc(maiorVer.cargo.toLowerCase())} ir a ${esc(maiorVer.destino)} com ${maiorVer.vereadores.map(c => `<a href="#/diarias/${c.id}">${esc((VER[c.id] || {}).apelido || c.nome)}</a>`).join(" e ")}. <a href="${D.relatorio.replace("{}", maiorVer.cod)}" target="_blank" rel="noopener">Relatório oficial</a>.</p>` : ""}
+      <p class="cu-perg">Para comparar: a diária mais comum é de ${brl(comum)}, para ir e voltar no mesmo dia.</p>
+    </div>` : ""}
     <h2>Viagens ligadas a cada vereador</h2>
     <p class="sub">Soma das diárias de motoristas e servidores em viagens cujo motivo cita o vereador. Toque no nome para ver as viagens.</p>
     ${ranking.map(([id, p]) => `<div class="tp-linha">
