@@ -191,6 +191,10 @@ jobs:
         continue-on-error: true
         run: python scripts/camara_atas.py --so-gerar || cp /tmp/anterior/dados/atas.json site/dados/ || true
 
+      - name: Câmara, votos nos projetos da prefeita (lidos nas atas)
+        continue-on-error: true
+        run: python scripts/camara_executivo.py || cp /tmp/anterior/dados/executivo.json site/dados/ || true
+
       - name: Destaques da página inicial
         continue-on-error: true
         run: python scripts/destaques.py || cp /tmp/anterior/dados/destaques.json site/dados/ || true

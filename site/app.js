@@ -634,9 +634,9 @@ function pgSobre() {
 // ---------- rotas ----------
 const SELO_NOVO = `<span class="selo-novo" aria-label="novo em 2026"><b>novo</b><small>2026</small></span>`;
 // itens recém-lançados ganham o selo "novo 2026" no menu (tirar daqui depois de algumas semanas)
-const NOVOS = new Set(["#/prefeitura/previdencia", "#/prefeitura/obras", "#/votacoes", "#/diarias", "#/prefeitura/alugueis", "#/imoveis", "#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
+const NOVOS = new Set(["#/prefeita", "#/prefeitura/previdencia", "#/prefeitura/obras", "#/votacoes", "#/diarias", "#/prefeitura/alugueis", "#/imoveis", "#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
 const SUBNAV = {
-  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/obra", "O pedido virou obra?", "predios"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/votacoes", "Como votaram", "balanca"], ["#/atas", "Atas", "lupa"], ["#/combustivel", "Combustível", "carro"], ["#/diarias", "Diárias de viagem", "pin"], ["#/imoveis", "Imóveis alugados", "predios"]],
+  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/obra", "O pedido virou obra?", "predios"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/votacoes", "Como votaram", "balanca"], ["#/prefeita", "Com a prefeita ou contra?", "balanca"], ["#/atas", "Atas", "lupa"], ["#/combustivel", "Combustível", "carro"], ["#/diarias", "Diárias de viagem", "pin"], ["#/imoveis", "Imóveis alugados", "predios"]],
   prefeitura: [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/chuvas", "Dinheiro das chuvas", "alerta"], ["#/prefeitura/previdencia", "Previdência: multas e atrasos", "alerta"], ["#/prefeitura/obras", "Obras: previsto x feito", "predios"], ["#/prefeitura/emprestimos", "Empréstimos", "dinheiro"], ["#/prefeitura/hospitais", "Hospitais", "coracao"], ["#/prefeitura/creditos", "Orçamento que muda", "repete"], ["#/prefeitura/aditivos", "Aditivos de contratos", "jornal"], ["#/prefeitura/curiosas", "Coisas curiosas", "lupa"], ["#/prefeitura/alugueis", "Imóveis alugados", "predios"], ["#/prefeitura/lupa", "Na lupa", "lupa"], ["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/iptu", "Calculadora do IPTU", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura/comissionados", "Cargos de confiança", "pessoas"], ["#/prefeitura/supersalarios", "Supersalários", "dinheiro"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
 };
 const SELO = {
@@ -821,6 +821,56 @@ function pgImoveis() {
 }
 
 // ---------- Diárias de viagem pagas pela Câmara (relatórios mensais da Diretoria Administrativa) ----------
+async function pgExecutivo(arg) {
+  await carregarResumo();
+  app.innerHTML = `<h1>Com a prefeita ou contra?</h1><p class="carregando">Carregando…</p>`;
+  const D = await fetch("dados/executivo.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  if (!D || !(D.projetos || []).length) { app.innerHTML = `<h1>Com a prefeita ou contra?</h1><div class="info">Os dados ainda estão sendo preparados.</div>`; return; }
+  const P = D.projetos, N = P.length, porMsg = {};
+  P.forEach(p => porMsg[p.msg] = p);
+  const nomeV = id => (VER[id] || {}).apelido || "vereador";
+  const linhas = Object.entries(D.por_vereador).filter(([id]) => VER[id]).map(([id, x]) => ({v: VER[id], c: x.contra.length, a: x.abst.length, lista: x.contra, abst: x.abst}))
+    .sort((a, b) => b.c - a.c || b.a - a.a || a.v.apelido.localeCompare(b.v.apelido));
+  const nunca = linhas.filter(l => !l.c);
+  const algum = linhas.filter(l => l.c);
+  const comContra = P.filter(p => p.votos.some(v => v.contra.length)).length;
+  const sel = VER[arg] ? +arg : null;
+  const projLinha = p => {
+    const ult = p.votos[p.votos.length - 1];
+    const contra = [...new Set(p.votos.flatMap(v => v.contra))], abst = [...new Set(p.votos.flatMap(v => v.abst))];
+    return `<div class="tp-linha">
+      <div class="tp-tit"><b>Mensagem ${esc(p.msg)}</b><span>${p.votos.some(v => v.res === "rejeitado") ? "rejeitado" : "aprovado"}</span></div>
+      <small class="sub" style="display:block">${esc(p.titulo.charAt(0).toUpperCase() + p.titulo.slice(1))}</small>
+      <small class="sub" style="display:block">${contra.length ? "Votaram contra: " + contra.map(id => `<a href="#/prefeita/${id}">${esc(nomeV(id))}</a>`).join(", ") : "Nenhum voto contrário registrado"}${abst.length ? " · Abstenção: " + abst.map(nomeV).map(esc).join(", ") : ""}</small>
+      <small class="sub" style="display:block">${p.votos.map(v => `<a href="${D.ata_url.replace("{}", v.ata)}" target="_blank" rel="noopener">${dataBR(v.data)}, ${esc(v.disc)}</a>`).join(" · ")}</small></div>`;
+  };
+  const lsel = sel ? linhas.find(l => l.v.id === sel) : null;
+  app.innerHTML = `
+    <h1>Com a prefeita ou contra?</h1>
+    <p class="sub">Como cada vereador votou nos projetos que a prefeita Margarida Salomão enviou à Câmara (as "Mensagens do Executivo"), desde o início desta legislatura, em janeiro de 2025. Os votos foram lidos nas atas oficiais das reuniões, que registram pelo nome quem votou contra. Última ata aprovada: ${dataBR(D.ultima_ata)}.</p>
+    <div class="faixa-nums">
+      <div><b>${N}</b><span>projetos da prefeita votados no plenário</span></div>
+      <div><b>${N - comContra}</b><span>aprovados sem nenhum voto contrário registrado</span></div>
+      <div><b>${nunca.length} de ${linhas.length}</b><span>vereadores não votaram contra nenhum deles</span></div>
+    </div>
+    ${lsel ? `<div class="alerta-card"><div class="ac-topo"><span class="ac-tipo">${esc(lsel.v.partido || "")}</span><span class="ac-valor">${lsel.c} de ${N}</span></div>
+      <b class="ac-nome">${esc(lsel.v.apelido)}</b><p>${lsel.c ? `Votou contra ${lsel.c} ${lsel.c === 1 ? "projeto" : "projetos"} da prefeita (em pelo menos uma das votações de cada um).` : "Não votou contra nenhum projeto da prefeita, segundo as atas."}${lsel.a ? ` Absteve-se em ${lsel.a}.` : ""}</p>
+      <p><a href="#/prefeita">‹ ver todos os vereadores</a> · <a href="#/v/${lsel.v.id}">página do vereador</a></p></div>
+      <h2>Projetos em que ${esc(lsel.v.apelido)} votou contra</h2>${lsel.lista.map(m => projLinha(porMsg[m])).join("") || `<p class="sub">Nenhum.</p>`}` : `
+    <h2>Quem mais votou contra</h2>
+    <p class="sub">Número de projetos da prefeita em que o vereador votou contra em pelo menos uma das votações (cada projeto passa por até três discussões). Clique no nome para ver quais foram.</p>
+    ${algum.map((l, i) => `<a class="rk" href="#/prefeita/${l.v.id}"><span class="rk-pos">${i + 1}º</span>${avatar(l.v)}
+      <span class="rk-cx"><span class="rk-nm">${esc(l.v.apelido)}<small>${esc(l.v.partido || "")}</small></span>
+      <span class="rk-barra"><i style="width:${100 * l.c / N}%"></i></span>
+      <span class="rk-partes"><span>votou contra ${l.c} de ${N} projetos (${Math.round(100 * l.c / N)}%)</span>${l.a ? `<span>${l.a} abstenção</span>` : ""}</span></span>
+      <span class="rk-nota">${l.c}<small>contra</small></span></a>`).join("")}
+    <h2>Não votaram contra nenhum projeto da prefeita</h2>
+    <p class="sub">${nunca.map(l => `<a href="#/prefeita/${l.v.id}">${esc(l.v.apelido)}</a> (${esc(l.v.partido || "")})${l.a ? ", com " + l.a + " abstenção" : ""}`).join(" · ")}</p>
+    <h2>Todos os projetos votados</h2>
+    ${P.slice().reverse().map(projLinha).join("")}`}
+    <div class="info"><b>Como ler:</b> as atas registram pelo nome quem votou contra, mas não trazem a lista de quem estava no plenário em cada votação. Quando a ata diz "aprovado por unanimidade dos vereadores presentes", o vereador pode ter votado a favor ou estar ausente. Por isso o site conta os votos contrários, que são certos, e não calcula "quanto votou a favor". Votar contra não é bom nem ruim por si só: cada projeto tem seus motivos, que aparecem nas falas registradas nas atas. Não entram vetos, emendas, pedidos de vista e adiamentos. Fonte: <a href="#/atas">atas da Câmara Municipal de Juiz de Fora</a>, uma a uma, com link para cada votação.</div>`;
+}
+
 async function pgDiarias(arg) {
   await carregarResumo();
   app.innerHTML = `<h1>Diárias de viagem</h1><p class="carregando">Carregando…</p>`;
@@ -990,6 +1040,7 @@ async function rota() {
     else if (pag === "obra") await pgPedidoObra(arg);
     else if (pag === "combustivel") await pgCombustivel(arg);
     else if (pag === "diarias") await pgDiarias(arg);
+    else if (pag === "prefeita") await pgExecutivo(arg);
     else if (pag === "imoveis") pgImoveis();
     else if (pag === "resumo") await pgResumo();
     else if (pag === "rankings") pgRankings();
