@@ -636,8 +636,24 @@ const SELO_NOVO = `<span class="selo-novo" aria-label="novo em 2026"><b>novo</b>
 // itens recém-lançados ganham o selo "novo 2026" no menu (tirar daqui depois de algumas semanas)
 const NOVOS = new Set(["#/prefeita", "#/prefeitura/previdencia", "#/prefeitura/obras", "#/votacoes", "#/diarias", "#/prefeitura/alugueis", "#/imoveis", "#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
 const SUBNAV = {
-  camara: [["#/camara", "Vereadores", "pessoas"], ["#/placar", "Ranking", "placar"], ["#/busca", "Meu bairro", "pin"], ["#/obra", "O pedido virou obra?", "predios"], ["#/repetidos", "Pedidos que voltam", "repete"], ["#/agenda", "Agenda", "agenda"], ["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/votacoes", "Como votaram", "balanca"], ["#/prefeita", "Com a prefeita ou contra?", "balanca"], ["#/atas", "Atas", "lupa"], ["#/combustivel", "Combustível", "carro"], ["#/diarias", "Diárias de viagem", "pin"], ["#/imoveis", "Imóveis alugados", "predios"]],
-  prefeitura: [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/chuvas", "Dinheiro das chuvas", "alerta"], ["#/prefeitura/previdencia", "Previdência: multas e atrasos", "alerta"], ["#/prefeitura/obras", "Obras: previsto x feito", "predios"], ["#/prefeitura/emprestimos", "Empréstimos", "dinheiro"], ["#/prefeitura/hospitais", "Hospitais", "coracao"], ["#/prefeitura/creditos", "Orçamento que muda", "repete"], ["#/prefeitura/aditivos", "Aditivos de contratos", "jornal"], ["#/prefeitura/curiosas", "Coisas curiosas", "lupa"], ["#/prefeitura/alugueis", "Imóveis alugados", "predios"], ["#/prefeitura/lupa", "Na lupa", "lupa"], ["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/iptu", "Calculadora do IPTU", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura/comissionados", "Cargos de confiança", "pessoas"], ["#/prefeitura/supersalarios", "Supersalários", "dinheiro"], ["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"], ["#/prefeitura/busca", "Buscar gasto", "lupa"]],
+  camara: [
+    ["novo", [["#/prefeita", "Com a prefeita ou contra?", "balanca"], ["#/votacoes", "Como votaram", "balanca"], ["#/diarias", "Diárias de viagem", "pin"], ["#/imoveis", "Imóveis alugados", "predios"]]],
+    ["alerta", [["#/combustivel", "Combustível", "carro"], ["#/obra", "O pedido virou obra?", "predios"], ["#/repetidos", "Pedidos que voltam", "repete"]]],
+    ["olha", [["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/placar", "Ranking", "placar"]]],
+    ["consulte", [["#/camara", "Vereadores", "pessoas"], ["#/busca", "Meu bairro", "pin"], ["#/agenda", "Agenda", "agenda"], ["#/atas", "Atas", "lupa"]]],
+  ],
+  prefeitura: [
+    ["novo", [["#/prefeitura/previdencia", "Previdência: multas e atrasos", "alerta"], ["#/prefeitura/obras", "Obras: previsto x feito", "predios"], ["#/prefeitura/alugueis", "Imóveis alugados", "predios"], ["#/prefeitura/hospitais", "Hospitais", "coracao"]]],
+    ["alerta", [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/chuvas", "Dinheiro das chuvas", "alerta"], ["#/prefeitura/emprestimos", "Empréstimos", "dinheiro"], ["#/prefeitura/aditivos", "Aditivos de contratos", "jornal"], ["#/prefeitura/supersalarios", "Supersalários", "dinheiro"], ["#/prefeitura/creditos", "Orçamento que muda", "repete"]]],
+    ["olha", [["#/prefeitura/curiosas", "Coisas curiosas", "lupa"], ["#/prefeitura/lupa", "Na lupa", "lupa"], ["#/prefeitura/comissionados", "Cargos de confiança", "pessoas"], ["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"]]],
+    ["consulte", [["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/busca", "Buscar gasto", "lupa"], ["#/prefeitura/iptu", "Calculadora do IPTU", "dinheiro"]]],
+  ],
+};
+const GRUPOS = {
+  novo: ["🆕", "Novo 2026", "acabou de sair"],
+  alerta: ["🚨", "Alerta", "merece uma pergunta"],
+  olha: ["👀", "Olha isso", "você não sabia"],
+  consulte: ["🔎", "Consulte", "ferramentas"],
 };
 const SELO = {
   camara: () => `<div class="placa camara">${ic("camara")}<span class="tx"><span class="tt">Câmara Municipal de Juiz de Fora</span><span class="ds">O que os vereadores apresentam. Fonte: sistema oficial da Câmara.</span></span></div>`,
@@ -1051,14 +1067,15 @@ async function rota() {
   const h = location.hash.replace(/^#\/?/, "");
   const partes = h.split("/").map(decodeURIComponent);
   const pag = partes[0], arg = partes.slice(1).join("/");
-  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende", "votacoes", "quente", "obra", "combustivel", "imoveis", "diarias"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
+  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende", "votacoes", "quente", "obra", "combustivel", "imoveis", "diarias", "prefeita"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
   document.querySelectorAll("nav.areas a").forEach(a => a.classList.toggle("ativo", a.dataset.area === area));
   const sub = document.getElementById("subnav");
   const atual = "#/" + h;
   sub.className = area;
-  sub.innerHTML = (SUBNAV[area] || []).map(([href, t, i]) => `<a href="${href}" class="${atual === href || (atual.startsWith(href + "/") && href !== "#/prefeitura") || (href === "#/prefeitura" && /^#\/prefeitura\/(ano|s)\b/.test(atual)) || (href === "#/camara" && (atual.startsWith("#/v/") || atual.startsWith("#/grupo"))) ? "ativo" : ""}"><span class="sn-ic">${ic(i)}</span><span class="sn-tx">${t}</span>${NOVOS.has(href) ? SELO_NOVO : ""}</a>`).join("");
+  const ativoEm = href => atual === href || (atual.startsWith(href + "/") && href !== "#/prefeitura") || (href === "#/prefeitura" && /^#\/prefeitura\/(ano|s)\b/.test(atual)) || (href === "#/camara" && (atual.startsWith("#/v/") || atual.startsWith("#/grupo")));
+  sub.innerHTML = (SUBNAV[area] || []).map(([g, itens]) => `<div class="sn-grupo g-${g}"><span class="sn-rot"><span class="sn-emo">${GRUPOS[g][0]}</span><b>${GRUPOS[g][1]}</b><small>${GRUPOS[g][2]}</small></span><div class="sn-linha">${itens.map(([href, t, i]) => `<a href="${href}" class="${ativoEm(href) ? "ativo" : ""}"><span class="sn-ic">${ic(i)}</span><span class="sn-tx">${t}</span></a>`).join("")}</div></div>`).join("");
   document.getElementById("selo").innerHTML = SELO[area] ? SELO[area]() : "";
-  const at = sub.querySelector("a.ativo"); if (at) sub.scrollLeft = at.offsetLeft - 16;
+  const at = sub.querySelector("a.ativo"); if (at) at.parentElement.scrollLeft = at.offsetLeft - at.parentElement.offsetLeft - 16;
   setasSubnav();
   window.scrollTo(0, 0);
   try {
