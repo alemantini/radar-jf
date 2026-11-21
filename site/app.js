@@ -845,16 +845,50 @@ async function pgExecutivo(arg) {
       <small class="sub" style="display:block">${p.votos.map(v => `<a href="${D.ata_url.replace("{}", v.ata)}" target="_blank" rel="noopener">${dataBR(v.data)}, ${esc(v.disc)}</a>`).join(" · ")}</small></div>`;
   };
   const lsel = sel ? linhas.find(l => l.v.id === sel) : null;
+  const VT = D.vetos || [], der = VT.filter(x => x.res === "derrubado"), man = VT.filter(x => x.res === "mantido");
+  const pv = id => D.por_vereador[id] || {};
+  const vx = id => { const d = (pv(id).veto_derrubar || []).length, m = (pv(id).veto_manter || []).length;
+    return (d ? ` Nos vetos, votou para derrubar ${d} que a Câmara acabou mantendo.` : "") + (m ? ` Votou para manter ${m} ${m === 1 ? "veto" : "vetos"} da prefeita que a Câmara derrubou.` : ""); };
+  const quase = VT.filter(x => x.faltou);
+  const rkVeto = (campo, rot) => linhas.map(l => ({v: l.v, n: (pv(l.v.id)[campo] || []).length})).filter(l => l.n).sort((a, b) => b.n - a.n || a.v.apelido.localeCompare(b.v.apelido))
+    .map((l, i) => `<a class="rk" href="#/prefeita/${l.v.id}"><span class="rk-pos">${i + 1}º</span>${avatar(l.v)}
+      <span class="rk-cx"><span class="rk-nm">${esc(l.v.apelido)}<small>${esc(l.v.partido || "")}</small></span>
+      <span class="rk-partes"><span>${(pv(l.v.id)[campo] || []).map(esc).join(" · ")}</span></span></span>
+      <span class="rk-nota">${l.n}<small>${rot}</small></span></a>`).join("");
+  const vetoLinha = x => `<div class="tp-linha">
+      <div class="tp-tit"><b>Veto ${esc(x.tipo)} · ${esc(x.projeto)}</b><span>${x.res}</span></div>
+      <small class="sub" style="display:block">${x.autoria === "Prefeitura" ? "Projeto da própria Prefeitura, alterado pela Câmara" : "Autoria: " + esc(x.autoria)}${x.titulo ? " · " + esc(x.titulo.charAt(0).toUpperCase() + x.titulo.slice(1)) : ""}</small>
+      <small class="sub" style="display:block">${x.derrubar.length ? "Votaram para derrubar: " + x.derrubar.map(id => esc(nomeV(id))).join(", ") + " · " : ""}${x.manter.length ? "Votaram para manter: " + x.manter.map(id => esc(nomeV(id))).join(", ") + " · " : ""}${x.unanime ? "por unanimidade dos presentes · " : ""}<a href="${D.ata_url.replace("{}", x.ata)}" target="_blank" rel="noopener">ata de ${dataBR(x.data)}</a></small></div>`;
+  const blocoVetos = VT.length ? `
+    <h2>Vetos: a Câmara derrubou ${der.length} de ${VT.length}</h2>
+    <p class="sub">Quando a prefeita não concorda com uma lei aprovada pelos vereadores, ela veta. O veto volta para a Câmara, que decide se mantém (fica valendo a decisão da prefeita) ou derruba (a lei passa a valer mesmo assim).</p>
+    <div class="faixa-nums">
+      <div><b>${der.length}</b><span>vetos da prefeita derrubados pela Câmara</span></div>
+      <div><b>${man.length}</b><span>vetos mantidos</span></div>
+      <div><b>${Math.round(100 * der.length / VT.length)}%</b><span>dos vetos votados foram derrubados</span></div>
+    </div>
+    <div class="info">Segundo a ata de 19/08/2026, o líder do governo na Câmara, vereador Pardal, disse que "já virou rotina a derrubada dos vetos na Câmara" e que, por isso, não faz mais encaminhamento de votação (<a href="${D.ata_url.replace("{}", (VT.find(x => x.data === "2026-08-19") || VT[0]).ata)}" target="_blank" rel="noopener">ata</a>).</div>
+    ${quase.map(x => `<div class="alerta-card"><div class="ac-topo"><span class="ac-tipo">${ic("alerta")} ${dataBR(x.data)}</span><span class="ac-valor">${x.faltou[1]} de ${x.faltou[0]} votos</span></div>
+      <b class="ac-nome">Por um voto: o veto que quase caiu</b>
+      <p>O veto ao ${esc(x.projeto)}, de ${esc(x.autoria)}, que ${esc(x.titulo)}, foi mantido porque eram precisos ${x.faltou[0]} votos para derrubar e houve ${x.faltou[1]}, segundo o presidente da Câmara. <a href="${D.ata_url.replace("{}", x.ata)}" target="_blank" rel="noopener">Ver a ata</a>.</p></div>`).join("")}
+    <h2>Tentaram derrubar o veto e perderam</h2>
+    <p class="sub">Vereadores que votaram para derrubar um veto da prefeita que a maioria acabou mantendo.</p>
+    ${rkVeto("veto_derrubar", "vetos") || `<p class="sub">Nenhum.</p>`}
+    <h2>Ficaram com a prefeita quando a Câmara derrubou o veto</h2>
+    <p class="sub">Vereadores que votaram para manter um veto que a maioria derrubou.</p>
+    ${rkVeto("veto_manter", "vetos") || `<p class="sub">Nenhum.</p>`}
+    <details class="mais"><summary>Ver os ${der.length} vetos derrubados</summary>${der.slice().reverse().map(vetoLinha).join("")}</details>
+    <details class="mais"><summary>Ver os ${man.length} vetos mantidos</summary>${man.slice().reverse().map(vetoLinha).join("")}</details>` : "";
   app.innerHTML = `
     <h1>Com a prefeita ou contra?</h1>
-    <p class="sub">Como cada vereador votou nos projetos que a prefeita Margarida Salomão enviou à Câmara (as "Mensagens do Executivo"), desde o início desta legislatura, em janeiro de 2025. Os votos foram lidos nas atas oficiais das reuniões, que registram pelo nome quem votou contra. Última ata aprovada: ${dataBR(D.ultima_ata)}.</p>
+    <p class="sub">Como cada vereador votou nos projetos que a prefeita Margarida Salomão enviou à Câmara (as "Mensagens do Executivo") e nos vetos dela, desde o início desta legislatura, em janeiro de 2025. Os votos foram lidos nas atas oficiais das reuniões, que registram pelo nome quem votou contra. Última ata aprovada: ${dataBR(D.ultima_ata)}.</p>
     <div class="faixa-nums">
       <div><b>${N}</b><span>projetos da prefeita votados no plenário</span></div>
       <div><b>${N - comContra}</b><span>aprovados sem nenhum voto contrário registrado</span></div>
       <div><b>${nunca.length} de ${linhas.length}</b><span>vereadores não votaram contra nenhum deles</span></div>
     </div>
     ${lsel ? `<div class="alerta-card"><div class="ac-topo"><span class="ac-tipo">${esc(lsel.v.partido || "")}</span><span class="ac-valor">${lsel.c} de ${N}</span></div>
-      <b class="ac-nome">${esc(lsel.v.apelido)}</b><p>${lsel.c ? `Votou contra ${lsel.c} ${lsel.c === 1 ? "projeto" : "projetos"} da prefeita (em pelo menos uma das votações de cada um).` : "Não votou contra nenhum projeto da prefeita, segundo as atas."}${lsel.a ? ` Absteve-se em ${lsel.a}.` : ""}</p>
+      <b class="ac-nome">${esc(lsel.v.apelido)}</b><p>${lsel.c ? `Votou contra ${lsel.c} ${lsel.c === 1 ? "projeto" : "projetos"} da prefeita (em pelo menos uma das votações de cada um).` : "Não votou contra nenhum projeto da prefeita, segundo as atas."}${lsel.a ? ` Absteve-se em ${lsel.a}.` : ""}${vx(lsel.v.id)}</p>
       <p><a href="#/prefeita">‹ ver todos os vereadores</a> · <a href="#/v/${lsel.v.id}">página do vereador</a></p></div>
       <h2>Projetos em que ${esc(lsel.v.apelido)} votou contra</h2>${lsel.lista.map(m => projLinha(porMsg[m])).join("") || `<p class="sub">Nenhum.</p>`}` : `
     <h2>Quem mais votou contra</h2>
@@ -866,9 +900,10 @@ async function pgExecutivo(arg) {
       <span class="rk-nota">${l.c}<small>contra</small></span></a>`).join("")}
     <h2>Não votaram contra nenhum projeto da prefeita</h2>
     <p class="sub">${nunca.map(l => `<a href="#/prefeita/${l.v.id}">${esc(l.v.apelido)}</a> (${esc(l.v.partido || "")})${l.a ? ", com " + l.a + " abstenção" : ""}`).join(" · ")}</p>
-    <h2>Todos os projetos votados</h2>
+    ${blocoVetos}
+    <h2>Todos os projetos da prefeita votados</h2>
     ${P.slice().reverse().map(projLinha).join("")}`}
-    <div class="info"><b>Como ler:</b> as atas registram pelo nome quem votou contra, mas não trazem a lista de quem estava no plenário em cada votação. Quando a ata diz "aprovado por unanimidade dos vereadores presentes", o vereador pode ter votado a favor ou estar ausente. Por isso o site conta os votos contrários, que são certos, e não calcula "quanto votou a favor". Votar contra não é bom nem ruim por si só: cada projeto tem seus motivos, que aparecem nas falas registradas nas atas. Não entram vetos, emendas, pedidos de vista e adiamentos. Fonte: <a href="#/atas">atas da Câmara Municipal de Juiz de Fora</a>, uma a uma, com link para cada votação.</div>`;
+    <div class="info"><b>Como ler:</b> as atas registram pelo nome quem votou contra, mas não trazem a lista de quem estava no plenário em cada votação. Quando a ata diz "aprovado por unanimidade dos vereadores presentes", o vereador pode ter votado a favor ou estar ausente. Por isso o site conta os votos contrários, que são certos, e não calcula "quanto votou a favor". Votar contra não é bom nem ruim por si só: cada projeto tem seus motivos, que aparecem nas falas registradas nas atas. Nos vetos, a ata só dá nomes quando a votação não foi unânime; muitos vetos são mantidos a pedido do próprio autor do projeto, que combina outra solução com a Prefeitura. Para derrubar um veto é preciso a maioria absoluta da Câmara. Não entram emendas, pedidos de vista e adiamentos. Fonte: <a href="#/atas">atas da Câmara Municipal de Juiz de Fora</a>, uma a uma, com link para cada votação.</div>`;
 }
 
 async function pgDiarias(arg) {
