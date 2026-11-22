@@ -649,6 +649,7 @@ const SUBNAV = {
     ["consulte", [["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/busca", "Buscar gasto", "lupa"], ["#/prefeitura/iptu", "Calculadora do IPTU", "dinheiro"]]],
   ],
 };
+const GRUPO_ESCOLHIDO = {};
 const GRUPOS = {
   novo: ["🆕", "Novo 2026", "acabou de sair"],
   alerta: ["🚨", "Alerta", "merece uma pergunta"],
@@ -1073,7 +1074,15 @@ async function rota() {
   const atual = "#/" + h;
   sub.className = area;
   const ativoEm = href => atual === href || (atual.startsWith(href + "/") && href !== "#/prefeitura") || (href === "#/prefeitura" && /^#\/prefeitura\/(ano|s)\b/.test(atual)) || (href === "#/camara" && (atual.startsWith("#/v/") || atual.startsWith("#/grupo")));
-  sub.innerHTML = (SUBNAV[area] || []).map(([g, itens]) => `<div class="sn-grupo g-${g}"><span class="sn-rot"><span class="sn-emo">${GRUPOS[g][0]}</span><b>${GRUPOS[g][1]}</b><small>${GRUPOS[g][2]}</small></span><div class="sn-linha">${itens.map(([href, t, i]) => `<a href="${href}" class="${ativoEm(href) ? "ativo" : ""}"><span class="sn-ic">${ic(i)}</span><span class="sn-tx">${t}</span></a>`).join("")}</div></div>`).join("");
+  const grupos = SUBNAV[area] || [];
+  let gAb = (grupos.find(([, itens]) => itens.some(([href]) => ativoEm(href))) || [])[0];
+  if (!gAb) gAb = (GRUPO_ESCOLHIDO[area] && grupos.some(([g]) => g === GRUPO_ESCOLHIDO[area])) ? GRUPO_ESCOLHIDO[area] : (grupos[0] || [])[0];
+  sub.innerHTML = grupos.length ? `<div class="sn-abas" role="tablist">${grupos.map(([g, itens]) => `<button type="button" role="tab" class="sn-aba g-${g}${g === gAb ? " on" : ""}" data-g="${g}" aria-selected="${g === gAb}"><span class="sn-emo">${GRUPOS[g][0]}</span><b>${GRUPOS[g][1]}</b><span class="sn-qt">${itens.length}</span></button>`).join("")}</div>` + grupos.map(([g, itens]) => `<div class="sn-grupo g-${g}" data-g="${g}"${g === gAb ? "" : " hidden"}><div class="sn-linha">${itens.map(([href, t, i]) => `<a href="${href}" class="${ativoEm(href) ? "ativo" : ""}"><span class="sn-ic">${ic(i)}</span><span class="sn-tx">${t}</span></a>`).join("")}</div></div>`).join("") : "";
+  sub.querySelectorAll(".sn-aba").forEach(b => b.onclick = () => {
+    GRUPO_ESCOLHIDO[area] = b.dataset.g;
+    sub.querySelectorAll(".sn-aba").forEach(x => { const on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-selected", on); });
+    sub.querySelectorAll(".sn-grupo").forEach(d => d.hidden = d.dataset.g !== b.dataset.g);
+  });
   document.getElementById("selo").innerHTML = SELO[area] ? SELO[area]() : "";
   const at = sub.querySelector("a.ativo"); if (at) at.parentElement.scrollLeft = at.offsetLeft - at.parentElement.offsetLeft - 16;
   setasSubnav();
