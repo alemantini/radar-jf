@@ -407,6 +407,7 @@ async function rotaPrefeitura(p) {
   if (sub === "aditivos") return pgAditivos(a);
   if (sub === "curiosas") return pgCuriosas();
   if (sub === "alugueis") return pgAlugueisPJF();
+  if (sub === "combustivel") return pgCombustivelPJF(a);
   if (sub === "previdencia") return pgPrevidencia();
   if (sub === "obras") return pgObrasPrevistas();
   return pgPrefInicio();
@@ -1087,6 +1088,48 @@ async function pgAditivos(aba) {
     <p class="sub fonte-linha">Fonte: extratos de termos aditivos publicados no Diário Oficial do Município de ${dataBR(D.desde)} a ${dataBR(D.ate)}. O Radar lê o resumo de cada extrato; o valor nem sempre aparece no resumo. Quem aluga imóvel para a Prefeitura como pessoa física aparece sem nome. Um aditivo é legal na maioria dos casos: a página mostra o que merece uma pergunta, não acusa ninguém.</p>`;
 }
 
+
+// ---------- Combustível da Prefeitura (scripts/prefeitura_combustivel.py, a partir dos empenhos oficiais) ----------
+async function pgCombustivelPJF(anoArg) {
+  const C = await fetch("dados/prefeitura/combustivel.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  if (!C || !C.anos) { app.innerHTML = `<h1>Combustível da Prefeitura</h1><p class="sub">Os dados não carregaram. Tente de novo em instantes.</p>`; return; }
+  const anos = Object.keys(C.anos).sort().reverse();
+  const ano = anos.includes(anoArg) ? anoArg : anos[0];
+  const A = C.anos[ano];
+  const brl = v => "R$ " + v.toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  const anoAtual = ano === String(new Date().getFullYear());
+  const diesel = A.tipos.filter(t => t[0] === "diesel").reduce((s, t) => s + t[2], 0);
+  const demlurb = (A.secretarias.find(x => /Limpeza Urbana/.test(x[0])) || [0, 0, 0])[2];
+  const barras = (lista, iv, rot, sub) => { const mx = Math.max(...lista.map(x => Math.max(x[iv], 0)), 1); return lista.map(x => `
+      <div class="tp-linha">
+        <div class="tp-tit"><b>${rot(x)}</b><span>${brl(x[iv])}</span></div>
+        <span class="tp-barra"><i style="width:${(100 * Math.max(x[iv], 0) / mx).toFixed(1)}%"></i></span>
+        ${sub ? `<small class="sub">${sub(x)}</small>` : ""}
+      </div>`).join(""); };
+  app.innerHTML = `
+    <h1>Combustível da Prefeitura</h1>
+    <p class="sub">Quanto a Prefeitura de Juiz de Fora gasta comprando gasolina, etanol e diesel para os próprios carros, caminhões e máquinas, quem vende e para qual secretaria. Juntamos todos os empenhos de combustível dos arquivos oficiais de despesas.</p>
+    <div class="filtros">${anos.map(a => `<a class="${a === ano ? "on" : ""}" href="#/prefeitura/combustivel/${a}">${a}${a === String(new Date().getFullYear()) ? " (até agora)" : ""}</a>`).join("")}</div>
+    <div class="faixa-nums">
+      <div><b>${reaisCurto(A.pago)}</b><span>pagos em combustível em ${ano}${anoAtual ? `, até ${dataBR(A.ate)}` : ""}</span></div>
+      <div><b>${reaisCurto(A.empenhado)}</b><span>reservados (empenhados) para combustível em ${ano}</span></div>
+      <div><b>${A.pago ? Math.round(100 * diesel / A.pago) : 0}%</b><span>do valor pago foi diesel${demlurb ? `; ${reaisCurto(demlurb)} só no Demlurb (Departamento Municipal de Limpeza Urbana)` : ""}</span></div>
+    </div>
+    <h2>Por tipo de combustível</h2>
+    ${barras(A.tipos, 2, x => esc(x[0][0].toUpperCase() + x[0].slice(1)), x => `reservado: ${brl(x[1])}`)}
+    <h2>Por secretaria</h2>
+    ${barras(A.secretarias, 2, x => esc(x[0]), x => `reservado: ${brl(x[1])} · ${x[3]} ${x[3] > 1 ? "empenhos" : "empenho"}`)}
+    <h2>Quem vende</h2>
+    ${barras(A.fornecedores, 3, x => `<a href="#/prefeitura/empresa/${ano}/${esc(x[0])}">${esc(x[1])}</a>`, x => `CNPJ ${esc(x[0])} · reservado: ${brl(x[2])} · ${x[4]} ${x[4] > 1 ? "empenhos" : "empenho"}`)}
+    <h2>Os maiores empenhos de ${ano}</h2>
+    ${A.maiores.slice(0, 15).map(m => `
+      <div class="tp-linha">
+        <div class="tp-tit"><b>${esc(m[3])}</b><span>${brl(m[5])} pagos</span></div>
+        <small class="sub">${esc(m[1])} · ${esc(m[7])}${m[8] ? " (o empenho inclui também lubrificante)" : ""} · empenho ${esc(m[6])} de ${dataBR(m[0])} · reservado: ${brl(m[4])} · <a href="#/prefeitura/busca/${ano}/${esc(m[6])}">conferir na busca</a></small>
+      </div>`).join("")}
+    <div class="info"><b>Como ler:</b> "reservado" (empenhado) é o dinheiro separado no orçamento para a compra; "pago" é o que já saiu do caixa. Os números são somados exatamente como estão no arquivo oficial, com reforços e anulações. Em alguns empenhos o pago aparece maior que o reservado no mesmo ano; é assim que o arquivo da Prefeitura registra, por isso mostramos os dois números. Entram as compras de combustível em distribuidoras e postos e o serviço de cartão de abastecimento da frota (empresa que gerencia os abastecimentos). <b>Não entram</b> os contratos de aluguel de carros, ônibus e caminhões nem os serviços de transporte contratados (como o transporte escolar), mesmo quando o combustível está incluído no preço. Por isso este número não é o custo total da frota. ${A.com_lubrificante ? `Em ${A.com_lubrificante} ${A.com_lubrificante > 1 ? "empenhos" : "empenho"} a distribuidora também vendeu lubrificante, e o arquivo não separa os valores.` : ""} Gastar mais combustível não é, sozinho, sinal de problema: o tamanho da frota e o tipo de serviço de cada secretaria são diferentes. Para conferir qualquer número, use o link "conferir na busca" ou procure o número do empenho no Portal da Transparência.</div>
+    <p class="sub fonte-linha">Também dá para ver o <a href="#/combustivel">combustível dos vereadores</a>. Fonte: <a href="${FONTE_PREF}" target="_blank" rel="noopener">arquivos de despesas do Portal da Transparência de Juiz de Fora</a> (dados até ${dataBR(A.ate)}). Atualizado em ${esc(C.atualizado)}.</p>`;
+}
 
 // ---------- Coisas curiosas (lista curada à mão; cada número conferido nos empenhos do Portal da Transparência) ----------
 // Para atualizar: confira os empenhos de novo antes de mudar qualquer valor.

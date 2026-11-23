@@ -634,7 +634,7 @@ function pgSobre() {
 // ---------- rotas ----------
 const SELO_NOVO = `<span class="selo-novo" aria-label="novo em 2026"><b>novo</b><small>2026</small></span>`;
 // itens recém-lançados ganham o selo "novo 2026" no menu (tirar daqui depois de algumas semanas)
-const NOVOS = new Set(["#/custo", "#/prefeita", "#/prefeitura/previdencia", "#/prefeitura/obras", "#/votacoes", "#/diarias", "#/prefeitura/alugueis", "#/imoveis", "#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
+const NOVOS = new Set(["#/prefeitura/combustivel", "#/custo", "#/prefeita", "#/prefeitura/previdencia", "#/prefeitura/obras", "#/votacoes", "#/diarias", "#/prefeitura/alugueis", "#/imoveis", "#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
 const SUBNAV = {
   camara: [
     ["novo", [["#/prefeita", "Com a prefeita ou contra?", "balanca"], ["#/votacoes", "Como votaram", "balanca"], ["#/diarias", "Diárias de viagem", "pin"], ["#/imoveis", "Imóveis alugados", "predios"], ["#/custo", "Custo por morador", "dinheiro"]]],
@@ -644,7 +644,7 @@ const SUBNAV = {
   ],
   prefeitura: [
     ["novo", [["#/prefeitura/previdencia", "Previdência: multas e atrasos", "alerta"], ["#/prefeitura/obras", "Obras: previsto x feito", "predios"], ["#/prefeitura/alugueis", "Imóveis alugados", "predios"], ["#/prefeitura/hospitais", "Hospitais", "coracao"]]],
-    ["alerta", [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/chuvas", "Dinheiro das chuvas", "alerta"], ["#/prefeitura/emprestimos", "Empréstimos", "dinheiro"], ["#/prefeitura/aditivos", "Aditivos de contratos", "jornal"], ["#/prefeitura/supersalarios", "Supersalários", "dinheiro"], ["#/prefeitura/creditos", "Orçamento que muda", "repete"]]],
+    ["alerta", [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/combustivel", "Combustível", "carro"], ["#/prefeitura/chuvas", "Dinheiro das chuvas", "alerta"], ["#/prefeitura/emprestimos", "Empréstimos", "dinheiro"], ["#/prefeitura/aditivos", "Aditivos de contratos", "jornal"], ["#/prefeitura/supersalarios", "Supersalários", "dinheiro"], ["#/prefeitura/creditos", "Orçamento que muda", "repete"]]],
     ["olha", [["#/prefeitura/curiosas", "Coisas curiosas", "lupa"], ["#/prefeitura/lupa", "Na lupa", "lupa"], ["#/prefeitura/comissionados", "Cargos de confiança", "pessoas"], ["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"]]],
     ["consulte", [["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/busca", "Buscar gasto", "lupa"], ["#/prefeitura/iptu", "Calculadora do IPTU", "dinheiro"]]],
   ],
@@ -704,6 +704,7 @@ function pgEscolha() {
       <a href="#/obra"><span class="nv-ic">${ic("predios")}</span><b>O pedido virou obra?</b><small>Os pedidos dos vereadores para a sua rua e as obras da Prefeitura.</small>${SELO_NOVO}</a>
       <a href="#/prefeitura/chuvas" class="pref"><span class="nv-ic">${ic("alerta")}</span><b>Dinheiro das chuvas</b><small>Quanto foi reservado e pago desde a emergência de dezembro.</small>${SELO_NOVO}</a>
       <a href="#/prefeitura/creditos" class="pref"><span class="nv-ic">${ic("repete")}</span><b>Orçamento que muda</b><small>De onde saiu e para onde foi o dinheiro mexido por decreto.</small>${SELO_NOVO}</a>
+      <a href="#/prefeitura/combustivel" class="pref"><span class="nv-ic">${ic("carro")}</span><b>Combustível da Prefeitura</b><small>Quanto vai para gasolina, etanol e diesel, por secretaria e por fornecedor.</small>${SELO_NOVO}</a>
       <a href="#/custo"><span class="nv-ic">${ic("dinheiro")}</span><b>Quanto a Câmara custa por morador</b><small>Juiz de Fora comparada com 42 cidades parecidas.</small>${SELO_NOVO}</a>
       <a href="#/combustivel"><span class="nv-ic">${ic("carro")}</span><b>Combustível dos vereadores</b><small>Quantos litros o carro de cada vereador abasteceu, mês a mês.</small>${SELO_NOVO}</a>
       <a href="#/rankings"><span class="nv-ic">${ic("placar")}</span><b>JF nos rankings</b><small>IDH, progresso social, saneamento, competitividade e mais.</small>${SELO_NOVO}</a>
