@@ -50,6 +50,8 @@ def n_br(x):
 
 def reais(x, curto=False):
     x = x or 0
+    if curto and abs(x) >= 1e9:
+        return f"R$ {x / 1e9:.1f} bi".replace(".", ",")
     if curto and abs(x) >= 1e6:
         return f"R$ {x / 1e6:.1f} mi".replace(".", ",")
     if curto and abs(x) >= 1e3:
@@ -435,7 +437,7 @@ def pg_vereadores():
         return []
     itens = sorted(LISTA_VER, key=lambda t: norm(t[0]["apelido"]))
     corpo = f"""<h1>Vereadores de Juiz de Fora</h1>
-<p class="sub">Os {len(itens)} vereadores em exercício na Câmara Municipal de Juiz de Fora e o que cada um apresentou, com dados oficiais da Câmara.</p><!--ZAP-->
+<p class="sub">Os {len(itens)} vereadores da Câmara Municipal de Juiz de Fora acompanhados pelo Radar nesta legislatura e o que cada um apresentou, com dados oficiais da Câmara.</p><!--ZAP-->
 <div class="lista">{"".join(f'<a href="/v/{v["id"]}/"><span>{e(v["apelido"])}{", " + e(v["partido"]) if v.get("partido") else ""}</span><span class="vl">{n_br(c.get("total"))} propostas</span></a>' for v, c, g, pos, n in itens)}</div>
 <div class="botoes"><a class="btn ver" href="/#/camara">Abrir o painel da Câmara</a><a class="btn ver" href="/#/placar">Ver o ranking</a></div>
 <p class="sub">Fonte: sistema oficial da Câmara Municipal de Juiz de Fora (SAL). Quantidade de propostas não mede qualidade.</p>"""
