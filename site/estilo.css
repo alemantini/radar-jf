@@ -784,3 +784,18 @@ details.mais summary{cursor:pointer;font-weight:700}
 @media (min-width:700px){.hero-ondas,.hero-varre{right:-120px}}
 @media (prefers-reduced-motion:reduce){.hero-varre,.lh-o1,.lh-o2,.lh-ponto{animation:none}}
 @media (max-width:420px){.marca{font-size:20px}.marca svg.marca-ic{width:32px;height:22px}}
+
+/* ---------- barra de cima azul com a marca grande (23/11/2026, v2) ---------- */
+header{background:#0b2545;border-bottom:0;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.topo-h{padding:10px 16px}
+.marca{color:#fff;gap:10px;font-size:inherit;letter-spacing:0}
+.marca svg.marca-ic{width:64px;height:43px;color:#fff;flex:none}
+.marca-tx{display:flex;flex-direction:column;line-height:.86;font-family:"Barlow Condensed","Barlow",system-ui,sans-serif;font-weight:800}
+.marca-tx .m1{font-size:30px;letter-spacing:.02em}
+.marca-tx .m2{font-size:30px;letter-spacing:.01em}
+.marca-tx b{color:#ff5a5f;font-weight:800}
+nav.areas a{box-shadow:0 1px 3px rgba(0,0,0,.25)}
+nav.areas a[data-area=sobre]{background:#fff}
+#subnav:not(:empty){background:#fff;box-shadow:0 0 0 100vmax #fff;clip-path:inset(0 -100vmax)}
+@media (min-width:700px){.marca svg.marca-ic{width:78px;height:52px}.marca-tx .m1,.marca-tx .m2{font-size:36px}.topo-h{padding:12px 16px}}
+@media (max-width:420px){.marca svg.marca-ic{width:52px;height:35px}.marca-tx .m1,.marca-tx .m2{font-size:26px}}
