@@ -634,10 +634,10 @@ function pgSobre() {
 // ---------- rotas ----------
 const SELO_NOVO = `<span class="selo-novo" aria-label="novo em 2026"><b>novo</b><small>2026</small></span>`;
 // itens recém-lançados ganham o selo "novo 2026" no menu (tirar daqui depois de algumas semanas)
-const NOVOS = new Set(["#/prefeita", "#/prefeitura/previdencia", "#/prefeitura/obras", "#/votacoes", "#/diarias", "#/prefeitura/alugueis", "#/imoveis", "#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
+const NOVOS = new Set(["#/custo", "#/prefeita", "#/prefeitura/previdencia", "#/prefeitura/obras", "#/votacoes", "#/diarias", "#/prefeitura/alugueis", "#/imoveis", "#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
 const SUBNAV = {
   camara: [
-    ["novo", [["#/prefeita", "Com a prefeita ou contra?", "balanca"], ["#/votacoes", "Como votaram", "balanca"], ["#/diarias", "Diárias de viagem", "pin"], ["#/imoveis", "Imóveis alugados", "predios"]]],
+    ["novo", [["#/prefeita", "Com a prefeita ou contra?", "balanca"], ["#/votacoes", "Como votaram", "balanca"], ["#/diarias", "Diárias de viagem", "pin"], ["#/imoveis", "Imóveis alugados", "predios"], ["#/custo", "Custo por morador", "dinheiro"]]],
     ["alerta", [["#/combustivel", "Combustível", "carro"], ["#/obra", "O pedido virou obra?", "predios"], ["#/repetidos", "Pedidos que voltam", "repete"]]],
     ["olha", [["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/placar", "Ranking", "placar"]]],
     ["consulte", [["#/camara", "Vereadores", "pessoas"], ["#/busca", "Meu bairro", "pin"], ["#/agenda", "Agenda", "agenda"], ["#/atas", "Atas", "lupa"]]],
@@ -704,6 +704,7 @@ function pgEscolha() {
       <a href="#/obra"><span class="nv-ic">${ic("predios")}</span><b>O pedido virou obra?</b><small>Os pedidos dos vereadores para a sua rua e as obras da Prefeitura.</small>${SELO_NOVO}</a>
       <a href="#/prefeitura/chuvas" class="pref"><span class="nv-ic">${ic("alerta")}</span><b>Dinheiro das chuvas</b><small>Quanto foi reservado e pago desde a emergência de dezembro.</small>${SELO_NOVO}</a>
       <a href="#/prefeitura/creditos" class="pref"><span class="nv-ic">${ic("repete")}</span><b>Orçamento que muda</b><small>De onde saiu e para onde foi o dinheiro mexido por decreto.</small>${SELO_NOVO}</a>
+      <a href="#/custo"><span class="nv-ic">${ic("dinheiro")}</span><b>Quanto a Câmara custa por morador</b><small>Juiz de Fora comparada com 42 cidades parecidas.</small>${SELO_NOVO}</a>
       <a href="#/combustivel"><span class="nv-ic">${ic("carro")}</span><b>Combustível dos vereadores</b><small>Quantos litros o carro de cada vereador abasteceu, mês a mês.</small>${SELO_NOVO}</a>
       <a href="#/rankings"><span class="nv-ic">${ic("placar")}</span><b>JF nos rankings</b><small>IDH, progresso social, saneamento, competitividade e mais.</small>${SELO_NOVO}</a>
     </div>
@@ -1029,6 +1030,44 @@ function pgRankings() {
     <div class="info">Cada ranking usa uma régua diferente, com anos e grupos de cidades diferentes. Por isso as posições não se comparam entre si. Ranking mostra um retrato, não explica sozinho a causa. Viu um número desatualizado? Avise pelo botão do WhatsApp.</div>`;
 }
 
+// ---------- Quanto a Câmara custa por morador: JF x cidades comparáveis (Siconfi, função Legislativa) ----------
+// Dados em data/camara_comparada.json, gerados por tools/camara_comparada.py (rodar 1 vez por ano, depois do RREO do 6º bimestre).
+async function pgCustoCamara(arg) {
+  const D = await fetch("dados/camara_comparada.json").then(r => r.ok ? r.json() : null).catch(() => null);
+  if (!D) { app.innerHTML = `<h1>Quanto a Câmara custa por morador</h1><p class="sub">Os dados não carregaram. Tente de novo em instantes.</p>`; return; }
+  const [anoArg, filtro] = (arg || "").split("/");
+  const anos = Object.keys(D.cidades[0]).filter(k => /^\d{4}$/.test(k)).sort().reverse();
+  const ano = anos.includes(anoArg) ? anoArg : anos[0];
+  const soMG = filtro === "mg";
+  const todas = D.cidades.filter(c => c[ano] && c[ano].leg && c.pop).map(c => ({...c, pc: c[ano].leg / c.pop, pct: 100 * c[ano].leg / c[ano].tot}));
+  const lista = todas.filter(c => !soMG || c.uf === "MG").sort((a, b) => a.pc - b.pc);
+  const jf = lista.find(c => c.cod === D.jf);
+  const pos = lista.indexOf(jf) + 1;
+  const vals = lista.map(c => c.pc), med = vals.length % 2 ? vals[(vals.length - 1) / 2] : (vals[vals.length / 2 - 1] + vals[vals.length / 2]) / 2;
+  const mx = Math.max(...vals);
+  const brl2 = v => v.toLocaleString("pt-BR", {style: "currency", currency: "BRL"});
+  const link = (a, f) => "#/custo/" + a + (f ? "/" + f : "");
+  app.innerHTML = `
+    <h1>Quanto a Câmara custa por morador</h1>
+    <p class="sub">Tudo o que a Câmara Municipal gastou no ano (salários dos vereadores e dos servidores, assessores, prédio, carros, contas), dividido pelo número de moradores. Comparamos Juiz de Fora com cidades parecidas, usando o mesmo dado oficial para todas.</p>
+    <div class="faixa-nums">
+      <div><b>${brl2(jf.pc)}</b><span>por morador em ${ano}, na Câmara de Juiz de Fora (${reaisCurto(jf[ano].leg)} no ano)</span></div>
+      <div><b>${pos}ª mais barata</b><span>entre ${lista.length} cidades${soMG ? " de Minas" : ""} comparadas</span></div>
+      <div><b>${brl2(med)}</b><span>valor do meio (mediana) do grupo</span></div>
+    </div>
+    <div class="filtros">${anos.map(a => `<a class="${a === ano ? "on" : ""}" href="${link(a, filtro)}">${a}</a>`).join("")}
+      <a class="${soMG ? "" : "on"}" href="${link(ano)}">Todas</a><a class="${soMG ? "on" : ""}" href="${link(ano, "mg")}">Só Minas</a></div>
+    <h2>Gasto da Câmara por morador em ${ano}, da mais barata para a mais cara</h2>
+    ${lista.map((c, i) => `
+      <div class="tp-linha${c.cod === D.jf ? " tp-destaque" : ""}">
+        <div class="tp-tit"><b>${i + 1}. ${c.cod === D.jf ? "<mark>Juiz de Fora</mark>" : esc(c.nome)} <small class="sub">${esc(c.uf)}, ${fmt(c.pop)} hab.</small></b><span>${brl2(c.pc)}</span></div>
+        <span class="tp-barra"><i style="width:${(100 * c.pc / mx).toFixed(1)}%"></i></span>
+        <small class="sub">${reaisCurto(c[ano].leg)} no ano · ${c.pct.toLocaleString("pt-BR", {maximumFractionDigits: 2})}% de todo o gasto do município</small>
+      </div>`).join("")}
+    <div class="info"><b>Como ler:</b> o valor é o que foi liquidado (serviço feito ou entregue) na função "Legislativa" do relatório de execução do orçamento que cada prefeitura entrega ao Tesouro Nacional (RREO, Anexo 2, 6º bimestre, ou seja, o ano inteiro). É a mesma régua para todas as cidades. A população é a estimativa do IBGE usada pelo Tesouro. Gastar menos não quer dizer, sozinho, que a Câmara trabalha melhor ou pior: o número mostra o custo, não a qualidade. Algumas Câmaras pagam aposentados ou obras do prédio por fora dessa função, o que pode deixar pequenas diferenças. A Constituição (art. 29-A) limita quanto a Câmara pode receber da Prefeitura, conforme o tamanho da cidade.</div>
+    <p class="sub fonte-linha">Grupo comparado: ${esc(D.grupo)}. Fonte: <a href="${esc(D.fonte_url)}" target="_blank" rel="noopener">${esc(D.fonte)}</a>. Dados lidos em ${dataBR(D.atualizado)}.</p>`;
+}
+
 // ---------- Banner da página inicial: "veja o que está acontecendo em Juiz de Fora" ----------
 let _destTimer = null;
 async function bannerDestaques() {
@@ -1105,6 +1144,7 @@ async function rota() {
     else if (pag === "imoveis") pgImoveis();
     else if (pag === "resumo") await pgResumo();
     else if (pag === "rankings") pgRankings();
+    else if (pag === "custo") await pgCustoCamara(arg);
     else if (pag === "apoie") pgApoie();
     else if (pag === "sobre") { pgSobre(); if (window.sobrePrefeitura) await sobrePrefeitura(); }
     else if (pag === "camara") pgInicio();
