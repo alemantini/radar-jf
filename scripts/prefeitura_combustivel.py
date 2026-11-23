@@ -82,7 +82,8 @@ def main():
         for (u, num, _ic), x in ne.items():
             t = " ".join(x["textos"])
             ck = chave(creds[x["cred"]][1])
-            el_comb = any("combustiveis automotivos" in e for e in x["els"])
+            # o tipo de despesa sozinho não basta: o arquivo oficial já trouxe verduras lançadas como combustível
+            el_comb = any("combustiveis automotivos" in e for e in x["els"]) and not FORA.search(t)
             fora = FORA.search(t) and not COMPRA.search(t.replace("sem combustivel", "").replace("sem motorista e sem combustivel", ""))
             ok = el_comb or (not fora and (COMPRA.search(t) or (FORNECEDOR.search(ck) and FUEL.search(t))))
             if not el_comb and not FORNECEDOR.search(ck) and not GERENCIA.search(t):
