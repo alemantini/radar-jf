@@ -17,12 +17,12 @@ print("JF", jf)
 pop_jf = jf["populacao"]
 # comparáveis: MG acima de 200 mil + Brasil entre 400 e 800 mil (fora capitais)
 mg = [e for e in mun if e["uf"] == "MG" and (e["populacao"] or 0) >= 200000]
-br = [e for e in mun if 400000 <= (e["populacao"] or 0) <= 800000 and e.get("capital") in (0, "0", None)]
+br = [e for e in mun if 400000 <= (e["populacao"] or 0) <= 800000 and str(e.get("capital") or "0").strip() == "0"]
 alvo = {e["cod_ibge"]: e for e in mg + br}
 print("alvos", len(alvo))
 res = []
 for cod, e in sorted(alvo.items(), key=lambda x: -x[1]["populacao"]):
-    for ano in (2025,):
+    for ano in (2025, 2024):
         try:
             it = get("rreo", an_exercicio=ano, nr_periodo=6, co_tipo_demonstrativo="RREO", no_anexo="RREO-Anexo 02", id_ente=cod)
         except Exception as ex:
