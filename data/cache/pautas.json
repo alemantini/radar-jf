@@ -831,11 +831,22 @@
 "ementa": "Institui o Programa Municipal de Avaliação Escolar - PROVA-JF e a Bonificação de Desempenho Profissional para os docentes da rede pública municipal de Juiz de Fora, e dá outras providências.",
 "autoria": "Vereadora Roberta Lopes",
 "quorum": "Maioria simples",
-"obs": "LEITURA DOS PARECERES. 17 Apreciação Preliminar. Art",
+"obs": "LEITURA DOS PARECERES",
 "vista": false,
 "temas": [
 "Educação"
 ]
+},
+{
+"n": 17,
+"fase": "1ª Discussão",
+"proposicao": "Projeto de Lei 189/2026",
+"ementa": "Institui a \"Lei Rafaela Drumond\" que Dispõe sobre a prevenção, o combate e a responsabilização por práticas de assédio moral no âmbito da administração pública direta e indireta do Município de Juiz de Fora.",
+"autoria": "Vereador Sargento Mello Casal",
+"quorum": "Maioria simples",
+"obs": "LEITURA DOS PARECERES. Rejeitado o Parecer Preliminar. 18 Apreciação Preliminar. Art",
+"vista": false,
+"temas": []
 },
 {
 "n": 94,
@@ -844,7 +855,7 @@
 "ementa": "Determina a realização de exames toxicológicos em agentes públicos municipais no âmbito da administração pública no município de Juiz de Fora e dá outras providências.",
 "autoria": "Vereadora Roberta Lopes",
 "quorum": "Maioria simples",
-"obs": "VISTA Vereador Sargento Mello Casal. 18 Apreciação Preliminar. Art",
+"obs": "VISTA Vereador Sargento Mello Casal. 19 Apreciação Preliminar. Art",
 "vista": true,
 "temas": []
 },
@@ -860,7 +871,7 @@
 "temas": []
 },
 {
-"n": 19,
+"n": 20,
 "fase": "Veto Parcial",
 "proposicao": "Projeto de Lei 50/2025",
 "ementa": "Institui diretrizes de responsabilidade social nas contratações públicas municipais, com previsão de cláusula social para adoção da escala 5x2 nos contratos de prestação de serviços terceirizados com dedicação de mão de obra, e dá outras providências.",
@@ -873,7 +884,7 @@
 ]
 },
 {
-"n": 20,
+"n": 21,
 "fase": "Veto Total",
 "proposicao": "Projeto de Lei 255/2026",
 "ementa": "Altera o § 2º do art. 17 da Lei nº 14.158, de 18 de janeiro de 2021.",
@@ -884,7 +895,7 @@
 "temas": []
 },
 {
-"n": 21,
+"n": 22,
 "fase": "Veto Total",
 "proposicao": "Projeto de Lei 233/2026",
 "ementa": "Autoriza o Poder Executivo, no âmbito da sua competência e discricionariedade, a isentar de aplicação e inserção de cobrança do Estacionamento Rotativo Pago e da Área Azul a via pública que menciona.",
