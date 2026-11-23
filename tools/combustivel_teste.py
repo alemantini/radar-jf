@@ -2,7 +2,8 @@
 
 Lê os empenhos já baixados (site/dados/prefeitura/empenhos_AAAA.json). Cada empenho (nota de empenho,
 "NE") aparece em várias linhas: a reserva, os reforços, as anulações e os pagamentos. Por isso a
-classificação é feita no empenho inteiro (secretaria + número), usando todos os textos dele:
+classificação é feita no empenho inteiro (secretaria + número + fornecedor; o mesmo número se repete
+entre fornecedores diferentes), usando todos os textos dele:
   - entra se o tipo de despesa for "Combustíveis Automotivos", ou se o texto falar em compra,
     fornecimento ou abastecimento de combustível (gasolina, etanol, diesel), ou se o fornecedor for
     distribuidora ou posto de combustível;
@@ -68,7 +69,7 @@ def main():
                 datas.append(data)
             if ic < 0:
                 continue  # pessoa física: fora
-            x = ne[(u, num)]
+            x = ne[(u, num, ic)]
             x["linhas"].append((data, e or 0, p or 0))
             x["textos"].add(chave(hist))
             x["els"].add(chave(els[ie]))
@@ -78,7 +79,7 @@ def main():
         forn = defaultdict(lambda: [0.0, 0.0, 0])
         tip = defaultdict(lambda: [0.0, 0.0])
         lista = []
-        for (u, num), x in ne.items():
+        for (u, num, _ic), x in ne.items():
             t = " ".join(x["textos"])
             ck = chave(creds[x["cred"]][1])
             el_comb = any("combustiveis automotivos" in e for e in x["els"])
