@@ -1,41 +1,35 @@
-"""Exploração: custo da Câmara (função Legislativa) por habitante, JF x cidades comparáveis. Siconfi RREO Anexo 2, 6º bim."""
-import json, re, time, requests
-API = "https://apidatalake.tesouro.gov.br/ords/siconfi/tt"
+"""Exploração: combustível da Prefeitura nos empenhos já publicados no próprio site do Radar."""
+import json, re, unicodedata, requests
+from collections import defaultdict, Counter
+SITE = "https://jflandia.com.br/dados/prefeitura/"
 UA = {"User-Agent": "RadarJF/1.0 (robo de transparencia; https://github.com/alemantini/radar-jf)"}
-def get(rel, **p):
-    out, off = [], 0
-    while True:
-        r = requests.get(f"{API}/{rel}", params={**p, "offset": off}, headers=UA, timeout=90); r.raise_for_status(); j = r.json()
-        out += j.get("items", [])
-        if not j.get("hasMore"): return out
-        off += len(j["items"]); time.sleep(0.5)
-entes = get("entes")
-mun = [e for e in entes if e.get("esfera") == "M"]
-print("municipios", len(mun), "exemplo", mun[0])
-jf = next(e for e in mun if e["ente"].startswith("Juiz de Fora"))
-print("JF", jf)
-pop_jf = jf["populacao"]
-# comparáveis: MG acima de 200 mil + Brasil entre 400 e 800 mil (fora capitais)
-mg = [e for e in mun if e["uf"] == "MG" and (e["populacao"] or 0) >= 200000]
-br = [e for e in mun if 400000 <= (e["populacao"] or 0) <= 800000 and str(e.get("capital") or "0").strip() == "0"]
-alvo = {e["cod_ibge"]: e for e in mg + br}
-print("alvos", len(alvo))
-res = []
-for cod, e in sorted(alvo.items(), key=lambda x: -x[1]["populacao"]):
-    for ano in (2025, 2024):
-        try:
-            it = get("rreo", an_exercicio=ano, nr_periodo=6, co_tipo_demonstrativo="RREO", no_anexo="RREO-Anexo 02", id_ente=cod)
-        except Exception as ex:
-            print("erro", e["ente"], ex); continue
-        if ano == 2025 and cod == jf["cod_ibge"]:
-            print("colunas", sorted(set(i["coluna"] for i in it)))
-            print("contas", sorted(set(i["conta"] for i in it))[:60])
-        leg = [i for i in it if re.fullmatch(r"\s*Legislativa\s*", i["conta"]) and re.search(r"LIQUIDADAS AT", i["coluna"], re.I)]
-        tot = [i for i in it if re.search(r"DESPESAS \(EXCETO INTRA", i["conta"], re.I) and re.search(r"LIQUIDADAS AT", i["coluna"], re.I)]
-        v = leg[0]["valor"] if leg else None
-        t = tot[0]["valor"] if tot else None
-        res.append({"cod": cod, "ente": e["ente"], "uf": e["uf"], "pop": e["populacao"], "ano": ano, "legislativa": v, "total": t,
-                    "per_capita": round(v / e["populacao"], 2) if v and e["populacao"] else None})
-        print(e["ente"], e["uf"], e["populacao"], v, t)
-        time.sleep(0.4)
-print("RESULTADO_JSON", json.dumps(res, ensure_ascii=False))
+def k(t): return "".join(c for c in unicodedata.normalize("NFD", str(t or "")) if unicodedata.category(c) != "Mn").lower()
+COMB = re.compile(r"combustiv|gasolina|oleo diesel|\bdiesel\b|etanol|\balcool\b|\bgnv\b|abastecimento")
+for ano in (2025, 2026):
+    d = requests.get(f"{SITE}empenhos_{ano}.json", headers=UA, timeout=120).json()
+    print("\n=====", ano, "chaves", list(d.keys()), "n", len(d["empenhos"]))
+    print("exemplo", d["empenhos"][0])
+    els = d["elementos"]; secs = d["secretarias"]; creds = d["credores"]
+    print("elementos com combust:", [e for e in els if COMB.search(k(e))])
+    tot = defaultdict(lambda: [0.0, 0.0, 0]); sec = defaultdict(float); cr = defaultdict(float); mes = [0.0]*12; amostra = []
+    lit = 0; nlit = 0; ex_el = Counter()
+    for row in d["empenhos"]:
+        data, u, ic, ie, e, p, hist, num = row[:8]
+        hk = k(hist); ek = k(els[ie]); ck = k(creds[ic][1]) if ic >= 0 else ""
+        if not (COMB.search(hk) or COMB.search(ek)): continue
+        if re.search(r"locacao|manutencao|seguro|pneu|lubrificante|oleo lubr|filtro|agua|gas liquefeito|glp|botij", hk) and not re.search(r"combustiv|gasolina|diesel|etanol", hk): continue
+        ex_el[els[ie]] += 1
+        t = tot["x"]; t[0] += e or 0; t[1] += p or 0; t[2] += 1
+        sec[secs[u]] += p or 0
+        if ic >= 0: cr[(creds[ic][0], creds[ic][1])] += p or 0
+        if data and len(data) >= 7: mes[int(data[5:7]) - 1] += p or 0
+        m = re.search(r"(\d{1,3}(?:\.\d{3})+|\d+)\s*(?:litros|lts?\b|l\b)", hk)
+        if m: nlit += 1; lit += int(m.group(1).replace(".", ""))
+        if len(amostra) < 25: amostra.append((data, secs[u], els[ie], creds[ic][1] if ic >= 0 else "PF", e, p, hist[:160]))
+    print("TOTAL empenhado %.2f pago %.2f n %d" % tuple(tot["x"]))
+    print("elementos:", ex_el.most_common(10))
+    print("meses pago:", [round(x) for x in mes])
+    print("secretarias:", sorted(sec.items(), key=lambda x: -x[1])[:15])
+    print("credores:", sorted(cr.items(), key=lambda x: -x[1])[:15])
+    print("histórico com litros:", nlit, "soma litros", lit)
+    for a in amostra: print("  ", a)
