@@ -666,11 +666,12 @@ function pgEscolha() {
   const nV = atuais.length;
   app.innerHTML = `
     <section class="hero">
+      <div class="hero-varre" aria-hidden="true"></div>
       <svg class="hero-ondas" viewBox="0 0 400 400" aria-hidden="true"><g fill="none" stroke="currentColor"><circle cx="330" cy="200" r="40" stroke-width="10"/><circle cx="330" cy="200" r="95" stroke-width="8"/><circle cx="330" cy="200" r="150" stroke-width="6"/><circle cx="330" cy="200" r="205" stroke-width="4"/></g><circle cx="330" cy="200" r="14" fill="currentColor"/></svg>
       <div class="hero-grid">
       <div class="hero-txt">
       <div class="logo-home" role="img" aria-label="Radar JFlândia">
-      <div class="lh-1"><svg class="lh-ic" viewBox="0 0 120 80" aria-hidden="true"><circle cx="60" cy="40" r="11" fill="currentColor"/><path d="M40 18a32 32 0 0 0 0 44M80 18a32 32 0 0 1 0 44M24 6a52 52 0 0 0 0 68M96 6a52 52 0 0 1 0 68" fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"/></svg><span>RADAR</span></div>
+      <div class="lh-1"><svg class="lh-ic" viewBox="0 0 120 80" aria-hidden="true"><circle class="lh-ponto" cx="60" cy="40" r="11" fill="currentColor"/><g fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round"><path class="lh-o1" d="M40 18a32 32 0 0 0 0 44M80 18a32 32 0 0 1 0 44"/><path class="lh-o2" d="M24 6a52 52 0 0 0 0 68M96 6a52 52 0 0 1 0 68"/></g></svg><span>RADAR</span></div>
       <div class="lh-2"><span class="pt">JF</span><span>LÂNDIA</span><span class="lh-bands"><svg class="lh-band" viewBox="0 0 30 21" aria-label="Bandeira do Brasil" role="img"><rect width="30" height="21" fill="#009c3b"/><path d="M15 2.5 27.5 10.5 15 18.5 2.5 10.5z" fill="#ffdf00"/><circle cx="15" cy="10.5" r="4.6" fill="#002776"/></svg><svg class="lh-band" viewBox="0 0 30 21" aria-label="Bandeira de Minas Gerais" role="img"><rect width="30" height="21" fill="#fff" stroke="#c9ccd1" stroke-width=".6"/><path d="M15 4 21.5 16H8.5z" fill="#e8272c"/></svg><svg class="lh-band" viewBox="0 0 30 21" aria-label="Bandeira de Juiz de Fora" role="img"><rect width="30" height="21" fill="#1f4e9c"/><rect y="6.46" width="30" height="1.62" fill="#fff"/><rect y="8.08" width="30" height="4.85" fill="#d52b1e"/><rect y="12.92" width="30" height="1.62" fill="#fff"/><rect y="14.54" width="30" height="6.56" fill="#16924a"/><path d="M15 8.88 16.86 12.12 13.14 12.12z" fill="#fff"/></svg></span></div>
     </div>
       <h1 class="hero-t">Veja o que os vereadores e a prefeita de Juiz de Fora fazem com o <span>seu dinheiro</span></h1>
