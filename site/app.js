@@ -708,7 +708,7 @@ async function pgBueiros(arg) {
     document.getElementById("bu-corpo").innerHTML = `
       <div class="rk-conta"><span>${fmt(P.length)} pedidos em ${ano}</span>${Object.keys(TIPO_CHUVA).filter(k => tipos[k]).map(k => `<span style="font-weight:400">${TIPO_CHUVA[k][0]}: <b>${fmt(tipos[k])}</b></span>`).join("")}</div>
       <h2>Mês a mês</h2>
-      <p class="sub">Os pedidos sobem depois das chuvas fortes.${meses[picoM] ? ` Em ${ano}, o mês com mais pedidos foi <b>${["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"][picoM]}</b> (${fmt(meses[picoM])}).` : ""}${ano === 2026 ? " Em março de 2026 a cidade estava em calamidade por causa das chuvas." : ""}</p>
+      <p class="sub">Os pedidos sobem depois das chuvas fortes.${meses[picoM] ? ` Em ${ano}, o mês com mais pedidos foi <b>${["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"][picoM]}</b> (${fmt(meses[picoM])}).` : ""}${ano === 2026 ? ` Neste período a cidade passou por calamidade pública por causa das chuvas: veja <a href="#/prefeitura/chuvas">o dinheiro das chuvas</a>.` : ""}</p>
       <div class="bu-meses">${meses.map((n, i) => i > ultimoMes ? "" : `<div class="bu-mes${i === picoM ? " pico" : ""}" title="${MES_NOME[i]}/${ano}: ${n} pedidos"><span class="n">${n}</span><i style="height:${Math.round(100 * n / mxM)}%"></i><span class="m">${MES_NOME[i]}</span></div>`).join("")}</div>
       <h2>Quem mais pediu</h2>
       <p class="sub">Número de pedidos sobre bueiros, drenagem e chuvas em ${ano}. Mais pedidos não quer dizer mais serviço feito: alguns vereadores fazem um pedido por rua, outros um pedido para o bairro inteiro.</p>
