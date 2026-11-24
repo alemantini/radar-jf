@@ -294,9 +294,40 @@ def precisa_baixar():
     return True, f"versão nova na Prefeitura ({nova}; publicada no site: {publicada or 'nenhuma'})"
 
 
+MANUAL = RAIZ / "data" / "manual"  # arquivos enviados à mão quando a Prefeitura bloqueia o robô
+MANUAL_INFO = MANUAL / "info.json"  # {"fonte_atualizada_em": "23/11/2026", "anos": ["2026"]}
+
+
+def _data_br(v):
+    try:
+        return dt.datetime.strptime(str(v or "").strip(), "%d/%m/%Y").date()
+    except ValueError:
+        return None
+
+
+def usar_manual():
+    """Usa o arquivo enviado à mão só se ele for mais novo que a versão publicada no site."""
+    if not MANUAL_INFO.exists():
+        return None
+    info = json.loads(MANUAL_INFO.read_text(encoding="utf-8"))
+    d_man = _data_br(info.get("fonte_atualizada_em"))
+    publicada = ""
+    if os.path.exists(ANTERIOR):
+        with open(ANTERIOR, encoding="utf-8") as f:
+            publicada = json.load(f).get("fonte_atualizada_em", "")
+    d_pub = _data_br(publicada)
+    if d_man and (not d_pub or d_man > d_pub):
+        return info
+    return None
+
+
 def main():
     SAIDA.mkdir(parents=True, exist_ok=True)
-    baixa, motivo = precisa_baixar()
+    manual = usar_manual()
+    if manual:
+        baixa, motivo = True, f"arquivo enviado à mão (Prefeitura atualizou em {manual['fonte_atualizada_em']})"
+    else:
+        baixa, motivo = precisa_baixar()
     print("Prefeitura:", motivo)
     if not baixa:
         return  # sem arquivos novos: o workflow reaproveita a última versão publicada
@@ -304,7 +335,24 @@ def main():
     contagem, anos_resumo, problemas = {}, {}, []
     for ano in ANOS:
         aa = str(ano)[-2:]
-        conteudo = baixar(f"{BASE}/arquivos/despesas_{aa}.json")
+        if manual:
+            arq = MANUAL / f"despesas_{aa}.json.gz"
+            if str(ano) not in manual.get("anos", []) or not arq.exists():
+                # ano que não veio à mão: fica a versão já publicada
+                ant = Path(ANTERIOR).parent
+                r_ant = json.loads(Path(ANTERIOR).read_text(encoding="utf-8"))
+                if str(ano) in r_ant.get("anos", {}) and (ant / f"empenhos_{ano}.json").exists():
+                    anos_resumo[str(ano)] = r_ant["anos"][str(ano)]
+                    (SAIDA / f"empenhos_{ano}.json").write_bytes((ant / f"empenhos_{ano}.json").read_bytes())
+                    contagem[str(ano)] = anterior.get(str(ano), 0)
+                    print(f"{ano}: mantida a versão publicada")
+                else:
+                    problemas.append(f"{ano}: sem arquivo à mão e sem versão anterior")
+                continue
+            import gzip
+            conteudo = gzip.decompress(arq.read_bytes())
+        else:
+            conteudo = baixar(f"{BASE}/arquivos/despesas_{aa}.json")
         dados = json.loads(conteudo.decode("utf-8", "replace"))
         registros = dados if isinstance(dados, list) else next(v for v in dados.values() if isinstance(v, list))
         n = len(registros)
@@ -329,7 +377,7 @@ def main():
         sys.exit(1)
     resumo = {
         "fonte": f"{BASE}/arquivos.php",
-        "fonte_atualizada_em": data_atualizacao_fonte(),
+        "fonte_atualizada_em": manual["fonte_atualizada_em"] if manual else data_atualizacao_fonte(),
         "coletado_em": dt.datetime.now(dt.timezone(dt.timedelta(hours=-3))).strftime("%d/%m/%Y %H:%M"),
         "anos": anos_resumo,
     }
