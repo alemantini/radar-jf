@@ -799,3 +799,14 @@ nav.areas a[data-area=sobre]{background:#fff}
 #subnav:not(:empty){background:#fff;box-shadow:0 0 0 100vmax #fff;clip-path:inset(0 -100vmax)}
 @media (min-width:700px){.marca svg.marca-ic{width:78px;height:52px}.marca-tx .m1,.marca-tx .m2{font-size:36px}.topo-h{padding:12px 16px}}
 @media (max-width:420px){.marca svg.marca-ic{width:52px;height:35px}.marca-tx .m1,.marca-tx .m2{font-size:26px}}
+
+/* Bueiros e chuvas: gráfico mês a mês */
+.bu-meses{display:flex;align-items:flex-end;gap:4px;height:170px;margin:8px 0 18px;padding:0 2px;border-bottom:1px solid var(--linha)}
+.bu-mes{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;min-width:0}
+.bu-mes i{display:block;width:100%;max-width:38px;background:var(--azul);border-radius:4px 4px 0 0;min-height:2px}
+.bu-mes.pico i{background:#b42318}
+.bu-mes .n{font-size:12px;font-variant-numeric:tabular-nums;color:var(--apoio);margin-bottom:2px}
+.bu-mes .m{font-size:12px;color:var(--apoio);margin-top:4px;position:relative;top:22px;height:0}
+.bu-meses{margin-bottom:34px}
+a.barra-l{color:inherit;text-decoration:none}
+a.barra-l:hover .bl-t{text-decoration:underline}

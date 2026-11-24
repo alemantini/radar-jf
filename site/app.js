@@ -631,14 +631,138 @@ function pgSobre() {
     <p><a href="mailto:radarjflandia@gmail.com?subject=Erro%20no%20Radar%20JFl%C3%A2ndia" >Avise aqui</a> pelo e-mail radarjflandia@gmail.com. Erros são corrigidos o mais rápido possível. O código do site é aberto e pode ser conferido por qualquer pessoa.</p>`;
 }
 
+// ---------- Bueiros e chuvas: pedidos de limpeza de bueiro e drenagem ----------
+// Separação feita pelo texto oficial de cada requerimento (mesma base da busca por bairro).
+const RE_CHUVA = /bueiro|bocas? de lobo|drenagem|pluvia|manilha|alagament|enchente|inunda|desassorea|caixa coletora|canaliza|aguas? da chuva|escoamento/;
+const RE_CORREGO = /corrego/;
+const RE_CORREGO_OK = /limpeza|desobstru|desentup|desassorea|manilha|canaliza|enchente|alaga|transbord|drenag|pluvia/;
+const RE_SO_REFERENCIA = /tapa.buraco|patrolament|iluminacao|poste|lampada/;
+const RE_LIGADO = /pluvia|drenag|desobstru|desentup|limpeza|entup|alaga|enchente|grade|tampa|afund|captacao/;
+function ehPedidoChuva(p) {
+  if (p.g !== "pedidos") return false;
+  const t = norm(p.e);
+  const forte = RE_CHUVA.test(t) || (RE_CORREGO.test(t) && RE_CORREGO_OK.test(t));
+  if (!forte) return false;
+  // o bueiro aparece só como ponto de referência (ex.: tapa-buraco "perto do bueiro")
+  if (RE_SO_REFERENCIA.test(t) && !RE_LIGADO.test(t)) return false;
+  if (/patrolament/.test(t) && /nao entupir/.test(t)) return false;
+  return true;
+}
+function tipoChuva(p) {
+  const t = norm(p.e);
+  if (/alaga|enchente|inunda|transbord/.test(t)) return "alag";
+  if (/limpeza|desobstru|desentup|desassorea|entupid|limpar/.test(t)) return "limpa";
+  if (/constru|implant|instala|nova rede|extensao|amplia|captacao|canaliza|manilhament|estudo|projeto|obra/.test(t)) return "obra";
+  return "conserto";
+}
+const TIPO_CHUVA = {limpa: ["Limpeza e desentupimento", "bueiro, boca de lobo, galeria, córrego"], conserto: ["Conserto", "tampa, grade, afundamento, rede quebrada"], obra: ["Obra de drenagem", "rede nova de água da chuva, manilhas, canalização"], alag: ["Alagamento e enchente", "pedidos que citam alagamento ou enchente"]};
+const MES_NOME = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+
+async function pgBueiros(arg) {
+  await Promise.all([carregarResumo(), carregarPropostas()]);
+  const todos = PROPOSTAS.filter(ehPedidoChuva);
+  todos.forEach(p => p._tc = tipoChuva(p));
+  const anos = [...new Set(todos.map(p => p.a))].sort((a, b) => b - a);
+  let ano = anos.includes(+arg) ? +arg : anos[0];
+  const atuais = RESUMO.vereadores.filter(v => !v.fora_da_lista);
+  const ultimaData = todos.map(p => p.d || "").sort().pop();
+
+  app.innerHTML = `
+    <h1>Bueiros e chuvas</h1>
+    <p class="sub">Quando chove forte em Juiz de Fora, a pergunta volta: quem pediu a limpeza dos bueiros, das bocas de lobo e dos córregos, e onde? Aqui estão todos os pedidos dos vereadores sobre drenagem e água da chuva, tirados do sistema oficial da Câmara.</p>
+    <div class="aviso-forte"><b>Importante:</b> "Aprovado" quer dizer que o plenário da Câmara aprovou o envio do pedido à Prefeitura (ou à Cesama). <b>Não quer dizer que o serviço foi feito.</b> A Câmara não publica se o bueiro foi limpo. Pedido repetido também não prova abandono: pode ser outro trecho da rua, ou o problema pode ter voltado.</div>
+    <div class="chips-filtro" id="bu-anos">${anos.map(a => `<a href="javascript:void 0" data-a="${a}">${a}</a>`).join("")}</div>
+    <div id="bu-corpo"></div>
+    <p class="sub fonte-linha">Como foi feito: entram os requerimentos de pedido de serviço cujo texto cita bueiro, boca de lobo, drenagem, água pluvial, manilha, galeria, alagamento, enchente, desassoreamento ou limpeza de córrego. Ficam fora os pedidos em que o bueiro só aparece como ponto de referência (por exemplo, um tapa-buraco "perto do bueiro"). A separação é feita por computador a partir do texto oficial e pode errar em algum caso: abra o documento para conferir. Quando um pedido tem mais de um autor, conta para cada um. Dados até ${dataBR(ultimaData)}. Fonte: <a href="${BUSCA_CAMARA}" target="_blank" rel="noopener">sistema oficial da Câmara Municipal (iS@l)</a>. O que a Prefeitura gastou com as chuvas está em <a href="#/prefeitura/chuvas">O dinheiro das chuvas</a>.</p>`;
+
+  const desenha = () => {
+    document.querySelectorAll("#bu-anos a").forEach(a => a.classList.toggle("on", +a.dataset.a === ano));
+    history.replaceState(null, "", "#/bueiros/" + ano);
+    const P = todos.filter(p => p.a === ano);
+    // por mês
+    const meses = Array(12).fill(0);
+    P.forEach(p => { if (p.d) meses[+p.d.slice(5, 7) - 1]++; });
+    const ultimoMes = ano === new Date().getFullYear() ? new Date().getMonth() : 11;
+    const mxM = Math.max(...meses, 1);
+    const picoM = meses.indexOf(Math.max(...meses));
+    // por tipo
+    const tipos = {};
+    P.forEach(p => tipos[p._tc] = (tipos[p._tc] || 0) + 1);
+    // por vereador
+    const porV = {};
+    P.forEach(p => p.au.forEach(a => porV[a] = (porV[a] || 0) + 1));
+    const rk = Object.entries(porV).filter(([id]) => VER[id]).map(([id, n]) => ({v: VER[id], n})).sort((a, b) => b.n - a.n);
+    const mxV = Math.max(...rk.map(l => l.n), 1);
+    const semPedido = atuais.filter(v => !porV[v.id]);
+    // por bairro
+    const porB = {};
+    P.forEach(p => { if (p.b) porB[p.b] = (porB[p.b] || 0) + 1; });
+    const bairros = Object.entries(porB).sort((a, b) => b[1] - a[1]);
+    const mxB = Math.max(...bairros.map(b => b[1]), 1);
+    // ruas que voltam (todos os anos)
+    const porR = {};
+    todos.forEach(p => { if (p.r) { const k = p.r + "|" + (p.b || ""); (porR[k] = porR[k] || []).push(p); } });
+    const voltam = Object.entries(porR).filter(([, ps]) => ps.length >= 3).sort((a, b) => b[1].length - a[1].length);
+    const ultimos = P.slice().sort((a, b) => (b.d || "").localeCompare(a.d || "")).slice(0, 8);
+
+    document.getElementById("bu-corpo").innerHTML = `
+      <div class="rk-conta"><span>${fmt(P.length)} pedidos em ${ano}</span>${Object.keys(TIPO_CHUVA).filter(k => tipos[k]).map(k => `<span style="font-weight:400">${TIPO_CHUVA[k][0]}: <b>${fmt(tipos[k])}</b></span>`).join("")}</div>
+      <h2>Mês a mês</h2>
+      <p class="sub">Os pedidos sobem depois das chuvas fortes.${meses[picoM] ? ` Em ${ano}, o mês com mais pedidos foi <b>${["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"][picoM]}</b> (${fmt(meses[picoM])}).` : ""}${ano === 2026 ? " Em março de 2026 a cidade estava em calamidade por causa das chuvas." : ""}</p>
+      <div class="bu-meses">${meses.map((n, i) => i > ultimoMes ? "" : `<div class="bu-mes${i === picoM ? " pico" : ""}" title="${MES_NOME[i]}/${ano}: ${n} pedidos"><span class="n">${n}</span><i style="height:${Math.round(100 * n / mxM)}%"></i><span class="m">${MES_NOME[i]}</span></div>`).join("")}</div>
+      <h2>Quem mais pediu</h2>
+      <p class="sub">Número de pedidos sobre bueiros, drenagem e chuvas em ${ano}. Mais pedidos não quer dizer mais serviço feito: alguns vereadores fazem um pedido por rua, outros um pedido para o bairro inteiro.</p>
+      ${rk.map((l, i) => `
+        <a class="rk" href="#/v/${l.v.id}"><span class="rk-pos">${i + 1}º</span>${avatar(l.v)}
+          <span class="rk-cx"><span class="rk-nm">${esc(l.v.apelido)}<small>${esc(l.v.partido || "")}</small></span>
+          <span class="rk-barra"><i style="width:${100 * l.n / mxV}%"></i></span></span>
+          <span class="rk-nota">${fmt(l.n)}<small>pedidos</small></span></a>`).join("")}
+      ${semPedido.length ? `<p class="sub">Sem nenhum pedido desse tipo em ${ano}: ${semPedido.map(v => `<a href="#/v/${v.id}">${esc(v.apelido)}</a>`).join(", ")}.</p>` : ""}
+      <h2>Bairros mais citados</h2>
+      <p class="sub">${fmt(bairros.length)} bairros aparecem nos pedidos de ${ano}. Toque no bairro para ver os pedidos.</p>
+      <div>${bairros.slice(0, 15).map(([b, n]) => `<a class="barra-l bu-b" href="javascript:void 0" data-b="${esc(b)}"><span class="bl-t">${esc(b)}</span><span class="bl-b"><i style="width:${Math.round(100 * n / mxB)}%"></i></span><span class="bl-v">${n}</span></a>`).join("")}</div>
+      <h2>Tem pedido para a minha rua?</h2>
+      <input type="search" id="bu-q" placeholder="Digite a rua ou o bairro" autocomplete="off">
+      <div id="bu-res"></div>
+      <h2>Ruas que voltam sempre</h2>
+      <p class="sub">Ruas com 3 ou mais pedidos sobre bueiro e drenagem desde 2025 (somando os anos).</p>
+      ${voltam.slice(0, 15).map(([k, ps]) => {
+        const [r, b] = k.split("|");
+        const quem = [...new Set(ps.flatMap(p => p.au))].map(a => esc(nomeAutor(a))).join(", ");
+        const ds = ps.map(p => p.d).filter(Boolean).sort();
+        return `<div class="rep"><div><span class="q">${ps.length} vezes</span> <b>${esc(r)}</b>${b ? ", " + esc(b) : ""}</div>
+          <div class="pe" style="font-size:14px;color:#555">${ds.length ? `De ${dataBR(ds[0])} a ${dataBR(ds[ds.length - 1])}<br>` : ""}Quem pediu: ${quem}</div>
+          <details><summary>Ver os ${ps.length} pedidos</summary>${ps.map(p => itemHTML(p, true)).join("")}</details></div>`;
+      }).join("") || `<p class="sub">Nenhuma rua com 3 ou mais pedidos.</p>`}
+      <h2>Os pedidos mais recentes</h2>
+      ${ultimos.map(p => itemHTML(p, true)).join("")}`;
+
+    const inp = document.getElementById("bu-q");
+    const res = document.getElementById("bu-res");
+    const busca = () => {
+      const q = norm(inp.value.trim());
+      res.innerHTML = "";
+      if (q.length < 3) { res.innerHTML = `<p class="sub">Digite pelo menos 3 letras.</p>`; return; }
+      const it = todos.filter(p => p._busca.includes(q)).sort((a, b) => (b.d || "").localeCompare(a.d || ""));
+      res.insertAdjacentHTML("beforeend", `<p class="sub">${fmt(it.length)} pedidos encontrados (2025 e 2026).</p>`);
+      if (it.length) lista(it, res, 20, true);
+    };
+    let t; inp.oninput = () => { clearTimeout(t); t = setTimeout(busca, 250); };
+    document.querySelectorAll(".bu-b").forEach(a => a.onclick = () => { inp.value = a.dataset.b; busca(); inp.scrollIntoView({behavior: "smooth", block: "start"}); });
+    busca();
+  };
+  document.querySelectorAll("#bu-anos a").forEach(a => a.onclick = () => { ano = +a.dataset.a; desenha(); });
+  desenha();
+}
+
 // ---------- rotas ----------
 const SELO_NOVO = `<span class="selo-novo" aria-label="novo em 2026"><b>novo</b><small>2026</small></span>`;
 // itens recém-lançados ganham o selo "novo 2026" no menu (tirar daqui depois de algumas semanas)
-const NOVOS = new Set(["#/prefeitura/combustivel", "#/custo", "#/prefeita", "#/prefeitura/previdencia", "#/prefeitura/obras", "#/votacoes", "#/diarias", "#/prefeitura/alugueis", "#/imoveis", "#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
+const NOVOS = new Set(["#/bueiros", "#/prefeitura/combustivel", "#/custo", "#/prefeita", "#/prefeitura/previdencia", "#/prefeitura/obras", "#/votacoes", "#/diarias", "#/prefeitura/alugueis", "#/imoveis", "#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
 const SUBNAV = {
   camara: [
     ["novo", [["#/prefeita", "Com a prefeita ou contra?", "balanca"], ["#/votacoes", "Como votaram", "balanca"], ["#/diarias", "Diárias de viagem", "pin"], ["#/imoveis", "Imóveis alugados", "predios"], ["#/custo", "Custo por morador", "dinheiro"]]],
-    ["alerta", [["#/combustivel", "Combustível", "carro"], ["#/obra", "O pedido virou obra?", "predios"], ["#/repetidos", "Pedidos que voltam", "repete"]]],
+    ["alerta", [["#/bueiros", "Bueiros e chuvas", "alerta"], ["#/combustivel", "Combustível", "carro"], ["#/obra", "O pedido virou obra?", "predios"], ["#/repetidos", "Pedidos que voltam", "repete"]]],
     ["olha", [["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/placar", "Ranking", "placar"]]],
     ["consulte", [["#/camara", "Vereadores", "pessoas"], ["#/busca", "Meu bairro", "pin"], ["#/agenda", "Agenda", "agenda"], ["#/atas", "Atas", "lupa"]]],
   ],
@@ -1109,7 +1233,7 @@ async function rota() {
   const h = location.hash.replace(/^#\/?/, "");
   const partes = h.split("/").map(decodeURIComponent);
   const pag = partes[0], arg = partes.slice(1).join("/");
-  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende", "votacoes", "quente", "obra", "combustivel", "imoveis", "diarias", "prefeita"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
+  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende", "votacoes", "quente", "obra", "combustivel", "imoveis", "diarias", "prefeita", "bueiros"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
   document.querySelectorAll("nav.areas a").forEach(a => a.classList.toggle("ativo", a.dataset.area === area));
   const sub = document.getElementById("subnav");
   const atual = "#/" + h;
@@ -1140,6 +1264,7 @@ async function rota() {
     else if (pag === "votacoes") pgVotacoes(arg);
     else if (pag === "quente") await pgQuente(arg);
     else if (pag === "obra") await pgPedidoObra(arg);
+    else if (pag === "bueiros") await pgBueiros(arg);
     else if (pag === "combustivel") await pgCombustivel(arg);
     else if (pag === "diarias") await pgDiarias(arg);
     else if (pag === "prefeita") await pgExecutivo(arg);
