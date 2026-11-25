@@ -50,8 +50,8 @@ const TT = { parte: 1, resp: {}, temas: [], bairro: "" };
 function ttVereador(id, extra) {
   const v = VER[id] || { id, apelido: "vereador " + id };
   const fora = v.fora_da_lista ? `<small class="tt-fora">não está mais na Câmara</small>` : "";
-  const nome = `${avatar(v)}<span class="rk-cx"><span class="rk-nm">${esc(v.apelido)}<small>${esc(v.partido || "")}</small></span>${fora}</span>${extra}`;
-  return VER[id] ? `<a class="rk tt-rk" href="#/v/${id}">${nome}</a>` : `<div class="rk tt-rk">${nome}</div>`;
+  const nome = `${avatar(v)}<span class="tt-cx"><b>${esc(v.apelido)}</b> <small>${esc(v.partido || "")}</small>${fora}</span>${extra}`;
+  return VER[id] ? `<a class="tt-v" href="#/v/${id}">${nome}</a>` : `<div class="tt-v">${nome}</div>`;
 }
 
 async function pgTeste(arg) {
@@ -103,7 +103,7 @@ async function pgTeste(arg) {
       const r = placarVotos(perguntas, TT.resp);
       const res = document.getElementById("tt-res1");
       if (!r.respondidas) { res.innerHTML = `<p class="aviso-forte">Responda Sim ou Não em pelo menos uma votação.</p>`; res.scrollIntoView({ behavior: "smooth" }); return; }
-      const de = n => `<span class="rk-nota">${n}<small>de ${r.respondidas}</small></span>`;
+      const de = n => `<span class="tt-nota">${n}<small>de ${r.respondidas}</small></span>`;
       const semNome = perguntas.filter(q => TT.resp[q.id] === "sim" || TT.resp[q.id] === "nao").filter(q => !(TT.resp[q.id] === "sim" ? q.sim : q.nao).length).length;
       res.innerHTML = `
         <h2>Ficaram do seu lado</h2>
@@ -144,13 +144,13 @@ async function pgTeste(arg) {
         .sort((a, b) => (alvo && normBairro(b.b) === alvo) - (alvo && normBairro(a.b) === alvo) || (b.d || "").localeCompare(a.d || ""));
       res.innerHTML = `
         <h2>Quem mais pediu</h2>
-        <p class="sub">${esc(TT.temas.join(", "))}${TT.bairro ? `, com peso maior para ${esc(TT.bairro)}` : ""}.</p>
+        <p class="sub">${esc(TT.temas.join(", "))}${TT.bairro && r.bairroAchado ? `, com peso maior para ${esc(TT.bairro)}` : ""}.</p>
         ${TT.bairro && !r.bairroAchado ? `<p class="aviso-forte">Nenhum pedido sobre esses temas cita o bairro "${esc(TT.bairro)}". O resultado abaixo considera a cidade toda.</p>` : ""}
-        ${r.top.map((x, i) => `${ttVereador(x.id, `<span class="rk-nota">${fmt(x.total)}<small>pedidos${x.noBairro ? `, ${fmt(x.noBairro)} no bairro` : ""}</small></span>`)}
+        ${r.top.map((x, i) => `${ttVereador(x.id, `<span class="tt-nota">${fmt(x.total)}<small>pedidos${x.noBairro ? `<br>${fmt(x.noBairro)} no bairro` : ""}</small></span>`)}
           <details class="tt-ped"><summary>Ver os pedidos de ${esc(nomeAutor(x.id))}</summary>${deles(x.id).slice(0, 30).map(p => itemHTML(p, false)).join("")}</details>`).join("")
           || `<p class="sub">Nenhum pedido sobre esses temas desde 2025.</p>`}
         <p class="sub">Mais pedidos não quer dizer mais serviço feito: alguns vereadores fazem um pedido por rua, outros um para o bairro inteiro.</p>
-        ${ttCompartilhar(`Fiz o teste do Radar JFlândia. Quem mais pediu ${TT.temas.join(", ").toLowerCase()}${TT.bairro ? " para " + TT.bairro : ""}: ${r.top.slice(0, 3).map(x => nomeAutor(x.id)).join(", ")}.`)}`;
+        ${ttCompartilhar(`Fiz o teste do Radar JFlândia. Quem mais pediu ${TT.temas.join(", ").toLowerCase()}${TT.bairro && r.bairroAchado ? " para " + TT.bairro : ""}: ${r.top.slice(0, 3).map(x => nomeAutor(x.id)).join(", ")}.`)}`;
       res.scrollIntoView({ behavior: "smooth", block: "start" });
     };
   };
