@@ -758,13 +758,13 @@ async function pgBueiros(arg) {
 // ---------- rotas ----------
 const SELO_NOVO = `<span class="selo-novo" aria-label="novo em 2026"><b>novo</b><small>2026</small></span>`;
 // itens recém-lançados ganham o selo "novo 2026" no menu (tirar daqui depois de algumas semanas)
-const NOVOS = new Set(["#/bueiros", "#/prefeitura/combustivel", "#/custo", "#/prefeita", "#/prefeitura/previdencia", "#/prefeitura/obras", "#/votacoes", "#/diarias", "#/prefeitura/alugueis", "#/imoveis", "#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
+const NOVOS = new Set(["#/teste", "#/bueiros", "#/prefeitura/combustivel", "#/custo", "#/prefeita", "#/prefeitura/previdencia", "#/prefeitura/obras", "#/votacoes", "#/diarias", "#/prefeitura/alugueis", "#/imoveis", "#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
 const SUBNAV = {
   camara: [
     ["novo", [["#/prefeita", "Com a prefeita ou contra?", "balanca"], ["#/votacoes", "Como votaram", "balanca"], ["#/diarias", "Diárias de viagem", "pin"], ["#/imoveis", "Imóveis alugados", "predios"], ["#/custo", "Custo por morador", "dinheiro"]]],
     ["alerta", [["#/bueiros", "Bueiros e chuvas", "alerta"], ["#/combustivel", "Combustível", "carro"], ["#/obra", "O pedido virou obra?", "predios"], ["#/repetidos", "Pedidos que voltam", "repete"]]],
     ["olha", [["#/quente", "Assunto do mês", "alerta"], ["#/defende", "Quem defende o quê", "fala"], ["#/placar", "Ranking", "placar"]]],
-    ["consulte", [["#/camara", "Vereadores", "pessoas"], ["#/busca", "Meu bairro", "pin"], ["#/agenda", "Agenda", "agenda"], ["#/atas", "Atas", "lupa"]]],
+    ["consulte", [["#/teste", "Teste: qual vereador combina com você?", "balanca"], ["#/camara", "Vereadores", "pessoas"], ["#/busca", "Meu bairro", "pin"], ["#/agenda", "Agenda", "agenda"], ["#/atas", "Atas", "lupa"]]],
   ],
   prefeitura: [
     ["novo", [["#/prefeitura/previdencia", "Previdência: multas e atrasos", "alerta"], ["#/prefeitura/obras", "Obras: previsto x feito", "predios"], ["#/prefeitura/alugueis", "Imóveis alugados", "predios"], ["#/prefeitura/hospitais", "Hospitais", "coracao"]]],
@@ -823,6 +823,7 @@ function pgEscolha() {
     <div id="instalar-app"></div>
     <p class="sec-t">Novidades no Radar</p>
     <div class="novos">
+      <a href="#/teste"><span class="nv-ic">${ic("balanca")}</span><b>Teste: qual vereador combina com você?</b><small>Responda sobre votações da Câmara e sobre o seu bairro.</small>${SELO_NOVO}</a>
       <a href="#/quente"><span class="nv-ic">${ic("alerta")}</span><b>Assunto quente do mês</b><small>O que mais vereadores levaram às reuniões, mês a mês.</small>${SELO_NOVO}</a>
       <a href="#/defende"><span class="nv-ic">${ic("fala")}</span><b>Quem defende o quê</b><small>Os assuntos que cada vereador mais leva para a tribuna.</small>${SELO_NOVO}</a>
       <a href="#/placar/tribuna"><span class="nv-ic">${ic("placar")}</span><b>Quem mais fala</b><small>Em quantas reuniões cada vereador falou, contado nas atas.</small>${SELO_NOVO}</a>
@@ -1233,7 +1234,7 @@ async function rota() {
   const h = location.hash.replace(/^#\/?/, "");
   const partes = h.split("/").map(decodeURIComponent);
   const pag = partes[0], arg = partes.slice(1).join("/");
-  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende", "votacoes", "quente", "obra", "combustivel", "imoveis", "diarias", "prefeita", "bueiros"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
+  const area = pag === "prefeitura" ? "prefeitura" : ["camara", "v", "busca", "repetidos", "grupo", "placar", "agenda", "atas", "defende", "votacoes", "quente", "obra", "combustivel", "imoveis", "diarias", "prefeita", "bueiros", "teste"].includes(pag) ? "camara" : pag === "sobre" ? "sobre" : "";
   document.querySelectorAll("nav.areas a").forEach(a => a.classList.toggle("ativo", a.dataset.area === area));
   const sub = document.getElementById("subnav");
   const atual = "#/" + h;
@@ -1265,6 +1266,7 @@ async function rota() {
     else if (pag === "quente") await pgQuente(arg);
     else if (pag === "obra") await pgPedidoObra(arg);
     else if (pag === "bueiros") await pgBueiros(arg);
+    else if (pag === "teste") await pgTeste(arg);
     else if (pag === "combustivel") await pgCombustivel(arg);
     else if (pag === "diarias") await pgDiarias(arg);
     else if (pag === "prefeita") await pgExecutivo(arg);

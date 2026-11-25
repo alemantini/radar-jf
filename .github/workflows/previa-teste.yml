@@ -1,0 +1,28 @@
+name: Prévia do teste do eleitor (ramo teste-eleitor)
+on:
+  push:
+    branches: [teste-eleitor]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  previa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - run: pip install playwright && python -m playwright install --with-deps chromium
+      - name: Site publicado + arquivos do ramo
+        env: {GH_TOKEN: "${{ github.token }}"}
+        run: |
+          bash tools/versao_anterior.sh
+          cp -r /tmp/anterior /tmp/previa
+          cp site/app.js site/prefeitura.js site/teste.js site/estilo.css site/index.html /tmp/previa/
+          mkdir -p site/dados && cp /tmp/anterior/dados/executivo.json site/dados/
+          python scripts/teste_votacoes.py && cp site/dados/teste.json /tmp/previa/dados/
+      - run: mkdir -p tools/prints-teste && python tools/previa_teste.py /tmp/previa
+      - run: |
+          git config user.name "radar-robo"; git config user.email "radar-robo@users.noreply.github.com"
+          git add -f tools/prints-teste && git commit -m "Prévia do teste [skip ci]" && git push origin HEAD:teste-eleitor || true
