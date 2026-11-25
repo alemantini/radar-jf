@@ -1021,6 +1021,17 @@
 },
 {
 "n": 3,
+"fase": "3ª Discussão",
+"proposicao": "Projeto de Lei 224/2026",
+"ementa": "Estabelece diretrizes para o acolhimento informativo e a facilitação de assistência jurídica administrativa aos agentes públicos que sofrerem violência ou desacato no exercício da função pública no Município de Juiz de Fora, e dá outras providências.",
+"autoria": "Vereador Dr. Marcelo Condé",
+"quorum": "Maioria simples",
+"obs": "COMISSÃO DE REDAÇÃO",
+"vista": false,
+"temas": []
+},
+{
+"n": 4,
 "fase": "2ª Discussão",
 "proposicao": "Projeto de Lei 227/2026",
 "ementa": "Dispõe sobre a atualização monetária anual do valor do aporte das entidades mantenedoras ao Plano de Assistência à Saúde (PAS-JF) dos servidores da Administração Direta e Indireta do Município de Juiz de Fora.",
@@ -1034,7 +1045,7 @@
 ]
 },
 {
-"n": 4,
+"n": 5,
 "fase": "2ª Discussão",
 "proposicao": "Projeto de Lei 184/2026",
 "ementa": "Altera o art. 9º e acrescenta os arts. 9°A; 9°B; 9°C; 9°D; 9°E; 9°F á Lei nº 14.364 de 25 de janeiro de 2022, que institui o \"Abrace um Campo\" para captação de parcerias para a implantação, reforma e manutenção de campos públicos de futebol amador, e dá outras providências\".",
@@ -1045,7 +1056,7 @@
 "temas": []
 },
 {
-"n": 5,
+"n": 6,
 "fase": "2ª Discussão",
 "proposicao": "Projeto de Lei 81/2025",
 "ementa": "Dispõe sobre a fixação de placas informativas nas unidades públicas e privadas de saúde do Município de Juiz de Fora, versando sobre a Entrega Legal, instituída pela Lei Federal n°13.509, de 22/11/2017.",
@@ -1058,7 +1069,7 @@
 ]
 },
 {
-"n": 6,
+"n": 7,
 "fase": "2ª Discussão",
 "proposicao": "Mensagem do Executivo (Projeto de Lei Complementar) 4736/2026",
 "ementa": "Dispõe sobre normas para instituição de condomínios de lotes no âmbito do Município de Juiz de Fora, e dá outras providências.",
@@ -1069,7 +1080,31 @@
 "temas": []
 },
 {
-"n": 7,
+"n": 8,
+"fase": "2ª Discussão",
+"proposicao": "Projeto de Lei 269/2026",
+"ementa": "Institui a Lei Gabriel Stambassi no Município de Juiz de Fora, com a finalidade de promover a segurança, a acessibilidade e a inclusão das pessoas autistas, neurodivergentes e com deficiência no trânsito e nos espaços públicos municipais.",
+"autoria": "Vereador Dr. Antônio Aguiar",
+"quorum": "Maioria simples",
+"obs": "-",
+"vista": false,
+"temas": [
+"Segurança"
+]
+},
+{
+"n": 9,
+"fase": "2ª Discussão",
+"proposicao": "Projeto de Lei 259/2026",
+"ementa": "Institui o Programa Abrigo Seguro no Município de Juiz de Fora e dá outras providências.",
+"autoria": "Vereadores Letícia Delgado e Yuri Fófano",
+"quorum": "Maioria simples",
+"obs": "-",
+"vista": false,
+"temas": []
+},
+{
+"n": 10,
 "fase": "1ª Discussão",
 "proposicao": "Projeto de Lei 189/2026",
 "ementa": "Institui a \"Lei Rafaela Drumond\" que Dispõe sobre a prevenção, o combate e a responsabilização por práticas de assédio moral no âmbito da administração pública direta e indireta do Município de Juiz de Fora.",
@@ -1080,7 +1115,7 @@
 "temas": []
 },
 {
-"n": 8,
+"n": 11,
 "fase": "1ª Discussão",
 "proposicao": "Projeto de Lei 80/2025",
 "ementa": "Institui o Programa Municipal de Avaliação Escolar - PROVA-JF e a Bonificação de Desempenho Profissional para os docentes da rede pública municipal de Juiz de Fora, e dá outras providências.",
@@ -1093,7 +1128,7 @@
 ]
 },
 {
-"n": 9,
+"n": 12,
 "fase": "1ª Discussão",
 "proposicao": "Projeto de Lei 84/2026",
 "ementa": "Dispõe sobre garantias aos trabalhadores vinculados a contratos de prestação de serviços terceirizados no âmbito do Município de Juiz de Fora e dá outras providências.",
@@ -1106,7 +1141,7 @@
 ]
 },
 {
-"n": 10,
+"n": 13,
 "fase": "1ª Discussão",
 "proposicao": "Projeto de Lei 12/2024",
 "ementa": "\"Dispõe sobre as sanções administrativas aplicadas pelo Município de Juiz de Fora às pessoas que forem flagradas em áreas e logradouros públicos fazendo uso de drogas ilícitas em desacordo com determinação legal ou regulamentar, e dá outras providências.\"",
@@ -1117,13 +1152,13 @@
 "temas": []
 },
 {
-"n": 11,
+"n": 14,
 "fase": "1ª Discussão",
 "proposicao": "Projeto de Lei 264/2026",
 "ementa": "Dispõe sobre denominação de Logradouro Público (Travessa Dom Eurico dos Santos Veloso)",
 "autoria": "Vereador Juraci Scheffer",
 "quorum": "Maioria simples",
-"obs": "LEITURA DOS PARECERES. 12 Apreciação Preliminar. Art",
+"obs": "LEITURA DOS PARECERES. 15 Apreciação Preliminar. Art",
 "vista": false,
 "temas": [
 "Homenagens"
@@ -1136,7 +1171,7 @@
 "ementa": "Institui o Programa Municipal Casas Ancestrais e dá outras providências",
 "autoria": "Vereadora Laiz Perrut",
 "quorum": "Maioria simples",
-"obs": "VISTA Vereadores Roberta Lopes, André Mariano e Vitinho. USOU DA PALAVRA Vereadora Laiz Perrut. 13 Apreciação Preliminar. Art",
+"obs": "VISTA Vereadores Roberta Lopes, André Mariano e Vitinho. USOU DA PALAVRA Vereadora Laiz Perrut. 16 Apreciação Preliminar. Art",
 "vista": true,
 "temas": []
 },
@@ -1152,7 +1187,7 @@
 "temas": []
 },
 {
-"n": 14,
+"n": 17,
 "fase": "Veto Total",
 "proposicao": "Projeto de Lei 255/2026",
 "ementa": "Altera o § 2º do art. 17 da Lei nº 14.158, de 18 de janeiro de 2021.",
@@ -1163,7 +1198,7 @@
 "temas": []
 },
 {
-"n": 15,
+"n": 18,
 "fase": "Veto Parcial",
 "proposicao": "Projeto de Lei 50/2025",
 "ementa": "Institui diretrizes de responsabilidade social nas contratações públicas municipais, com previsão de cláusula social para adoção da escala 5x2 nos contratos de prestação de serviços terceirizados com dedicação de mão de obra, e dá outras providências.",
