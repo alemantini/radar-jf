@@ -1,0 +1,134 @@
+[
+ {
+  "id": "vigilante-escolas",
+  "fonte": "manual",
+  "ref": "PL 195/2025",
+  "pergunta": "Vigilante armado e câmera dentro da sala de aula nas escolas municipais?",
+  "explica": "Projeto de Roberta Lopes. Rejeitado por 11 a 4 em 19/11/2026.",
+  "sim": [
+   44,
+   24,
+   13,
+   42
+  ],
+  "nao": [
+   25,
+   4,
+   27,
+   28,
+   29,
+   31,
+   40,
+   14,
+   37,
+   32,
+   43
+  ],
+  "data": "2026-11-19",
+  "ata": null,
+  "resultado": "rejeitado",
+  "aviso": "Placar da imprensa: a ata oficial desta reunião ainda não foi publicada.",
+  "link": "#/votacoes/vigilancia-escolas"
+ },
+ {
+  "id": "emprestimos-dez-2025",
+  "fonte": "executivo",
+  "ref": "4.717/2025",
+  "disc": "3ª discussão",
+  "sim_e": "aprovar",
+  "pergunta": "Autorizar a Prefeitura a fazer novos empréstimos com a Caixa e o BNDES?",
+  "explica": "Quatro pedidos de empréstimo da prefeita votados juntos em 12/12/2025 (Mensagens 4.711, 4.715, 4.716 e 4.717). Os quatro tiveram os mesmos votos contrários na votação final."
+ },
+ {
+  "id": "emprestimo-gentil-forn",
+  "fonte": "executivo",
+  "ref": "4.734/2026",
+  "disc": "3ª discussão",
+  "sim_e": "aprovar",
+  "pergunta": "Empréstimo de até R$ 86 milhões com a Caixa para recuperar a Estrada Engenheiro Gentil Forn (Região Oeste)?",
+  "explica": "Programa Avançar Cidades, com dinheiro do FGTS. Votado em 14/07/2026."
+ },
+ {
+  "id": "passe-livre",
+  "fonte": "executivo",
+  "ref": "4.681/2025",
+  "disc": "3ª discussão",
+  "sim_e": "aprovar",
+  "pergunta": "Criar o Passe Livre Estudantil?",
+  "explica": "Projeto da prefeita, votado em 19/03/2025."
+ },
+ {
+  "id": "lixo-zero",
+  "fonte": "executivo",
+  "ref": "4.680/2025",
+  "disc": "3ª discussão",
+  "sim_e": "aprovar",
+  "pergunta": "Tornar obrigatória a coleta seletiva de recicláveis em casas, comércios, indústrias e prédios públicos (Programa Lixo Zero)?",
+  "explica": "Projeto da prefeita, votado em 15/04/2025."
+ },
+ {
+  "id": "cesama-subvencao",
+  "fonte": "executivo",
+  "ref": "4.725/2026",
+  "disc": "2ª discussão",
+  "sim_e": "aprovar",
+  "pergunta": "Prefeitura repassar dinheiro à Cesama para o plano de investimentos da companhia?",
+  "explica": "Subvenção econômica pedida pela prefeita. A Câmara aprovou um texto substitutivo em 27/03/2026."
+ },
+ {
+  "id": "veto-clubes-tiro",
+  "fonte": "veto",
+  "ref": "PL 65/2025",
+  "sim_e": "derrubar",
+  "pergunta": "Derrubar o veto da prefeita à lei que reconhece clubes de tiro e escolas de vigilantes como de utilidade pública?",
+  "explica": "Lei de Roberta Lopes. A prefeita vetou uma parte da lei (a ata não diz qual). O veto foi mantido em 28/05/2026."
+ },
+ {
+  "id": "veto-genero-escolas",
+  "fonte": "veto",
+  "ref": "PL 193/2025",
+  "sim_e": "derrubar",
+  "pergunta": "Derrubar o veto da prefeita à lei que deixa pais proibirem os filhos de participar de atividades pedagógicas de gênero?",
+  "explica": "Lei de Roberta Lopes. O veto foi derrubado em 19/08/2026."
+ },
+ {
+  "id": "veto-moradores-rua",
+  "fonte": "veto",
+  "ref": "PL 235/2025",
+  "sim_e": "derrubar",
+  "pergunta": "Derrubar o veto da prefeita à política sobre uso do espaço público e população em situação de rua?",
+  "explica": "Lei do Sargento Mello Casal. O veto foi derrubado em 02/07/2026."
+ },
+ {
+  "id": "veto-onibus-entidades",
+  "fonte": "veto",
+  "ref": "PL 125/2026",
+  "sim_e": "derrubar",
+  "pergunta": "Derrubar o veto da prefeita à lei que autoriza ceder ônibus de graça a entidades sem fins lucrativos, inclusive religiosas?",
+  "explica": "Lei de Juraci Scheffer. O veto foi derrubado em 28/08/2026."
+ },
+ {
+  "id": "veto-taxa-esgoto",
+  "fonte": "veto",
+  "ref": "PL 179/2025",
+  "sim_e": "derrubar",
+  "pergunta": "Derrubar o veto da prefeita à lei que proíbe cobrar taxa de tratamento de esgoto de quem não recebe o serviço?",
+  "explica": "Lei de Roberta Lopes. A procuradoria apontou ilegalidade. O veto foi mantido em 19/06/2026."
+ },
+ {
+  "id": "veto-radar-transparente",
+  "fonte": "veto",
+  "ref": "PL 153/2023",
+  "sim_e": "derrubar",
+  "pergunta": "Derrubar o veto da prefeita à lei que obriga audiências públicas sobre as propostas da Prefeitura (\"Radar Mais Transparente\")?",
+  "explica": "Lei de Marlon Siqueira. O veto foi mantido em 24/02/2025."
+ },
+ {
+  "id": "veto-politica-cuidados",
+  "fonte": "veto",
+  "ref": "PL 51/2025",
+  "sim_e": "derrubar",
+  "pergunta": "Derrubar o veto da prefeita à Política Municipal de Cuidados?",
+  "explica": "Lei de Laiz Perrut. O veto foi mantido em 26/11/2025."
+ }
+]

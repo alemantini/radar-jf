@@ -200,6 +200,10 @@ jobs:
         continue-on-error: true
         run: python scripts/camara_executivo.py || cp /tmp/anterior/dados/executivo.json site/dados/ || true
 
+      - name: Teste qual vereador combina com você (votações)
+        continue-on-error: true
+        run: python scripts/teste_votacoes.py || cp /tmp/anterior/dados/teste.json site/dados/ || true
+
       - name: Destaques da página inicial
         continue-on-error: true
         run: python scripts/destaques.py || cp /tmp/anterior/dados/destaques.json site/dados/ || true

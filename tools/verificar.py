@@ -9,7 +9,7 @@ BASE = sys.argv[1] if len(sys.argv) > 1 else "https://jflandia.com.br/"
 RUIM = re.compile(r"Não foi possível|ainda (está|não foi|não)|sendo feita|Carregando|\bundefined\b|\bNaN\b|\bnull\b|\[object|Invalid Date|R\$ -?0,00\b")
 INICIAIS = ["", "#/camara", "#/placar", "#/busca", "#/repetidos", "#/sobre", "#/apoie", "#/prefeitura",
             "#/prefeitura/alertas", "#/prefeitura/impostometro", "#/prefeitura/placar", "#/prefeitura/comissionados",
-            "#/prefeitura/emendas", "#/prefeitura/fornecedores", "#/prefeitura/busca"]
+            "#/prefeitura/emendas", "#/prefeitura/fornecedores", "#/prefeitura/busca", "#/teste/1", "#/teste/2"]
 LIMITE = 140
 
 problemas = []
