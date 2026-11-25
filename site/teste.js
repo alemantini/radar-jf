@@ -140,17 +140,18 @@ async function pgTeste(arg) {
       if (!TT.temas.length) { res.innerHTML = `<p class="aviso-forte">Escolha pelo menos um tema.</p>`; return; }
       const r = rankPedidos(PROPOSTAS, TT.temas, TT.bairro);
       const alvo = normBairro(TT.bairro);
+      const nomeB = bairros.find(b => normBairro(b) === alvo) || TT.bairro.trim();
       const deles = id => PROPOSTAS.filter(p => p.g === "pedidos" && String(p.a) >= "2025" && TT.temas.includes(p.tm) && p.au.includes(id))
         .sort((a, b) => (alvo && normBairro(b.b) === alvo) - (alvo && normBairro(a.b) === alvo) || (b.d || "").localeCompare(a.d || ""));
       res.innerHTML = `
         <h2>Quem mais pediu</h2>
-        <p class="sub">${esc(TT.temas.join(", "))}${TT.bairro && r.bairroAchado ? `, com peso maior para ${esc(TT.bairro)}` : ""}.</p>
+        <p class="sub">${esc(TT.temas.join(", "))}${TT.bairro && r.bairroAchado ? `, com peso maior para ${esc(nomeB)}` : ""}.</p>
         ${TT.bairro && !r.bairroAchado ? `<p class="aviso-forte">Nenhum pedido sobre esses temas cita o bairro "${esc(TT.bairro)}". O resultado abaixo considera a cidade toda.</p>` : ""}
         ${r.top.map((x, i) => `${ttVereador(x.id, `<span class="tt-nota">${fmt(x.total)}<small>pedidos${x.noBairro ? `<br>${fmt(x.noBairro)} no bairro` : ""}</small></span>`)}
           <details class="tt-ped"><summary>Ver os pedidos de ${esc(nomeAutor(x.id))}</summary>${deles(x.id).slice(0, 30).map(p => itemHTML(p, false)).join("")}</details>`).join("")
           || `<p class="sub">Nenhum pedido sobre esses temas desde 2025.</p>`}
         <p class="sub">Mais pedidos não quer dizer mais serviço feito: alguns vereadores fazem um pedido por rua, outros um para o bairro inteiro.</p>
-        ${ttCompartilhar(`Fiz o teste do Radar JFlândia. Quem mais pediu ${TT.temas.join(", ").toLowerCase()}${TT.bairro && r.bairroAchado ? " para " + TT.bairro : ""}: ${r.top.slice(0, 3).map(x => nomeAutor(x.id)).join(", ")}.`)}`;
+        ${ttCompartilhar(`Fiz o teste do Radar JFlândia. Quem mais pediu ${TT.temas.join(", ").toLowerCase()}${TT.bairro && r.bairroAchado ? " para " + nomeB : ""}: ${r.top.slice(0, 3).map(x => nomeAutor(x.id)).join(", ")}.`)}`;
       res.scrollIntoView({ behavior: "smooth", block: "start" });
     };
   };
