@@ -45,7 +45,7 @@ def montar(perguntas, executivo):
             sim, nao = (der, man) if q["sim_e"] == "derrubar" else (man, der)
             item = {"data": v["data"], "ata": v["ata"], "resultado": "veto " + v["res"]}
         saida.append({"id": q["id"], "pergunta": q["pergunta"], "explica": q["explica"], "ref": q["ref"],
-                      "sim": sim, "nao": nao, "so_contra_nomeado": not (sim and nao),
+                      "tipo": q["fonte"], "sim": sim, "nao": nao, "so_contra_nomeado": not (sim and nao),
                       "aviso": q.get("aviso"), "link": q.get("link"), **item})
     return {"gerado": dt.date.today().isoformat(), "perguntas": saida}
 

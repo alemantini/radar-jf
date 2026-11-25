@@ -88,6 +88,7 @@ async function pgTeste(arg) {
       ${perguntas.map((q, i) => `
         <div class="tt-q" data-id="${esc(q.id)}">
           <div class="tt-n">${i + 1}/${perguntas.length}</div>
+          ${q.tipo === "veto" ? `<span class="tt-veto">Lei vetada pela prefeita · Sim = você queria a lei valendo</span>` : ""}
           <p class="tt-perg">${esc(q.pergunta)}</p>
           <p class="sub">${esc(q.explica)} ${q.ata ? `<a href="${esc(TT_ATA + q.ata)}" target="_blank" rel="noopener">ver na ata</a>` : q.link ? `<a href="${esc(q.link)}">ver o placar</a>` : ""}</p>
           ${q.aviso ? `<p class="sub"><small>${esc(q.aviso)}</small></p>` : ""}

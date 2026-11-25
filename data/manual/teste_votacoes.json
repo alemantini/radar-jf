@@ -80,55 +80,55 @@
   "fonte": "veto",
   "ref": "PL 65/2025",
   "sim_e": "derrubar",
-  "pergunta": "Derrubar o veto da prefeita à lei que reconhece clubes de tiro e escolas de vigilantes como de utilidade pública?",
-  "explica": "Lei de Roberta Lopes. A prefeita vetou uma parte da lei (a ata não diz qual). O veto foi mantido em 28/05/2026."
+  "pergunta": "Você queria valendo a lei inteira que reconhece clubes de tiro e escolas de vigilantes como de utilidade pública?",
+  "explica": "Lei de Roberta Lopes. A prefeita vetou uma parte da lei (a ata não diz qual) e a Câmara manteve o veto em 28/05/2026."
  },
  {
   "id": "veto-genero-escolas",
   "fonte": "veto",
   "ref": "PL 193/2025",
   "sim_e": "derrubar",
-  "pergunta": "Derrubar o veto da prefeita à lei que deixa pais proibirem os filhos de participar de atividades pedagógicas de gênero?",
-  "explica": "Lei de Roberta Lopes. O veto foi derrubado em 19/08/2026."
+  "pergunta": "Os pais devem poder proibir os filhos de participar de atividades pedagógicas sobre gênero na escola?",
+  "explica": "Lei de Roberta Lopes. A prefeita vetou e a Câmara derrubou o veto em 19/08/2026."
  },
  {
   "id": "veto-moradores-rua",
   "fonte": "veto",
   "ref": "PL 235/2025",
   "sim_e": "derrubar",
-  "pergunta": "Derrubar o veto da prefeita à política sobre uso do espaço público e população em situação de rua?",
-  "explica": "Lei do Sargento Mello Casal. O veto foi derrubado em 02/07/2026."
+  "pergunta": "Criar uma política municipal de uso do espaço público e ação integrada sobre a população em situação de rua?",
+  "explica": "Lei do Sargento Mello Casal. A prefeita vetou e a Câmara derrubou o veto em 02/07/2026."
  },
  {
   "id": "veto-onibus-entidades",
   "fonte": "veto",
   "ref": "PL 125/2026",
   "sim_e": "derrubar",
-  "pergunta": "Derrubar o veto da prefeita à lei que autoriza ceder ônibus de graça a entidades sem fins lucrativos, inclusive religiosas?",
-  "explica": "Lei de Juraci Scheffer. O veto foi derrubado em 28/08/2026."
+  "pergunta": "A Prefeitura ceder ônibus de graça para atividades de entidades sem fins lucrativos, inclusive religiosas?",
+  "explica": "Lei de Juraci Scheffer. A prefeita vetou e a Câmara derrubou o veto em 28/08/2026."
  },
  {
   "id": "veto-taxa-esgoto",
   "fonte": "veto",
   "ref": "PL 179/2025",
   "sim_e": "derrubar",
-  "pergunta": "Derrubar o veto da prefeita à lei que proíbe cobrar taxa de tratamento de esgoto de quem não recebe o serviço?",
-  "explica": "Lei de Roberta Lopes. A procuradoria apontou ilegalidade. O veto foi mantido em 19/06/2026."
+  "pergunta": "Proibir a cobrança da taxa de tratamento de esgoto de quem não recebe esse serviço?",
+  "explica": "Lei de Roberta Lopes. A prefeita vetou (a procuradoria apontou ilegalidade) e a Câmara manteve o veto em 19/06/2026."
  },
  {
   "id": "veto-radar-transparente",
   "fonte": "veto",
   "ref": "PL 153/2023",
   "sim_e": "derrubar",
-  "pergunta": "Derrubar o veto da prefeita à lei que obriga audiências públicas sobre as propostas da Prefeitura (\"Radar Mais Transparente\")?",
-  "explica": "Lei de Marlon Siqueira. O veto foi mantido em 24/02/2025."
+  "pergunta": "Obrigar a Prefeitura a fazer audiências públicas sobre as propostas dela (\"Radar Mais Transparente\")?",
+  "explica": "Lei de Marlon Siqueira. A prefeita vetou e a Câmara manteve o veto em 24/02/2025."
  },
  {
   "id": "veto-politica-cuidados",
   "fonte": "veto",
   "ref": "PL 51/2025",
   "sim_e": "derrubar",
-  "pergunta": "Derrubar o veto da prefeita à Política Municipal de Cuidados?",
-  "explica": "Lei de Laiz Perrut. O veto foi mantido em 26/11/2025."
+  "pergunta": "Criar a Política Municipal de Cuidados?",
+  "explica": "Lei de Laiz Perrut. A prefeita vetou e a Câmara manteve o veto em 26/11/2025."
  }
 ]

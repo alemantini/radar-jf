@@ -23,7 +23,7 @@ def test_disc_escolhida():
 
 def test_veto_derrubar_vai_para_sim():
     r = montar([p(fonte="veto", ref="PL 65/2025", sim_e="derrubar")], EXEC)["perguntas"][0]
-    assert r["sim"] == [44] and r["nao"] == [25] and r["so_contra_nomeado"] is False
+    assert r["sim"] == [44] and r["nao"] == [25] and r["so_contra_nomeado"] is False and r["tipo"] == "veto"
 
 def test_manual_usa_listas():
     r = montar([p(fonte="manual", ref="PL 195/2025", sim=[44], nao=[25,4], data="2026-11-19", resultado="rejeitado")], EXEC)["perguntas"][0]
