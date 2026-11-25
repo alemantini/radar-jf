@@ -89,7 +89,7 @@ async function pgTeste(arg) {
         <div class="tt-q" data-id="${esc(q.id)}">
           <div class="tt-n">${i + 1}/${perguntas.length}</div>
           <p class="tt-perg">${esc(q.pergunta)}</p>
-          <p class="sub">${esc(q.explica)} ${q.ata ? `<a href="${TT_ATA}${q.ata}" target="_blank" rel="noopener">ver na ata</a>` : q.link ? `<a href="${q.link}">ver o placar</a>` : ""}</p>
+          <p class="sub">${esc(q.explica)} ${q.ata ? `<a href="${esc(TT_ATA + q.ata)}" target="_blank" rel="noopener">ver na ata</a>` : q.link ? `<a href="${esc(q.link)}">ver o placar</a>` : ""}</p>
           ${q.aviso ? `<p class="sub"><small>${esc(q.aviso)}</small></p>` : ""}
           <div class="tt-bts">${[["sim", "Sim"], ["nao", "Não"], ["pular", "Pular"]].map(([k, t]) => `<button type="button" data-r="${k}" class="${TT.resp[q.id] === k ? "on" : ""}">${t}</button>`).join("")}</div>
         </div>`).join("")}
@@ -103,16 +103,16 @@ async function pgTeste(arg) {
       const r = placarVotos(perguntas, TT.resp);
       const res = document.getElementById("tt-res1");
       if (!r.respondidas) { res.innerHTML = `<p class="aviso-forte">Responda Sim ou Não em pelo menos uma votação.</p>`; res.scrollIntoView({ behavior: "smooth" }); return; }
-      const de = n => `<span class="tt-nota">${n}<small>de ${r.respondidas}</small></span>`;
+      const de = n => `<span class="tt-nota">${n}<small>${n === 1 ? "votação" : "votações"}</small></span>`;
       const semNome = perguntas.filter(q => TT.resp[q.id] === "sim" || TT.resp[q.id] === "nao").filter(q => !(TT.resp[q.id] === "sim" ? q.sim : q.nao).length).length;
       res.innerHTML = `
         <h2>Ficaram do seu lado</h2>
-        <p class="sub">Vereadores que a ata registra votando como você, e em quantas das ${r.respondidas} votações que você respondeu.</p>
+        <p class="sub">Vereadores que a ata registra votando como você, e em quantas das ${r.respondidas} votações que você respondeu. Não é nota de afinidade: muitos vereadores votaram com a maioria sem o nome na ata.</p>
         ${r.lado.map(x => ttVereador(x.id, de(x.vezes))).join("") || `<p class="sub">Nenhum vereador aparece com nome do seu lado nessas votações.</p>`}
         ${semNome ? `<p class="sub">Em ${semNome} das suas respostas você ficou com a maioria, e a ata não dá o nome de quem votou com a maioria. Por isso esses vereadores não aparecem aqui.</p>` : ""}
         <h2>Votaram contra a sua escolha</h2>
         ${r.contra.map(x => ttVereador(x.id, de(x.vezes))).join("") || `<p class="sub">Nenhum vereador aparece com nome votando contra a sua escolha.</p>`}
-        ${ttCompartilhar(`Fiz o teste do Radar JFlândia. Votaram como eu: ${r.lado.slice(0, 3).map(x => nomeAutor(x.id)).join(", ") || "ninguém com nome na ata"}.`)}`;
+        ${ttCompartilhar(`Fiz o teste do Radar JFlândia. Votaram como eu: ${r.lado.filter(x => VER[x.id]).slice(0, 3).map(x => nomeAutor(x.id)).join(", ") || "ninguém com nome na ata"}.`)}`;
       res.scrollIntoView({ behavior: "smooth", block: "start" });
     };
   };
@@ -145,13 +145,13 @@ async function pgTeste(arg) {
         .sort((a, b) => (alvo && normBairro(b.b) === alvo) - (alvo && normBairro(a.b) === alvo) || (b.d || "").localeCompare(a.d || ""));
       res.innerHTML = `
         <h2>Quem mais pediu</h2>
-        <p class="sub">${esc(TT.temas.join(", "))}${TT.bairro && r.bairroAchado ? `, com peso maior para ${esc(nomeB)}` : ""}.</p>
+        <p class="sub">${esc(TT.temas.join(", "))}${TT.bairro && r.bairroAchado ? `, com peso maior para ${esc(nomeB)}. A ordem soma pontos: cada pedido vale 1 e o pedido no seu bairro vale 3, por isso quem tem menos pedidos pode ficar à frente` : ""}.</p>
         ${TT.bairro && !r.bairroAchado ? `<p class="aviso-forte">Nenhum pedido sobre esses temas cita o bairro "${esc(TT.bairro)}". O resultado abaixo considera a cidade toda.</p>` : ""}
         ${r.top.map((x, i) => `${ttVereador(x.id, `<span class="tt-nota">${fmt(x.total)}<small>pedidos${x.noBairro ? `<br>${fmt(x.noBairro)} no bairro` : ""}</small></span>`)}
           <details class="tt-ped"><summary>Ver os pedidos de ${esc(nomeAutor(x.id))}</summary>${deles(x.id).slice(0, 30).map(p => itemHTML(p, false)).join("")}</details>`).join("")
           || `<p class="sub">Nenhum pedido sobre esses temas desde 2025.</p>`}
         <p class="sub">Mais pedidos não quer dizer mais serviço feito: alguns vereadores fazem um pedido por rua, outros um para o bairro inteiro.</p>
-        ${ttCompartilhar(`Fiz o teste do Radar JFlândia. Quem mais pediu ${TT.temas.join(", ").toLowerCase()}${TT.bairro && r.bairroAchado ? " para " + nomeB : ""}: ${r.top.slice(0, 3).map(x => nomeAutor(x.id)).join(", ")}.`)}`;
+        ${r.top.length ? ttCompartilhar(`Fiz o teste do Radar JFlândia. Quem mais pediu ${TT.temas.join(", ").toLowerCase()}${TT.bairro && r.bairroAchado ? " para " + nomeB : ""}: ${r.top.slice(0, 3).map(x => nomeAutor(x.id)).join(", ")}.`) : ""}`;
       res.scrollIntoView({ behavior: "smooth", block: "start" });
     };
   };
