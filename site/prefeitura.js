@@ -327,7 +327,7 @@ const COR_EV = {musica: "#7b3fb5", gastronomia: "#c0612b", esporte: "#1f7a4d", a
 function nomeProp(p) {
   if (p === "COLETIVA") return {nome: "Emenda coletiva (todos os vereadores)", sub: ""};
   const v = vereadorDoProponente(p);
-  return v ? {nome: v.apelido, sub: v.partido || "", v} : {nome: p, sub: "não está na lista atual de vereadores"};
+  return v ? {nome: v.apelido, sub: v.partido || "", ver: v} : {nome: p, sub: "não está na lista atual de vereadores"};
 }
 async function pgEventosEmendas(prop) {
   if (!EVENTOS_EM) {
@@ -343,7 +343,7 @@ async function pgEventosEmendas(prop) {
   const pv = {};
   D.itens.forEach(i => { const x = pv[i.p] = pv[i.p] || {n: 0, v: 0, ne: 0, ve: 0}; x.n++; x.v += i.v; if (!i.misto) { x.ne++; x.ve += i.v; } });
   const lista = Object.entries(pv).map(([p, x]) => ({p, ...x, ...nomeProp(p)})).sort((a, b) => b.v - a.v);
-  const comEmenda = new Set(lista.map(x => x.v && x.v.id).filter(Boolean));
+  const comEmenda = new Set(lista.map(x => x.ver && x.ver.id).filter(Boolean));
   const semEmenda = RESUMO.vereadores.filter(v => !v.fora_da_lista && !comEmenda.has(v.id));
   const maxV = Math.max(...lista.map(x => x.v));
   const cats = Object.entries(D.por_categoria).sort((a, b) => b[1].v - a[1].v);
@@ -364,9 +364,9 @@ async function pgEventosEmendas(prop) {
   const tot = itens.reduce((s, i) => s + i.v, 0);
   app.innerHTML = `
     <h1>${np ? `Emendas de ${esc(np.nome)} para eventos` : filtroCat ? `Emendas para eventos: ${esc(C[filtroCat])}` : "Emendas que pagaram eventos"}</h1>
-    ${!prop ? `<p class="sub">Parte das emendas dos vereadores vai para associações que fazem festas, shows, torneios, festivais e outros eventos. O dinheiro sai da Prefeitura por termo de colaboração e, por ser emenda individual, sem chamamento público (a lei permite: Lei Federal 13.019/2014, art. 29). Aqui está cada uma dessas emendas publicada no Diário Oficial em 2025 e 2026, com o link para o ato.</p>` : `<p class="sub"><a href="#/prefeitura/eventos">‹ Ver todas</a>${np && np.sub ? " · " + esc(np.sub) : ""}</p>`}
+    ${!prop ? `<p class="sub">Parte das emendas dos vereadores vai para associações que fazem festas, shows, torneios, festivais e outros eventos. O dinheiro sai da Prefeitura por termo de colaboração e, por ser emenda individual, sem chamamento público (a lei permite: Lei Federal 13.019/2014, arts. 29 e 31). Aqui está cada uma dessas emendas publicada no Diário Oficial em 2025 e 2026, com o link para o ato.</p>` : `<p class="sub"><a href="#/prefeitura/eventos">‹ Ver todas</a>${np && np.sub ? " · " + esc(np.sub) : ""}</p>`}
     <div class="nums verde"><span><b>${reaisCurto(tot)}</b>em ${fmt(itens.length)} emendas para eventos</span>${!prop ? `<span><b>${fmt(D.por_ano["2025"].n)}</b>em 2025 (${reaisCurto(D.por_ano["2025"].v)})</span><span><b>${fmt(D.por_ano["2026"].n)}</b>em 2026, até ${esc(D.apurado_em.slice(0, 5))} (${reaisCurto(D.por_ano["2026"].v)})</span>` : ""}</div>
-    ${np && np.v ? `<a class="btn-grande prefeitura" href="#/prefeitura/emendas/${encodeURIComponent(filtroProp)}">${ic("dinheiro")}<span class="tx">Ver todas as emendas de ${esc(np.nome)}<small>Fonte: Monitor de Emendas da Prefeitura</small></span>›</a>` : ""}
+    ${np && np.ver ? `<a class="btn-grande prefeitura" href="#/prefeitura/emendas/${encodeURIComponent(filtroProp)}">${ic("dinheiro")}<span class="tx">Ver todas as emendas de ${esc(np.nome)}<small>Fonte: Monitor de Emendas da Prefeitura</small></span>›</a>` : ""}
     ${!prop ? `
     <h2>Que tipo de evento</h2>
     ${cats.map(([k, x]) => `<a class="linha" href="#/prefeitura/eventos/tipo:${k}"><span class="nm"><b><i class="ponto" style="background:${COR_EV[k]}"></i> ${esc(C[k])}</b><small class="sub">${fmt(x.n)} emendas</small></span><span class="vl">${reaisCurto(x.v)} ›</span></a>`).join("")}
