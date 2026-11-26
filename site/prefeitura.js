@@ -320,6 +320,76 @@ async function pgEmendasDe(prop) {
   mostra();
 }
 
+// ---------- Emendas que pagaram eventos (Diário Oficial x Monitor de Emendas) ----------
+let EVENTOS_EM = null;
+const ATO_URL = id => `https://www.pjf.mg.gov.br/e_atos/e_atos_vis.php?id=${id}`;
+const COR_EV = {musica: "#7b3fb5", gastronomia: "#c0612b", esporte: "#1f7a4d", agro: "#6b7d1f", religioso: "#2f5d9b", carnaval: "#c2307a", diversidade: "#8a4fa0", artes: "#2a7f8f", turismo: "#4a5a70", outros: "#7a828e"};
+function nomeProp(p) {
+  if (p === "COLETIVA") return {nome: "Emenda coletiva (todos os vereadores)", sub: ""};
+  const v = vereadorDoProponente(p);
+  return v ? {nome: v.apelido, sub: v.partido || "", v} : {nome: p, sub: "não está na lista atual de vereadores"};
+}
+async function pgEventosEmendas(prop) {
+  if (!EVENTOS_EM) {
+    app.innerHTML = '<p class="carregando">Carregando…</p>';
+    try { EVENTOS_EM = await fetch("dados/prefeitura/emendas_eventos.json").then(r => r.json()); }
+    catch (e) { app.innerHTML = "<h1>Emendas que pagaram eventos</h1><p>Os dados ainda não estão disponíveis. Tente mais tarde.</p>"; return; }
+  }
+  const D = EVENTOS_EM, C = D.categorias;
+  if (prop) prop = decodeURIComponent(prop);
+  const filtroCat = prop && prop.startsWith("tipo:") ? prop.slice(5) : "";
+  const filtroProp = prop && !filtroCat ? prop : "";
+  // por vereador
+  const pv = {};
+  D.itens.forEach(i => { const x = pv[i.p] = pv[i.p] || {n: 0, v: 0, ne: 0, ve: 0}; x.n++; x.v += i.v; if (!i.misto) { x.ne++; x.ve += i.v; } });
+  const lista = Object.entries(pv).map(([p, x]) => ({p, ...x, ...nomeProp(p)})).sort((a, b) => b.v - a.v);
+  const comEmenda = new Set(lista.map(x => x.v && x.v.id).filter(Boolean));
+  const semEmenda = RESUMO.vereadores.filter(v => !v.fora_da_lista && !comEmenda.has(v.id));
+  const maxV = Math.max(...lista.map(x => x.v));
+  const cats = Object.entries(D.por_categoria).sort((a, b) => b[1].v - a[1].v);
+  const card = i => {
+    const n = nomeProp(i.p);
+    return `<div class="item">
+      <div class="topo"><span class="tag" style="background:${COR_EV[i.cat]}">${esc(C[i.cat])}</span>${dataBR(i.d)} · Emenda ${esc(i.ep)} (${i.ano})</div>
+      <div class="txt"><b>${esc(i.ev)}</b></div>
+      <div class="pe">Para: ${esc(i.benef)} · <b>${reais(i.v, false)}</b> · Emenda de <a href="#/prefeitura/eventos/${encodeURIComponent(i.p)}">${esc(n.nome)}</a>${n.sub ? ", " + esc(n.sub) : ""}</div>
+      ${i.misto ? '<div class="pe sub">O ato junta, no mesmo repasse, evento e compra de material ou custeio. O Diário Oficial não diz quanto foi para cada coisa.</div>' : ""}
+      <div class="pe">${i.atos.map((a, k) => `<a href="${ATO_URL(a)}" target="_blank" rel="noopener">${k ? "outro ato" : "Ver no Diário Oficial"} ›</a>`).join(" · ")}</div>
+    </div>`;
+  };
+  let itens = D.itens;
+  if (filtroCat) itens = itens.filter(i => i.cat === filtroCat);
+  if (filtroProp) itens = itens.filter(i => i.p === filtroProp);
+  const np = filtroProp ? nomeProp(filtroProp) : null;
+  const tot = itens.reduce((s, i) => s + i.v, 0);
+  app.innerHTML = `
+    <h1>${np ? `Emendas de ${esc(np.nome)} para eventos` : filtroCat ? `Emendas para eventos: ${esc(C[filtroCat])}` : "Emendas que pagaram eventos"}</h1>
+    ${!prop ? `<p class="sub">Parte das emendas dos vereadores vai para associações que fazem festas, shows, torneios, festivais e outros eventos. O dinheiro sai da Prefeitura por termo de colaboração e, por ser emenda individual, sem chamamento público (a lei permite: Lei Federal 13.019/2014, art. 29). Aqui está cada uma dessas emendas publicada no Diário Oficial em 2025 e 2026, com o link para o ato.</p>` : `<p class="sub"><a href="#/prefeitura/eventos">‹ Ver todas</a>${np && np.sub ? " · " + esc(np.sub) : ""}</p>`}
+    <div class="nums verde"><span><b>${reaisCurto(tot)}</b>em ${fmt(itens.length)} emendas para eventos</span>${!prop ? `<span><b>${fmt(D.por_ano["2025"].n)}</b>em 2025 (${reaisCurto(D.por_ano["2025"].v)})</span><span><b>${fmt(D.por_ano["2026"].n)}</b>em 2026, até ${esc(D.apurado_em.slice(0, 5))} (${reaisCurto(D.por_ano["2026"].v)})</span>` : ""}</div>
+    ${np && np.v ? `<a class="btn-grande prefeitura" href="#/prefeitura/emendas/${encodeURIComponent(filtroProp)}">${ic("dinheiro")}<span class="tx">Ver todas as emendas de ${esc(np.nome)}<small>Fonte: Monitor de Emendas da Prefeitura</small></span>›</a>` : ""}
+    ${!prop ? `
+    <h2>Que tipo de evento</h2>
+    ${cats.map(([k, x]) => `<a class="linha" href="#/prefeitura/eventos/tipo:${k}"><span class="nm"><b><i class="ponto" style="background:${COR_EV[k]}"></i> ${esc(C[k])}</b><small class="sub">${fmt(x.n)} emendas</small></span><span class="vl">${reaisCurto(x.v)} ›</span></a>`).join("")}
+    <h2>Por vereador</h2>
+    <p class="sub">Do maior para o menor valor. A barra escura é o que foi só para evento; a clara é de repasses que juntam evento e compra de material ou custeio.</p>
+    ${lista.map(x => `<a class="linha" href="#/prefeitura/eventos/${encodeURIComponent(x.p)}"><span class="nm"><b>${esc(x.nome)}</b>${x.sub ? `, <small class="sub">${esc(x.sub)}</small>` : ""}
+      <span class="barra-ev"><i style="width:${(100 * x.ve / maxV).toFixed(1)}%"></i><i class="cl" style="width:${(100 * (x.v - x.ve) / maxV).toFixed(1)}%"></i></span><small class="sub">${fmt(x.n)} ${x.n > 1 ? "emendas" : "emenda"}${x.n !== x.ne ? ` (${fmt(x.n - x.ne)} com material ou custeio junto)` : ""}</small></span><span class="vl">${reaisCurto(x.v)} ›</span></a>`).join("")}
+    ${semEmenda.length ? `<p class="sub">Sem emenda para evento encontrada nos atos de 2025 e 2026: ${semEmenda.map(v => `<a href="#/v/${v.id}">${esc(v.apelido)}</a>`).join(", ")}.</p>` : ""}
+    <h2>Todas as emendas</h2>` : ""}
+    <input type="search" id="q" placeholder="Filtrar por evento, entidade ou vereador" autocomplete="off">
+    <div id="lista"></div>
+    <div class="aviso"><b>Como foi feito.</b> Lemos os ${fmt(D.atos_lidos)} atos do Diário Oficial publicados de janeiro de 2025 até ${esc(D.apurado_em)} que citam emenda parlamentar. Entram os repasses cujo ato (ou o objeto da emenda no Monitor de Emendas) fala em evento, festa, festival, show, torneio, campeonato, copa, corrida, carnaval, folia, mostra ou parecidos. O autor de cada emenda vem do Monitor de Emendas da Prefeitura, conferido pelo número da emenda, pelo ano e pelo CNPJ ou valor da entidade. O valor é o do repasse publicado no ato. A data é a da publicação no Diário, não a do evento. A mesma regra vale para todos os vereadores. Ficam fora os repasses que não citam evento, as emendas federais e estaduais e o que ainda não foi publicado. Dar dinheiro para evento por emenda é permitido; esta página mostra para onde foi, sem juízo de valor. Achou um erro? Abra o ato pelo link e <a href="https://github.com/alemantini/radar-jf/issues" target="_blank" rel="noopener">avise aqui</a>.</div>
+    <p class="sub fonte-linha">Fontes: <a href="${D.fonte_url}" target="_blank" rel="noopener">Diário Oficial do Município (Atos do Governo)</a> e <a href="#/prefeitura/emendas">Monitor de Emendas da Prefeitura</a>. Apuração de ${esc(D.apurado_em)}.</p>`;
+  const alvo = document.getElementById("lista"), inp = document.getElementById("q");
+  const mostra = () => {
+    const q = norm(inp.value.trim());
+    const it = q ? itens.filter(i => norm(`${i.ev} ${i.benef} ${i.p} ${nomeProp(i.p).nome} ${C[i.cat]} ${i.ep}`).includes(q)) : itens;
+    alvo.innerHTML = it.map(card).join("") || '<p class="sub">Nada encontrado.</p>';
+  };
+  let tm; inp.oninput = () => { clearTimeout(tm); tm = setTimeout(mostra, 250); };
+  mostra();
+}
+
 
 // ---------- Diário Oficial pesquisável ----------
 const DIARIO = {resumo: null, anos: {}};
@@ -395,6 +465,7 @@ async function rotaPrefeitura(p) {
   if (sub === "supersalarios") return pgSupersalarios();
   if (sub === "iptu") return a === "areas" ? pgIptuAreas(b) : pgIptu();
   if (sub === "emendas") return pgEmendas(a);
+  if (sub === "eventos") return pgEventosEmendas(a);
   if (sub === "diario") return pgDiario(a, b);
   if (sub === "s") return pgPrefSecretaria(a, +b);
   if (sub === "fornecedores") return pgPrefFornecedores(a);

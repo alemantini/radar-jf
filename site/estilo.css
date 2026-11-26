@@ -838,3 +838,8 @@ a.barra-l:hover .bl-t{text-decoration:underline}
 .tt-nota{font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:24px;color:var(--azul);text-align:right;white-space:nowrap;line-height:1}
 .tt-nota small{display:block;font-family:"Barlow",sans-serif;font-size:12px;font-weight:500;color:var(--apoio)}
 .tt-veto{display:inline-block;margin:6px 0 0;font-size:13px;font-weight:600;color:#7a4b00;background:var(--amarelo-claro);border-radius:999px;padding:3px 10px}
+
+.barra-ev{display:flex;height:8px;border-radius:4px;background:#eef0f3;overflow:hidden;margin:5px 0 3px}
+.barra-ev i{display:block;height:100%;background:var(--verde)}
+.barra-ev i.cl{background:#9fd3b6}
+.linha .nm .ponto{display:inline-block;vertical-align:-1px}
