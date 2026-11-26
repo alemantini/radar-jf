@@ -1260,7 +1260,7 @@
 "n": 4,
 "fase": "2ª Discussão",
 "proposicao": "Projeto de Lei 3/2026",
-"ementa": "Dispõe sobre a divulgação pública da agenda institucional dos compromissos oficiais do Chefe do Poder Executivo do Município de Juiz de Fora",
+"ementa": "Dispõe sobre a divulgação pública da agenda institucional dos compromissos oficiais do Chefe do Poder Executivo do Município de Juiz de Fora.",
 "autoria": "Vereadora Roberta Lopes",
 "quorum": "Maioria simples",
 "obs": "VISTA Vereador Vitinho. SOBRESTADO Vereador Vitinho",
@@ -1282,7 +1282,7 @@
 "n": 6,
 "fase": "1ª Discussão",
 "proposicao": "Projeto de Lei 289/2026",
-"ementa": "Dispõe sobre a concessão do Título de Cidadão Benemérito de Juiz de Fora ao Senhor Walbet de Mattos Vianna Júnior.(Walbet de Mattos Vianna Júnior.)",
+"ementa": "Dispõe sobre a concessão do Título de Cidadão Benemérito de Juiz de Fora ao Senhor Walbet de Mattos Vianna Júnior.",
 "autoria": "Vereadora Kátia Franco",
 "quorum": "Pelo voto favorável de 2/3 dos Membros da Câmara",
 "obs": "LEITURA DOS PARECERES",
@@ -1294,11 +1294,57 @@
 {
 "n": 7,
 "fase": "1ª Discussão",
+"proposicao": "Projeto de Lei Complementar 19/2026",
+"ementa": "Altera a Lei nº 6910, de 31 de maio de 1986 e suas alterações posteriores.",
+"autoria": "Vereadora Roberta Lopes",
+"quorum": "Maioria absoluta",
+"obs": "LEITURA DOS PARECERES",
+"vista": false,
+"temas": []
+},
+{
+"n": 8,
+"fase": "1ª Discussão",
+"proposicao": "Projeto de Lei 134/2026",
+"ementa": "Dispõe Sobre a Circulação de Ônibus/Vans Escolares nos Corredores Exclusivos de Ônibus no Município de Juiz de Fora, e dá outras providências.",
+"autoria": "Vereador Julinho Rossignoli",
+"quorum": "Maioria simples",
+"obs": "LEITURA DE PARECERES",
+"vista": false,
+"temas": [
+"Educação"
+]
+},
+{
+"n": 9,
+"fase": "1ª Discussão",
+"proposicao": "Projeto de Lei 129/2026",
+"ementa": "Institui no Calendário Oficial do Município o evento intitulado BBQ Sem Fronteiras Festival.",
+"autoria": "Vereador Marlon Siqueira",
+"quorum": "Maioria simples",
+"obs": "LEITURA DOS PARECERES",
+"vista": false,
+"temas": []
+},
+{
+"n": 10,
+"fase": "1ª Discussão",
+"proposicao": "Projeto de Lei 219/2026",
+"ementa": "Institui a Semana Municipal de Conscientização sobre a Acessibilidade e a Inclusão da Pessoa com Deficiência no âmbito do Município de Juiz de Fora e dá outras providências.",
+"autoria": "Vereador Fiote",
+"quorum": "Maioria simples",
+"obs": "LEITURA DOS PARECERES",
+"vista": false,
+"temas": []
+},
+{
+"n": 11,
+"fase": "1ª Discussão",
 "proposicao": "Projeto de Lei 247/2026",
 "ementa": "Torna obrigatória a divulgação de alerta de prevenção e enfrentamento ao racismo e à injúria racial em eventos abertos ao público realizados no Município de Juiz de Fora e dá outras providências.",
 "autoria": "Vereadoras Letícia Delgado e Cida Oliveira",
 "quorum": "Maioria simples",
-"obs": "LEITURA DOS PARECERES. 8 Apreciação Preliminar. Art",
+"obs": "LEITURA DOS PARECERES. 12 Apreciação Preliminar. Art",
 "vista": false,
 "temas": []
 },
@@ -1309,8 +1355,19 @@
 "ementa": "Extingue o sistema de estacionamento rotativo pago de veículos automotores denominado \"Área Azul\" e cria o sistema de estacionamento rotativo gratuito - \"Área Livre\" no Município de Juiz de Fora.",
 "autoria": "Vereadora Roberta Lopes",
 "quorum": "Maioria simples",
-"obs": "VISTA Vereador Maurício Delgado",
+"obs": "VISTA Vereador Maurício Delgado. 13 Apreciação Preliminar. Art",
 "vista": true,
+"temas": []
+},
+{
+"n": 94,
+"fase": "Regimento Interno",
+"proposicao": "Projeto de Lei 342/2025",
+"ementa": "Dispõe sobre a proibição de afixação de cartazes ou placas informativas a favor do aborto nos locais que menciona no âmbito do município.",
+"autoria": "Vereadora Roberta Lopes",
+"quorum": "Maioria simples",
+"obs": "LEITURA DOS PARECERES",
+"vista": false,
 "temas": []
 }
 ]
@@ -1406,7 +1463,7 @@
 "ementa": "Altera o art. 9º e acrescenta os arts. 9°A; 9°B; 9°C; 9°D; 9°E; 9°F à Lei nº 14.364 de 25 de janeiro de 2022, que institui o \"Abrace um Campo\" para captação de parcerias para a implantação, reforma e manutenção de campos públicos de futebol amador, e dá outras providências\".",
 "autoria": "Vereador André Luiz Vieira",
 "quorum": "Maioria simples",
-"obs": "VISTA Vereadores André Luiz Vieira, Sargento Mello Casal, Tiago Bonecão, Vitinho e Maurício Delgado. USARAM DA PALAVRA Vereadores André Luiz Vieira e Sargento Mello Casal. Emenda Aditiva apresentada",
+"obs": "VISTA Vereadores André Luiz Vieira, Sargento Mello Casal, Tiago Bonecão, Vitinho e Maurício Delgado. USARAM DA PALAVRA Vereadores André Luiz Vieira e Sargento Mello Casal. Emenda Substitutiva apresentada",
 "vista": true,
 "temas": []
 },
