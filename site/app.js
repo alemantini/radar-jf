@@ -40,6 +40,7 @@ const TIPOS = {REQ: "Requerimento", IND: "Indicação", PEDIF: "Pedido de Inform
 
 // ícones simples (traço), usados nos botões
 const ICONE = {
+  livro: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5zM4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/>',
   carro: '<path d="M5 16V11l2-5h10l2 5v5M3 16h18M7 16v2M17 16v2M7 12.5h.01M17 12.5h.01"/>',
   coracao: '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>',
   alerta: '<path d="M12 3 2 20h20zM12 10v4M12 17h.01"/>',
@@ -758,7 +759,7 @@ async function pgBueiros(arg) {
 // ---------- rotas ----------
 const SELO_NOVO = `<span class="selo-novo" aria-label="novo em 2026"><b>novo</b><small>2026</small></span>`;
 // itens recém-lançados ganham o selo "novo 2026" no menu (tirar daqui depois de algumas semanas)
-const NOVOS = new Set(["#/prefeitura/captacao", "#/prefeitura/eventos", "#/teste", "#/bueiros", "#/prefeitura/combustivel", "#/custo", "#/prefeita", "#/prefeitura/previdencia", "#/prefeitura/obras", "#/votacoes", "#/diarias", "#/prefeitura/alugueis", "#/imoveis", "#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
+const NOVOS = new Set(["#/prefeitura/educacao", "#/prefeitura/captacao", "#/prefeitura/eventos", "#/teste", "#/bueiros", "#/prefeitura/combustivel", "#/custo", "#/prefeita", "#/prefeitura/previdencia", "#/prefeitura/obras", "#/votacoes", "#/diarias", "#/prefeitura/alugueis", "#/imoveis", "#/prefeitura/curiosas", "#/combustivel", "#/obra", "#/quente", "#/defende", "#/atas", "#/prefeitura/chuvas", "#/prefeitura/emprestimos", "#/prefeitura/hospitais", "#/prefeitura/creditos", "#/prefeitura/aditivos"]);
 const SUBNAV = {
   camara: [
     ["novo", [["#/prefeita", "Com a prefeita ou contra?", "balanca"], ["#/votacoes", "Como votaram", "balanca"], ["#/diarias", "Diárias de viagem", "pin"], ["#/imoveis", "Imóveis alugados", "predios"], ["#/custo", "Custo por morador", "dinheiro"]]],
@@ -767,7 +768,7 @@ const SUBNAV = {
     ["consulte", [["#/teste", "Teste: qual vereador combina com você?", "balanca"], ["#/camara", "Vereadores", "pessoas"], ["#/busca", "Meu bairro", "pin"], ["#/agenda", "Agenda", "agenda"], ["#/atas", "Atas", "lupa"]]],
   ],
   prefeitura: [
-    ["novo", [["#/prefeitura/captacao", "Quem capta emendas", "alerta"], ["#/prefeitura/eventos", "Emendas que pagaram eventos", "dinheiro"], ["#/prefeitura/previdencia", "Previdência: multas e atrasos", "alerta"], ["#/prefeitura/obras", "Obras: previsto x feito", "predios"], ["#/prefeitura/alugueis", "Imóveis alugados", "predios"], ["#/prefeitura/hospitais", "Hospitais", "coracao"]]],
+    ["novo", [["#/prefeitura/educacao", "Educação em números", "livro"], ["#/prefeitura/captacao", "Quem capta emendas", "alerta"], ["#/prefeitura/eventos", "Emendas que pagaram eventos", "dinheiro"], ["#/prefeitura/previdencia", "Previdência: multas e atrasos", "alerta"], ["#/prefeitura/obras", "Obras: previsto x feito", "predios"], ["#/prefeitura/alugueis", "Imóveis alugados", "predios"], ["#/prefeitura/hospitais", "Hospitais", "coracao"]]],
     ["alerta", [["#/prefeitura/alertas", "Sinais de alerta", "alerta"], ["#/prefeitura/combustivel", "Combustível", "carro"], ["#/prefeitura/chuvas", "Dinheiro das chuvas", "alerta"], ["#/prefeitura/emprestimos", "Empréstimos", "dinheiro"], ["#/prefeitura/aditivos", "Aditivos de contratos", "jornal"], ["#/prefeitura/supersalarios", "Supersalários", "dinheiro"], ["#/prefeitura/creditos", "Orçamento que muda", "repete"]]],
     ["olha", [["#/prefeitura/curiosas", "Coisas curiosas", "lupa"], ["#/prefeitura/lupa", "Na lupa", "lupa"], ["#/prefeitura/comissionados", "Cargos de confiança", "pessoas"], ["#/prefeitura/impostometro", "Impostômetro", "dinheiro"], ["#/prefeitura/placar", "Placar fiscal", "balanca"], ["#/prefeitura/emendas", "Emendas dos vereadores", "pessoas"], ["#/prefeitura/fornecedores", "Quem recebe", "maleta"]]],
     ["consulte", [["#/prefeitura", "Gastos por secretaria", "predios"], ["#/prefeitura/busca", "Buscar gasto", "lupa"], ["#/prefeitura/iptu", "Calculadora do IPTU", "dinheiro"]]],

@@ -152,6 +152,7 @@ jobs:
           if [ -f data/prefeitura/iptu_areas.json ]; then cp data/prefeitura/iptu_areas.json site/dados/prefeitura/; fi
           if [ -f data/prefeitura/emendas_eventos.json ]; then cp data/prefeitura/emendas_eventos.json site/dados/prefeitura/; fi
           if [ -f data/prefeitura/captacao.json ]; then cp data/prefeitura/captacao.json site/dados/prefeitura/; fi
+          if [ -f data/prefeitura/educacao.json ]; then cp data/prefeitura/educacao.json site/dados/prefeitura/; fi
           if [ -f data/camara_comparada.json ]; then cp data/camara_comparada.json site/dados/; fi
 
       - name: Prefeitura, sinais do PNCP (gerados toda semana pelo workflow PNCP)

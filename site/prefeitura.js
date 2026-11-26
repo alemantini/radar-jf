@@ -434,6 +434,49 @@ async function pgCaptacao() {
 }
 
 
+// ---------- Educação em números ----------
+let EDUCACAO = null;
+async function pgEducacao() {
+  if (!EDUCACAO) {
+    app.innerHTML = '<p class="carregando">Carregando…</p>';
+    try { EDUCACAO = await fetch("dados/prefeitura/educacao.json").then(r => r.json()); }
+    catch (e) { app.innerHTML = "<h1>Educação em números</h1><p>Os dados ainda não estão disponíveis.</p>"; return; }
+  }
+  const D = EDUCACAO, v = x => String(x).replace(".", ","), pc = x => x.toLocaleString("pt-BR", {maximumFractionDigits: 2}) + "%";
+  const [i24, i25] = D.ica.serie;
+  const maxR = D.ica.ranking_2024[0][1];
+  app.innerHTML = `
+    <h1>Educação em números</h1>
+    <p class="sub">Como está a aprendizagem nas escolas de Juiz de Fora, pelos indicadores oficiais do Inep. Mostramos o que melhorou e o que continua atrás, com a fonte de cada número.</p>
+    <div class="nums"><span><b>${pc(i25.jf)}</b>das crianças alfabetizadas no 2º ano em ${i25.ano} (Minas: ${pc(i25.mg)})</span><span><b>${D.ideb.publica[0][3]}º</b>lugar entre ${D.ideb.publica[0][4]} cidades de Minas no Ideb dos anos iniciais</span><span><b>2027</b>primeiro ano em que a cidade vai receber o VAAR do Fundeb</span></div>
+
+    <h2>Alfabetização na idade certa</h2>
+    <p>O Indicador Criança Alfabetizada mede quantas crianças terminam o 2º ano do ensino fundamental sabendo ler e escrever. Em ${i24.ano}, a rede municipal de Juiz de Fora teve <b>${pc(i24.jf)}</b>, pouco acima da meta pactuada para a cidade (${pc(i24.meta)}) e abaixo das médias de Minas (${pc(i24.mg)}) e do Brasil (${pc(i24.br)}). Em ${i25.ano} a cidade subiu para <b>${pc(i25.jf)}</b>, ainda abaixo da meta nacional de ${pc(i25.meta_nacional)} e da média de Minas (${pc(i25.mg)}). Belo Horizonte teve ${pc(i25.bh)}.</p>
+    <h3>As 10 maiores cidades de Minas em ${i24.ano}</h3>
+    <p class="sub">Crianças alfabetizadas no 2º ano, rede municipal. Juiz de Fora ficou em último. O ranking de ${i25.ano} entre essas cidades ainda não foi publicado de forma completa.</p>
+    ${D.ica.ranking_2024.map(([n, x], i) => `<div class="barra-l ${n === "Juiz de Fora" ? "jf" : ""}"><span class="bl-t">${i + 1}º ${esc(n)}</span><span class="bl-b"><i style="width:${Math.round(100 * x / maxR)}%"></i></span><span class="bl-v">${pc(x)}</span></div>`).join("")}
+
+    <h2>Ideb 2025</h2>
+    <p>O Ideb junta aprovação e nota nas provas do Saeb. A rede municipal melhorou nas duas etapas do ensino fundamental, mas segue abaixo das metas projetadas pelo Inep.</p>
+    <div class="tab-rolar"><table class="tab-equipe"><thead><tr><th>Rede municipal</th><th>2023</th><th>2025</th><th>Meta projetada</th></tr></thead><tbody>
+    ${D.ideb.municipal.map(([e, a, b, m]) => `<tr><td>${esc(e)}</td><td>${v(a)}</td><td><b>${v(b)}</b></td><td>${v(m)}</td></tr>`).join("")}</tbody></table></div>
+    <p class="sub">Somando as escolas públicas da cidade (municipais, estaduais e federais), Juiz de Fora fica em ${D.ideb.publica.map(([e, a, b, pos, tot]) => `<b>${pos}º de ${tot}</b> nos ${esc(e.toLowerCase())}`).join(", ").replace("nos ensino médio", "no ensino médio")} entre as cidades mineiras.</p>
+
+    <h2>O que está melhor</h2>
+    <p>A distorção idade-série (alunos com dois anos ou mais de atraso) é <b>menor que a média das grandes cidades</b> nos anos iniciais. Dado de 2024.</p>
+    <div class="tab-rolar"><table class="tab-equipe"><thead><tr><th>Atraso escolar</th><th>Juiz de Fora</th><th>Capitais e cidades com mais de 500 mil hab.</th><th>Brasil</th></tr></thead><tbody>
+    ${D.distorcao.map(([e, j, g, b]) => `<tr><td>${esc(e)}</td><td><b>${pc(j)}</b></td><td>${pc(g)}</td><td>${pc(b)}</td></tr>`).join("")}</tbody></table></div>
+
+    <h2>O VAAR do Fundeb</h2>
+    <p>O VAAR é um complemento da União ao Fundeb, pago desde 2023 às redes que cumprem cinco condicionalidades (gestão escolar, participação nas avaliações, redução das desigualdades, regime de colaboração com o Estado e currículo alinhado à BNCC) e mostram evolução nos indicadores. Em 2022 a Prefeitura informou que já tinha enviado ao MEC os dados para receber em 2023. A cidade só cumpriu as cinco condicionalidades em 2026, e vai receber a partir de 2027.</p>
+    <div class="vaar-anos">${D.vaar.map(([a, ok]) => `<span class="${ok ? "ok" : "nao"}"><b>${a}</b>${ok ? "vai receber" : "não recebeu"}</span>`).join("")}</div>
+    <p class="sub">Para comparar: em 2026, ${fmt(D.vaar_mg_2026.municipios)} cidades mineiras dividiram ${reaisCurto(D.vaar_mg_2026.valor)} do VAAR.</p>
+    <div class="aviso"><b>O que ainda não foi informado:</b> quanto Juiz de Fora vai receber do VAAR em 2027 e onde esse dinheiro será aplicado. A nota da Prefeitura não traz valores. Quando o FNDE publicar a estimativa, atualizamos aqui.</div>
+
+    <div class="aviso"><b>Como foi feito.</b> Usamos só indicadores oficiais do Inep e do FNDE, nos números divulgados por eles e reproduzidos pela imprensa e pela Câmara. O Indicador Criança Alfabetizada vem das avaliações estaduais (no caso de Minas, o Simave). Achou um erro? <a href="https://github.com/alemantini/radar-jf/issues" target="_blank" rel="noopener">Avise aqui</a>.</div>
+    <p class="sub fonte-linha">Fontes: ${D.fontes.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener">${esc(t)}</a>`).join(" · ")}. Apuração de ${esc(D.apurado_em)}.</p>`;
+}
+
 // ---------- Diário Oficial pesquisável ----------
 const DIARIO = {resumo: null, anos: {}};
 const ATALHOS = [
@@ -510,6 +553,7 @@ async function rotaPrefeitura(p) {
   if (sub === "emendas") return pgEmendas(a);
   if (sub === "eventos") return pgEventosEmendas(a);
   if (sub === "captacao") return pgCaptacao();
+  if (sub === "educacao") return pgEducacao();
   if (sub === "diario") return pgDiario(a, b);
   if (sub === "s") return pgPrefSecretaria(a, +b);
   if (sub === "fornecedores") return pgPrefFornecedores(a);

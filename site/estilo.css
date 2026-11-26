@@ -843,3 +843,9 @@ a.barra-l:hover .bl-t{text-decoration:underline}
 .barra-ev i{display:block;height:100%;background:var(--verde)}
 .barra-ev i.cl{background:#9fd3b6}
 .linha .nm .ponto{display:inline-block;vertical-align:-1px}
+
+.tab-rolar{overflow-x:auto;margin:8px 0}
+.vaar-anos{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:10px 0}
+.vaar-anos span{border-radius:8px;padding:8px 6px;text-align:center;font-size:13px;background:#fdecea;color:#9b2c1f}
+.vaar-anos span.ok{background:var(--verde-claro);color:var(--verde)}
+.vaar-anos b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:22px}

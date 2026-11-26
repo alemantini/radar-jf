@@ -1,0 +1,25 @@
+{
+  "apurado_em": "26/11/2026",
+  "ica": {
+    "serie": [{"ano": 2024, "jf": 49.55, "meta": 49.46, "mg": 72.07, "br": 59.2}, {"ano": 2025, "jf": 55, "mg": 74, "br": 66, "meta_nacional": 66, "bh": 70}],
+    "ranking_2024": [["Montes Claros", 75.18], ["Divinópolis", 73.79], ["Contagem", 69.05], ["Belo Horizonte", 68.58], ["Governador Valadares", 68.07], ["Betim", 66.62], ["Uberlândia", 62.63], ["Ribeirão das Neves", 59.36], ["Uberaba", 57.68], ["Juiz de Fora", 49.55]]
+  },
+  "ideb": {
+    "municipal": [["Anos iniciais (1º ao 5º)", 4.9, 5.3, 6.2], ["Anos finais (6º ao 9º)", 4.2, 4.4, 5.1]],
+    "publica": [["Anos iniciais", 5.3, 5.7, 765, 842], ["Anos finais", 4.3, 4.9, 654, 846], ["Ensino médio", 3.9, 4.5, 415, 845]]
+  },
+  "distorcao": [["Anos iniciais", 5.6, 9.3, 8.0], ["Anos finais", 19.3, 19.5, 20.9]],
+  "vaar": [[2023, false], [2024, false], [2025, false], [2026, false], [2027, true]],
+  "vaar_mg_2026": {"municipios": 357, "valor": 244800000, "fora": 497},
+  "fontes": [
+    ["Inep, Indicador Criança Alfabetizada 2024 (via Tribuna de Minas, 16/07/2025)", "https://tribunademinas.com.br/?p=765547"],
+    ["Câmara de JF, Pedido de Informação 245/2025 (ranking das 10 maiores cidades)", "https://www.camarajf.mg.gov.br/sal/mostrapfs.php?n=152313"],
+    ["Inep, Indicador Criança Alfabetizada 2025 (via O Tempo, 02/04/2026)", "https://www.otempo.com.br/cidades/2026/4/2/educacao-105-municipios-de-mg-nao-atingiram-meta-de-alfabetizacao-infantil-veja-os-10-piores"],
+    ["Inep, Ideb 2025 (via Folha JF, 06/08/2026)", "https://folhajf.com.br/ideb-2025-juiz-de-fora-escolas-minas-gerais/"],
+    ["Todos Pela Educação, Panorama Educacional de Juiz de Fora (Inep, Censo Escolar 2024)", "https://todospelaeducacao.org.br/wordpress/wp-content/uploads/2025/12/panorama-educacional-juiz-de-fora-mg.pdf"],
+    ["Prefeitura de JF, nota de 25/11/2026 sobre o VAAR", "https://www.pjf.mg.gov.br/noticias/view.php?modo=link2&idnoticia2=90063"],
+    ["Tribuna de Minas, 2022: PJF busca recursos do VAAR para 2023", "https://tribunademinas.com.br/?p=493667"],
+    ["O Fator: VAAR 2026 em Minas Gerais", "https://ofator.com.br/?p=54780"],
+    ["Lei 14.113/2020 (Fundeb)", "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2020/lei/l14113.htm"]
+  ]
+}
