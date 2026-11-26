@@ -391,6 +391,49 @@ async function pgEventosEmendas(prop) {
 }
 
 
+// ---------- Índice de captação: associações que recebem emendas para várias áreas ----------
+let CAPTACAO = null;
+async function pgCaptacao() {
+  if (!CAPTACAO) {
+    app.innerHTML = '<p class="carregando">Carregando…</p>';
+    try { CAPTACAO = await fetch("dados/prefeitura/captacao.json").then(r => r.json()); }
+    catch (e) { app.innerHTML = "<h1>Quem capta emendas para várias áreas</h1><p>Os dados ainda não estão disponíveis.</p>"; return; }
+  }
+  const D = CAPTACAO, U = u => D.ugs[u] || u;
+  const nome = p => { const v = vereadorDoProponente(p); return v ? `${esc(v.apelido)}${v.partido ? ", " + esc(v.partido) : ""}` : esc(p); };
+  const atos = a => a.length ? a.map((id, k) => `<a href="${ATO_URL(id)}" target="_blank" rel="noopener">${k ? "ato" : "Ver no Diário Oficial"} ›</a>`).join(" · ") : '<span class="sub">ato ainda não localizado no Diário</span>';
+  const tres = D.ent.filter(e => Object.keys(e.ug).length >= 3), duas = D.ent.filter(e => Object.keys(e.ug).length === 2);
+  const linhaEnt = e => `<div class="item"><div class="topo">CNPJ ${esc(e.cnpj)} · ${fmt(e.n)} emendas de ${fmt(e.np)} ${e.np > 1 ? "vereadores" : "vereador"}</div>
+      <div class="txt"><b>${esc(e.nome)}</b> · ${reais(e.v, false)}</div>
+      <div class="pe">${Object.entries(e.ug).sort((a, b) => b[1] - a[1]).map(([u, v]) => `${esc(U(u))}: ${reaisCurto(v)}`).join(" · ")}</div></div>`;
+  const totAnimal = D.animal.reduce((s, x) => s + x[1], 0), foraAnimal = D.animal.filter(x => x[2]).reduce((s, x) => s + x[1], 0);
+  const totCesp = D.cesp.reduce((s, x) => s + x.v, 0), totAv = D.avance.reduce((s, x) => s + x.v, 0);
+  const linhaEm = x => `<div class="item"><div class="topo">${x.ano} · Emenda ${esc(x.ep)}</div><div class="txt"><b>${reais(x.v, false)}</b> · emenda de ${nome(x.ver)}</div><div class="pe">${atos(x.atos)}</div></div>`;
+  app.innerHTML = `
+    <h1>Quem capta emendas para várias áreas</h1>
+    <p class="sub">Cada vereador escolhe a associação que recebe a sua emenda, e o repasse sai sem chamamento público. A lei exige que a associação tenha experiência e capacidade técnica no que vai fazer. Este índice mostra as associações que recebem emendas para áreas muito diferentes entre si, ou para uma área sem relação com o que declaram fazer. Isso não é ilegal por si só: é onde vale olhar primeiro.</p>
+    <div class="nums verde"><span><b>${fmt(D.assoc)}</b>associações receberam emendas em ${esc(D.periodo)}</span><span><b>${reaisCurto(D.valor)}</b>em ${fmt(D.emendas)} emendas</span><span><b>${fmt(D.dist["1"])}</b>recebem por uma só secretaria</span></div>
+    <h2>A maioria recebe numa área só</h2>
+    <p>De ${fmt(D.assoc)} associações, ${fmt(D.dist["1"])} recebem por uma única secretaria e ${fmt(D.dist["2"])} por duas. <b>Só ${fmt(tres.length)} recebem por três ou mais.</b> O padrão de associação que capta para várias áreas existe, mas está concentrado em poucas entidades. As 10 associações que mais recebem ficam com ${String(D.top10_pct).replace(".", ",")}% do dinheiro, quase todas hospitais e entidades de saúde, cada uma na sua área.</p>
+    <h2>Três ou mais secretarias</h2>
+    ${tres.map(linhaEnt).join("")}
+    <h2>O dinheiro da proteção animal</h2>
+    <p>Em ${esc(D.periodo)}, as emendas para a Secretaria do Bem-Estar Animal somaram ${reaisCurto(totAnimal)}. As duas associações que mais receberam <b>não são entidades de proteção animal</b>: uma é de esporte e a outra é de saúde. Juntas ficaram com ${reaisCurto(foraAnimal)}, ${Math.round(100 * foraAnimal / totAnimal)}% do total. Nos dois casos, o texto da emenda diz que a associação fará "parcerias e pagamentos" com clínicas veterinárias e pet shops, ou seja, repassa o dinheiro para quem atende os animais.</p>
+    ${D.animal.map(([n, v, f]) => `<a class="linha" style="pointer-events:none"><span class="nm"><b>${esc(n)}</b>${f ? ' <small class="sub">· não é entidade de proteção animal</small>' : ""}</span><span class="vl">${reaisCurto(v)}</span></a>`).join("")}
+    <h3>Centro de Saúde Popular: ${reaisCurto(totCesp)} para bem-estar animal desde 2022</h3>
+    <p class="sub">CNPJ 10.539.869/0001-62. Atende pelo SUS em fisioterapia, fonoaudiologia, psicologia e nutrição (convênio com a Secretaria de Saúde). Recebe emendas de bem-estar animal todos os anos desde 2022.</p>
+    ${D.cesp.map(linhaEm).join("")}
+    <h3>Instituto Avance: ${reaisCurto(totAv)} para bem-estar animal em 2026</h3>
+    <p class="sub">CNPJ 17.623.536/0001-66. Associação esportiva (núcleos de futebol para crianças e adolescentes). Em 2026 passou a receber emendas de bem-estar animal com o mesmo texto usado antes para o Centro de Saúde Popular. Do termo de R$ 700 mil, R$ 600 mil já foram pagos.</p>
+    ${D.avance.map(linhaEm).join("")}
+    <h2>Duas secretarias</h2>
+    <p class="sub">Muitas são combinações naturais (cultura e esporte, assistência e direitos humanos). Estão aqui para comparação.</p>
+    ${duas.map(linhaEnt).join("")}
+    <div class="aviso"><b>Como foi feito.</b> Usamos o Monitor de Emendas da Prefeitura, só emendas individuais de vereadores de ${esc(D.periodo)} (mandato atual), sem as emendas que foram substituídas. Prefeitura, secretarias, AMAC, escolas e unidades de saúde ficam fora, porque são órgãos públicos. Cada secretaria que administra a emenda conta como uma área (SEAPA e SDA contam como a mesma, porque a secretaria mudou de nome). O valor é o indicado no Monitor, não o pago. Parte das linhas do Monitor vem sem CNPJ; nesses casos ligamos pelo nome da entidade, e pode haver pequenas diferenças. Os casos de proteção animal foram conferidos nos atos do Diário Oficial (links acima); um valor (EP11057) aparece como R$ 100 mil no Diário e R$ 80 mil no Monitor, e usamos o do Diário. A mesma regra vale para todas as associações e todos os vereadores. Achou um erro? <a href="https://github.com/alemantini/radar-jf/issues" target="_blank" rel="noopener">Avise aqui</a>.</div>
+    <p class="sub fonte-linha">Fontes: <a href="${D.fonte_url}" target="_blank" rel="noopener">Monitor de Emendas da Prefeitura</a> e <a href="https://www.pjf.mg.gov.br/e_atos/e_atos.php" target="_blank" rel="noopener">Diário Oficial do Município</a>. Apuração de ${esc(D.apurado_em)}. Veja também <a href="#/prefeitura/emendas">todas as emendas</a> e <a href="#/prefeitura/eventos">as emendas que pagaram eventos</a>.</p>`;
+}
+
+
 // ---------- Diário Oficial pesquisável ----------
 const DIARIO = {resumo: null, anos: {}};
 const ATALHOS = [
@@ -466,6 +509,7 @@ async function rotaPrefeitura(p) {
   if (sub === "iptu") return a === "areas" ? pgIptuAreas(b) : pgIptu();
   if (sub === "emendas") return pgEmendas(a);
   if (sub === "eventos") return pgEventosEmendas(a);
+  if (sub === "captacao") return pgCaptacao();
   if (sub === "diario") return pgDiario(a, b);
   if (sub === "s") return pgPrefSecretaria(a, +b);
   if (sub === "fornecedores") return pgPrefFornecedores(a);
