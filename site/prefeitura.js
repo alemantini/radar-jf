@@ -369,7 +369,7 @@ async function pgEventosEmendas(prop) {
     ${np && np.ver ? `<a class="btn-grande prefeitura" href="#/prefeitura/emendas/${encodeURIComponent(filtroProp)}">${ic("dinheiro")}<span class="tx">Ver todas as emendas de ${esc(np.nome)}<small>Fonte: Monitor de Emendas da Prefeitura</small></span>›</a>` : ""}
     ${!prop ? `
     <h2>Que tipo de evento</h2>
-    ${cats.map(([k, x]) => `<a class="linha" href="#/prefeitura/eventos/tipo:${k}"><span class="nm"><b><i class="ponto" style="background:${COR_EV[k]}"></i> ${esc(C[k])}</b><small class="sub">${fmt(x.n)} emendas</small></span><span class="vl">${reaisCurto(x.v)} ›</span></a>`).join("")}
+    ${cats.map(([k, x]) => `<a class="linha" href="#/prefeitura/eventos/tipo:${k}"><span class="nm"><b><i class="ponto" style="background:${COR_EV[k]}"></i> ${esc(C[k])}</b> <small class="sub">· ${fmt(x.n)} emendas</small></span><span class="vl">${reaisCurto(x.v)} ›</span></a>`).join("")}
     <h2>Por vereador</h2>
     <p class="sub">Do maior para o menor valor. A barra escura é o que foi só para evento; a clara é de repasses que juntam evento e compra de material ou custeio.</p>
     ${lista.map(x => `<a class="linha" href="#/prefeitura/eventos/${encodeURIComponent(x.p)}"><span class="nm"><b>${esc(x.nome)}</b>${x.sub ? `, <small class="sub">${esc(x.sub)}</small>` : ""}
