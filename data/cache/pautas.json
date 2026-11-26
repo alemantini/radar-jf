@@ -1221,6 +1221,43 @@
 "itens": [
 {
 "n": 1,
+"fase": "3ª Discussão",
+"proposicao": "Projeto de Lei 259/2026",
+"ementa": "Institui o Programa Abrigo Seguro no Município de Juiz de Fora e dá outras providências.",
+"autoria": "Vereadores Letícia Delgado e Yuri Fófano",
+"quorum": "Maioria simples",
+"obs": "COMISSÃO DE REDAÇÃO",
+"vista": false,
+"temas": []
+},
+{
+"n": 2,
+"fase": "3ª Discussão",
+"proposicao": "Projeto de Lei 269/2026",
+"ementa": "Institui a Lei Gabriel Stambassi no Município de Juiz de Fora, com a finalidade de promover a segurança, a acessibilidade e a inclusão das pessoas autistas, neurodivergentes e com deficiência no trânsito e nos espaços públicos municipais.",
+"autoria": "Vereador Dr. Antônio Aguiar",
+"quorum": "Maioria simples",
+"obs": "COMISSÃO DE REDAÇÃO",
+"vista": false,
+"temas": [
+"Segurança"
+]
+},
+{
+"n": 3,
+"fase": "2ª Discussão",
+"proposicao": "Projeto de Lei 264/2026",
+"ementa": "Dispõe sobre denominação de Logradouro Público (Travessa Dom Eurico dos Santos Veloso).",
+"autoria": "Vereador Juraci Scheffer",
+"quorum": "Maioria simples",
+"obs": "COMISSÃO DE REDAÇÃO",
+"vista": false,
+"temas": [
+"Homenagens"
+]
+},
+{
+"n": 4,
 "fase": "2ª Discussão",
 "proposicao": "Projeto de Lei 3/2026",
 "ementa": "Dispõe sobre a divulgação pública da agenda institucional dos compromissos oficiais do Chefe do Poder Executivo do Município de Juiz de Fora",
@@ -1231,17 +1268,39 @@
 "temas": []
 },
 {
-"n": 2,
+"n": 5,
+"fase": "2ª Discussão",
+"proposicao": "Projeto de Lei 12/2024",
+"ementa": "\"Dispõe sobre as sanções administrativas aplicadas pelo Município de Juiz de Fora às pessoas que forem flagradas em áreas e logradouros públicos fazendo uso de drogas ilícitas em desacordo com determinação legal ou regulamentar, e dá outras providências.\"",
+"autoria": "Vereador Sargento Mello Casal",
+"quorum": "Maioria simples",
+"obs": "-",
+"vista": false,
+"temas": []
+},
+{
+"n": 6,
 "fase": "1ª Discussão",
 "proposicao": "Projeto de Lei 289/2026",
 "ementa": "Dispõe sobre a concessão do Título de Cidadão Benemérito de Juiz de Fora ao Senhor Walbet de Mattos Vianna Júnior.(Walbet de Mattos Vianna Júnior.)",
 "autoria": "Vereadora Kátia Franco",
 "quorum": "Pelo voto favorável de 2/3 dos Membros da Câmara",
-"obs": "LEITURA DOS PARECERES. 3 Apreciação Preliminar. Art",
+"obs": "LEITURA DOS PARECERES",
 "vista": false,
 "temas": [
 "Homenagens"
 ]
+},
+{
+"n": 7,
+"fase": "1ª Discussão",
+"proposicao": "Projeto de Lei 247/2026",
+"ementa": "Torna obrigatória a divulgação de alerta de prevenção e enfrentamento ao racismo e à injúria racial em eventos abertos ao público realizados no Município de Juiz de Fora e dá outras providências.",
+"autoria": "Vereadoras Letícia Delgado e Cida Oliveira",
+"quorum": "Maioria simples",
+"obs": "LEITURA DOS PARECERES. 8 Apreciação Preliminar. Art",
+"vista": false,
+"temas": []
 },
 {
 "n": 94,
@@ -1251,6 +1310,186 @@
 "autoria": "Vereadora Roberta Lopes",
 "quorum": "Maioria simples",
 "obs": "VISTA Vereador Maurício Delgado",
+"vista": true,
+"temas": []
+}
+]
+},
+{
+"data": "2026-11-27",
+"cod": "5191",
+"nome": "9ª Reunião Ordinária - 11º Período",
+"hora": "10:30",
+"url": "https://www.camarajf.mg.gov.br/sal/ordemdodia.php?cod=5191",
+"itens": [
+{
+"n": 1,
+"fase": "Veto Total",
+"proposicao": "Projeto de Lei 249/2025",
+"ementa": "Estabelece a obrigatoriedade de fornecimento de água potável e acesso a instalações sanitárias aos trabalhadores terceirizados e temporários pelos condomínios comerciais e residenciais localizados no Município de Juiz de Fora, e dá outras providências.",
+"autoria": "Vereadora Cida Oliveira",
+"quorum": "Maioria absoluta",
+"obs": "VISTA Vereadores Cida Oliveira, João Wagner Antoniol, Letícia Delgado, Kátia Franco, Yuri Fófano, André Mariano, Sargento Mello Casal, Cido Reis, Negro Bússola, Tiago Bonecão, Marlon Siqueira, Vitinho, Juraci Scheffer, Maurício Delgado e Fiote",
+"vista": true,
+"temas": [
+"Trabalho"
+]
+},
+{
+"n": 2,
+"fase": "Veto Total",
+"proposicao": "Projeto de Lei 184/2025",
+"ementa": "Institui a implantação de um painel físico estatístico denominado \"Bandidômetro\" em frente às Delegacias de Polícia em Juiz de Fora.",
+"autoria": "Vereadora Roberta Lopes",
+"quorum": "Maioria absoluta",
+"obs": "VISTA Vereadores Yuri Fófano, André Mariano, Sargento Mello Casal, Letícia Delgado, João Wagner Antoniol, Laiz Perrut, Vitinho e Tiago Bonecão. USOU DA PALAVRA Vereadora Laiz Perrut",
+"vista": true,
+"temas": [
+"Segurança"
+]
+},
+{
+"n": 3,
+"fase": "Veto Total",
+"proposicao": "Projeto de Lei 255/2026",
+"ementa": "Altera o § 2º do art. 17 da Lei nº 14.158, de 18 de janeiro de 2021.",
+"autoria": "Vereador Luiz Otávio Fernandes Coelho - Pardal",
+"quorum": "Maioria absoluta",
+"obs": "VISTA Vereadores Maurício Delgado, Luiz Otávio Fernandes Coelho - Pardal e Marlon Siqueira",
+"vista": true,
+"temas": []
+},
+{
+"n": 4,
+"fase": "Veto Parcial",
+"proposicao": "Projeto de Lei 50/2025",
+"ementa": "Institui diretrizes de responsabilidade social nas contratações públicas municipais, com previsão de cláusula social para adoção da escala 5x2 nos contratos de prestação de serviços terceirizados com dedicação de mão de obra, e dá outras providências.",
+"autoria": "Vereadora Cida Oliveira",
+"quorum": "Maioria absoluta",
+"obs": "VISTA Vereadores Letícia Delgado, Juraci Scheffer e Laiz Perrut",
+"vista": true,
+"temas": [
+"Trabalho"
+]
+},
+{
+"n": 5,
+"fase": "2ª Discussão",
+"proposicao": "Projeto de Lei 185/2026",
+"ementa": "Dispõe sobre denominação de Logradouro Público (Dr. Lúcio Alberto Mattos Guilhon).",
+"autoria": "Vereador Marlon Siqueira",
+"quorum": "Maioria absoluta com a presença de 2/3 dos Membros",
+"obs": "COMISSÃO DE REDAÇÃO",
+"vista": false,
+"temas": [
+"Homenagens"
+]
+},
+{
+"n": 6,
+"fase": "2ª Discussão",
+"proposicao": "Projeto de Lei 227/2026",
+"ementa": "Dispõe sobre a atualização monetária anual do valor do aporte das entidades mantenedoras ao Plano de Assistência à Saúde (PAS-JF) dos servidores da Administração Direta e Indireta do Município de Juiz de Fora.",
+"autoria": "Vereador Sargento Mello Casal",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereadores Sargento Mello Casal, Vitinho e Laiz Perrut",
+"vista": true,
+"temas": [
+"Saúde",
+"Trabalho"
+]
+},
+{
+"n": 7,
+"fase": "2ª Discussão",
+"proposicao": "Projeto de Lei 184/2026",
+"ementa": "Altera o art. 9º e acrescenta os arts. 9°A; 9°B; 9°C; 9°D; 9°E; 9°F à Lei nº 14.364 de 25 de janeiro de 2022, que institui o \"Abrace um Campo\" para captação de parcerias para a implantação, reforma e manutenção de campos públicos de futebol amador, e dá outras providências\".",
+"autoria": "Vereador André Luiz Vieira",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereadores André Luiz Vieira, Sargento Mello Casal, Tiago Bonecão, Vitinho e Maurício Delgado. USARAM DA PALAVRA Vereadores André Luiz Vieira e Sargento Mello Casal. Emenda Aditiva apresentada",
+"vista": true,
+"temas": []
+},
+{
+"n": 8,
+"fase": "2ª Discussão",
+"proposicao": "Projeto de Lei 81/2025",
+"ementa": "Dispõe sobre a fixação de placas informativas nas unidades públicas e privadas de saúde do Município de Juiz de Fora, versando sobre a Entrega Legal, instituída pela Lei Federal n°13.509, de 22/11/2017.",
+"autoria": "Vereadora Roberta Lopes",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereadores Cida Oliveira, Kátia Franco, Laiz Perrut, João Wagner Antoniol e Juraci Scheffer. SOBRESTADO Vereadora Cida Oliveira",
+"vista": true,
+"temas": [
+"Saúde"
+]
+},
+{
+"n": 9,
+"fase": "1ª Discussão",
+"proposicao": "Projeto de Lei 84/2026",
+"ementa": "Dispõe sobre garantias aos trabalhadores vinculados a contratos de prestação de serviços terceirizados no âmbito do Município de Juiz de Fora e dá outras providências.",
+"autoria": "Vereador Sargento Mello Casal",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereadores Sargento Mello Casal, Laiz Perrut, Juraci Scheffer, Vitinho e Letícia Delgado. USARAM DA PALAVRA Vereadores Sargento Mello Casal, Laiz Perrut e Juraci Scheffer",
+"vista": true,
+"temas": [
+"Trabalho"
+]
+},
+{
+"n": 10,
+"fase": "1ª Discussão",
+"proposicao": "Projeto de Lei 80/2025",
+"ementa": "Institui o Programa Municipal de Avaliação Escolar - PROVA-JF e a Bonificação de Desempenho Profissional para os docentes da rede pública municipal de Juiz de Fora, e dá outras providências.",
+"autoria": "Vereadora Roberta Lopes",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereadores Juraci Scheffer e Cida Oliveira",
+"vista": true,
+"temas": [
+"Educação"
+]
+},
+{
+"n": 11,
+"fase": "1ª Discussão",
+"proposicao": "Projeto de Lei 189/2026",
+"ementa": "Institui a \"Lei Rafaela Drumond\" que Dispõe sobre a prevenção, o combate e a responsabilização por práticas de assédio moral no âmbito da administração pública direta e indireta do Município de Juiz de Fora.",
+"autoria": "Vereador Sargento Mello Casal",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereadores Juraci Scheffer e Laiz Perrut. 12 Apreciação Preliminar. Art",
+"vista": true,
+"temas": []
+},
+{
+"n": 94,
+"fase": "Regimento Interno",
+"proposicao": "Projeto de Lei 4/2026",
+"ementa": "Extingue o sistema de estacionamento rotativo pago de veículos automotores denominado \"Área Azul\" e cria o sistema de estacionamento rotativo gratuito - \"Área Livre\" no Município de Juiz de Fora.",
+"autoria": "Vereadora Roberta Lopes",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereador Maurício Delgado. 13 Apreciação Preliminar. Art",
+"vista": true,
+"temas": []
+},
+{
+"n": 94,
+"fase": "Regimento Interno",
+"proposicao": "Projeto de Lei 283/2025",
+"ementa": "Determina a realização de exames toxicológicos em agentes públicos municipais no âmbito da administração pública no Município de Juiz de Fora e dá outras providências.",
+"autoria": "Vereadora Roberta Lopes",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereadores Sargento Mello Casal, Juraci Scheffer e Cida Oliveira. 14 Apreciação Preliminar. Art",
+"vista": true,
+"temas": []
+},
+{
+"n": 94,
+"fase": "Regimento Interno",
+"proposicao": "Projeto de Lei 152/2026",
+"ementa": "Institui o Programa Municipal Casas Ancestrais e dá outras providências.",
+"autoria": "Vereadora Laiz Perrut",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereadores Roberta Lopes, André Mariano, Vitinho e Sargento Mello Casal. USOU DA PALAVRA Vereadora Laiz Perrut",
 "vista": true,
 "temas": []
 }
