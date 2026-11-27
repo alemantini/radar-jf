@@ -1421,6 +1421,19 @@
 {
 "n": 5,
 "fase": "2ª Discussão",
+"proposicao": "Projeto de Lei 289/2026",
+"ementa": "Dispõe sobre a concessão do Título de Cidadão Benemérito de Juiz de Fora ao Senhor Walbet de Mattos Vianna Júnior.",
+"autoria": "Vereadora Kátia Franco",
+"quorum": "Pelo voto favorável de 2/3 dos Membros da Câmara",
+"obs": "COMISSÃO DE REDAÇÃO",
+"vista": false,
+"temas": [
+"Homenagens"
+]
+},
+{
+"n": 6,
+"fase": "2ª Discussão",
 "proposicao": "Projeto de Lei 185/2026",
 "ementa": "Dispõe sobre denominação de Logradouro Público (Dr. Lúcio Alberto Mattos Guilhon).",
 "autoria": "Vereador Marlon Siqueira",
@@ -1432,7 +1445,7 @@
 ]
 },
 {
-"n": 6,
+"n": 7,
 "fase": "2ª Discussão",
 "proposicao": "Projeto de Lei 227/2026",
 "ementa": "Dispõe sobre a atualização monetária anual do valor do aporte das entidades mantenedoras ao Plano de Assistência à Saúde (PAS-JF) dos servidores da Administração Direta e Indireta do Município de Juiz de Fora.",
@@ -1446,7 +1459,7 @@
 ]
 },
 {
-"n": 7,
+"n": 8,
 "fase": "2ª Discussão",
 "proposicao": "Projeto de Lei 184/2026",
 "ementa": "Altera o art. 9º e acrescenta os arts. 9°A; 9°B; 9°C; 9°D; 9°E; 9°F à Lei nº 14.364 de 25 de janeiro de 2022, que institui o \"Abrace um Campo\" para captação de parcerias para a implantação, reforma e manutenção de campos públicos de futebol amador, e dá outras providências\".",
@@ -1457,7 +1470,7 @@
 "temas": []
 },
 {
-"n": 8,
+"n": 9,
 "fase": "2ª Discussão",
 "proposicao": "Projeto de Lei 81/2025",
 "ementa": "Dispõe sobre a fixação de placas informativas nas unidades públicas e privadas de saúde do Município de Juiz de Fora, versando sobre a Entrega Legal, instituída pela Lei Federal n°13.509, de 22/11/2017.",
@@ -1470,7 +1483,7 @@
 ]
 },
 {
-"n": 9,
+"n": 10,
 "fase": "1ª Discussão",
 "proposicao": "Projeto de Lei 84/2026",
 "ementa": "Dispõe sobre garantias aos trabalhadores vinculados a contratos de prestação de serviços terceirizados no âmbito do Município de Juiz de Fora e dá outras providências.",
@@ -1483,7 +1496,7 @@
 ]
 },
 {
-"n": 10,
+"n": 11,
 "fase": "1ª Discussão",
 "proposicao": "Projeto de Lei 80/2025",
 "ementa": "Institui o Programa Municipal de Avaliação Escolar - PROVA-JF e a Bonificação de Desempenho Profissional para os docentes da rede pública municipal de Juiz de Fora, e dá outras providências.",
@@ -1496,7 +1509,7 @@
 ]
 },
 {
-"n": 11,
+"n": 12,
 "fase": "1ª Discussão",
 "proposicao": "Projeto de Lei 189/2026",
 "ementa": "Institui a \"Lei Rafaela Drumond\" que Dispõe sobre a prevenção, o combate e a responsabilização por práticas de assédio moral no âmbito da administração pública direta e indireta do Município de Juiz de Fora.",
@@ -1507,13 +1520,37 @@
 "temas": []
 },
 {
-"n": 12,
+"n": 13,
+"fase": "1ª Discussão",
+"proposicao": "Projeto de Lei 134/2026",
+"ementa": "\"Dispõe Sobre a Circulação de Ônibus/Vans Escolares nos Corredores Exclusivos de Ônibus no Município de Juiz de Fora, e dá outras providências.\"",
+"autoria": "Vereador Julinho Rossignoli",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereador Luiz Otávio Fernandes Coelho - Pardal",
+"vista": true,
+"temas": [
+"Educação"
+]
+},
+{
+"n": 14,
+"fase": "1ª Discussão",
+"proposicao": "Mensagem do Executivo (Projeto de Lei) 4737/2026",
+"ementa": "Altera a Lei nº 8.330, de 20 de outubro de 1993, a Lei nº 11.197, de 3 de agosto de 2006, e a Lei nº 1.716, de 26 de outubro de 1962, para disciplinar e harmonizar o regime jurídico da instalação e exploração de crematórios e da prestação de serviços de cremação de corpos e restos mortais humanos no Município de Juiz de Fora.",
+"autoria": "Executivo",
+"quorum": "Maioria absoluta com a presença de 2/3 dos Membros",
+"obs": "LEITURA DOS PARECERES",
+"vista": false,
+"temas": []
+},
+{
+"n": 15,
 "fase": "1ª Discussão",
 "proposicao": "Projeto de Lei 247/2026",
 "ementa": "Torna obrigatória a divulgação de alerta de prevenção e enfrentamento ao racismo e à injúria racial em eventos abertos ao público realizados no Município de Juiz de Fora e dá outras providências.",
 "autoria": "Vereadoras Letícia Delgado e Cida Oliveira",
 "quorum": "Maioria simples",
-"obs": "LEITURA DOS PARECERES. 13 Apreciação Preliminar. Art",
+"obs": "LEITURA DOS PARECERES. 16 Apreciação Preliminar. Art",
 "vista": false,
 "temas": []
 },
@@ -1524,7 +1561,7 @@
 "ementa": "Extingue o sistema de estacionamento rotativo pago de veículos automotores denominado \"Área Azul\" e cria o sistema de estacionamento rotativo gratuito - \"Área Livre\" no Município de Juiz de Fora.",
 "autoria": "Vereadora Roberta Lopes",
 "quorum": "Maioria simples",
-"obs": "VISTA Vereador Maurício Delgado. 14 Apreciação Preliminar. Art",
+"obs": "VISTA Vereador Maurício Delgado. 17 Apreciação Preliminar. Art",
 "vista": true,
 "temas": []
 },
@@ -1535,7 +1572,18 @@
 "ementa": "Determina a realização de exames toxicológicos em agentes públicos municipais no âmbito da administração pública no Município de Juiz de Fora e dá outras providências.",
 "autoria": "Vereadora Roberta Lopes",
 "quorum": "Maioria simples",
-"obs": "VISTA Vereadores Sargento Mello Casal, Juraci Scheffer e Cida Oliveira",
+"obs": "VISTA Vereadores Sargento Mello Casal, Juraci Scheffer e Cida Oliveira. 18 Apreciação Preliminar. Art",
+"vista": true,
+"temas": []
+},
+{
+"n": 94,
+"fase": "Regimento Interno",
+"proposicao": "Projeto de Lei 152/2026",
+"ementa": "Institui o Programa Municipal Casas Ancestrais e dá outras providências.",
+"autoria": "Vereadora Laiz Perrut",
+"quorum": "Maioria simples",
+"obs": "VISTA Vereadores Roberta Lopes, André Mariano, Vitinho e Sargento Mello Casal. USOU DA PALAVRA Vereadora Laiz Perrut",
 "vista": true,
 "temas": []
 }
