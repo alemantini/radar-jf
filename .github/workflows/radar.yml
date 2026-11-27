@@ -45,7 +45,14 @@ jobs:
         run: pip install requests beautifulsoup4 pillow pypdf pdfplumber
 
       - name: Coletar dados na Câmara (se vier incompleto, para aqui e não publica)
-        run: python scripts/coletar.py
+        run: |
+          # de madrugada o site da Câmara às vezes recusa conexões: tenta de novo antes de desistir
+          for t in 1 2 3 4; do
+            python scripts/coletar.py && exit 0
+            echo "Câmara não respondeu (tentativa $t de 4); nova tentativa em 10 minutos"
+            [ $t -lt 4 ] && sleep 600
+          done
+          exit 1
         env:
           # rodadas disparadas por mudança no código buscam datas por pouco tempo; as agendadas, por 40 minutos
           RADAR_TEMPO_MAX_DATAS: ${{ github.event_name == 'schedule' && '2400' || '300' }}
