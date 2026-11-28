@@ -144,6 +144,29 @@ def balanco():
     return res
 
 
+def historico(desde=2020):
+    """Ano a ano (6º bimestre): receita prevista x arrecadada, resultado orçamentário e pessoal no fim do ano."""
+    out = []
+    for ano in range(desde, dt.date.today().year):
+        it = api("rreo", an_exercicio=ano, nr_periodo=6, co_tipo_demonstrativo="RREO", no_anexo="RREO-Anexo 01", id_ente=JF)
+        if not it:
+            continue
+        prev_ini = val(it, r"^TOTAL DAS RECEITAS", r"^PREVIS[ÃA]O INICIAL")
+        prev_atu = val(it, r"^TOTAL DAS RECEITAS", r"^PREVIS[ÃA]O ATUALIZADA")
+        real = val(it, r"^TOTAL DAS RECEITAS", r"^At[ée] o Bimestre")
+        emp = val(it, r"^TOTAL DAS DESPESAS", r"EMPENHADAS AT[ÉE] O BIMESTRE")
+        if None in (prev_ini, real, emp):
+            continue
+        g = api("rgf", an_exercicio=ano, nr_periodo=3, co_tipo_demonstrativo="RGF", no_anexo="RGF-Anexo 01",
+                id_ente=JF, in_periodicidade="Q", co_esfera="M", co_poder="E") or []
+        out.append({"ano": ano, "prevista_inicial": prev_ini, "prevista_atualizada": prev_atu, "arrecadada": real,
+                    "empenhada": emp, "resultado": round(real - emp, 2),
+                    "superavit_anterior_usado": val(it, r"^Super[áa]vit Financeiro Utilizado", r"^At[ée] o Bimestre"),
+                    "pessoal_pct": val(g, r"^DESPESA TOTAL COM PESSOAL - DTP \((VI|VIII)\)", r"% sobre")})
+        print("  histórico", out[-1])
+    return out
+
+
 def por_funcao(itens):
     """Despesa liquidada no ano por função (orçamento fiscal e seguridade, sem as intraorçamentárias)."""
     out = {}
@@ -169,7 +192,7 @@ def main():
     res = {"fonte": "Siconfi, Tesouro Nacional (dados enviados pelas prefeituras)",
            "fonte_url": "https://siconfi.tesouro.gov.br/",
            "coletado_em": dt.datetime.now().strftime("%Y-%m-%d %H:%M"),
-           "pessoal": pessoal(), "minimos": minimos(), "balanco": balanco(), "cidades": []}
+           "pessoal": pessoal(), "minimos": minimos(), "balanco": balanco(), "historico": historico(), "cidades": []}
     print("Pessoal:", res["pessoal"])
     print("Mínimos:", res["minimos"])
     print("Balanço:", res["balanco"])

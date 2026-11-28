@@ -642,6 +642,23 @@ async function pgPlacarFiscal(medida0) {
       <div class="min-linha"><div class="ml-t"><b>Arrecadação do ano</b><small>Arrecadado até o ${B.bimestre}º bimestre, de ${reais(B.receita_prevista_ano)} previstos no orçamento de ${B.ano}</small></div>
         <div class="ml-b"><i class="${pctAno >= pctTempo - 3 ? "ok" : "falta"}" style="width:${Math.min(100, pctAno)}%"></i><em style="left:${pctTempo}%" title="parte do ano que já passou"></em></div>
         <div class="ml-v"><b>${pct(pctAno)}</b><small>${pct(pctTempo)} do ano já passou</small></div></div>`; })() : ""}
+    ${(I.historico || []).length ? (() => { const H = I.historico, mx = Math.max(...H.map(h => Math.max(h.prevista_inicial, h.arrecadada)));
+      const ult = H[H.length - 1], ant = H.find(h => h.ano === ult.ano - 1);
+      const bi = v => "R$ " + (v / 1e9).toLocaleString("pt-BR", {minimumFractionDigits: 2, maximumFractionDigits: 2}) + " bi";
+      const mi = v => "R$ " + Math.round(Math.abs(v) / 1e6).toLocaleString("pt-BR") + " mi";
+      return `<h2>O orçamento prometia, a cidade arrecadou</h2>
+      <p class="sub">Todo ano a Prefeitura estima quanto vai arrecadar e, com base nisso, autoriza os gastos no orçamento (Lei Orçamentária Anual), que a Câmara aprova. Se a receita prevista é alta demais, a Prefeitura se compromete com despesas que o dinheiro que entra não cobre.</p>
+      ${ant ? `<p class="destaque-cidade">O orçamento de ${ult.ano} previu <b>${bi(ult.prevista_inicial)}</b> de receita, ${pct(100 * (ult.prevista_inicial / ant.arrecadada - 1))} a mais do que entrou em ${ant.ano}. Entraram <b>${bi(ult.arrecadada)}</b> (${pct(100 * ult.arrecadada / ult.prevista_inicial)} do previsto).</p>` : ""}
+      ${H.map(h => `<div class="orc-ano"><b class="oa-ano">${h.ano}</b>
+        <div class="oa-barras"><span class="oa-l">Previsto</span><span class="bl-b"><i class="prev" style="width:${100 * h.prevista_inicial / mx}%"></i></span><span class="bl-v">${bi(h.prevista_inicial)}</span>
+          <span class="oa-l">Arrecadado</span><span class="bl-b"><i style="width:${100 * h.arrecadada / mx}%"></i></span><span class="bl-v">${bi(h.arrecadada)}</span></div>
+        <small class="sub">${pct(100 * h.arrecadada / h.prevista_inicial)} do previsto · ${h.resultado >= 0 ? `sobrou ${mi(h.resultado)}` : `<b class="oa-def">déficit de ${mi(h.resultado)}</b>`} entre o que entrou e o que foi empenhado${h.pessoal_pct != null ? ` · pessoal ${pct(h.pessoal_pct)} da receita corrente líquida${h.pessoal_pct >= 48.6 ? " (acima do limite de alerta)" : ""}` : ""}</small></div>`).join("")}
+      <ul class="metodo">
+        <li><b>Previsto:</b> receita total estimada no orçamento aprovado para o ano (previsão inicial). Durante o ano a previsão pode ser atualizada.</li>
+        <li><b>Resultado:</b> receita arrecadada menos despesa empenhada (o que a Prefeitura se comprometeu a pagar). Déficit não quer dizer calote: ele pode ser coberto com dinheiro que sobrou de anos anteriores. ${H.filter(h => h.resultado < 0 && h.superavit_anterior_usado).map(h => `Em ${h.ano}, ${mi(h.superavit_anterior_usado)} de sobras anteriores foram usados.`).join(" ")}</li>
+        <li><b>Pessoal:</b> gasto com servidores no fim do ano, em relação à receita corrente líquida. Limite de alerta 48,6%, prudencial 51,3% e máximo 54%.</li>
+        <li>Inclui receitas e despesas intraorçamentárias (repasses entre órgãos do próprio município), como no relatório oficial.</li>
+      </ul>`; })() : ""}
     ${M ? `<h2>Mínimos da Constituição</h2>
       <p class="sub">Percentual aplicado até o ${M.bimestre}º bimestre de ${M.ano}. A marca escura é o mínimo exigido; o ano só fecha em dezembro.</p>
       ${minimo("Educação", M.educacao, "Parte da receita de impostos aplicada no ensino")}

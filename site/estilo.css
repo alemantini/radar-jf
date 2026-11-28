@@ -264,6 +264,15 @@ img.avatar.foto{object-fit:cover;width:46px;height:58px;border-radius:10px;backg
 .barra-l.jf{background:var(--amarelo-claro);border-radius:8px;padding:6px 8px;margin:0 -8px}
 .barra-l.jf .bl-t{font-weight:700}
 .barra-l.jf .bl-b i{background:#e8272c}
+.orc-ano{padding:10px 0;border-bottom:1px solid var(--linha)}
+.orc-ano .oa-ano{display:block;font-size:17px;margin-bottom:4px}
+.oa-barras{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:4px 10px;align-items:center;font-size:15px;margin-bottom:4px}
+.oa-barras .oa-l{color:var(--apoio);font-size:14px}
+.oa-barras .bl-b{height:10px;background:var(--calcada);border-radius:5px;overflow:hidden}
+.oa-barras .bl-b i{display:block;height:100%;background:var(--verde);border-radius:5px}
+.oa-barras .bl-b i.prev{background:#9aa3ad}
+.oa-barras .bl-v{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+.oa-def{color:#b42318}
 
 /* placar: monte o seu */
 .pesos{display:grid;gap:10px;margin:14px 0}
